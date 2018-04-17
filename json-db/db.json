@@ -1,0 +1,24 @@
+{
+  "posts": [
+    {
+      "id": 1,
+      "title": "Vue js 2 - Somethings else",
+      "content": "<p style=\"text-align: left;\"><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</em>&nbsp;</p><p style=\"text-align: left;\"><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</u> </p>",
+      "date": "2018-04-17T02:36:34.362Z",
+      "enableComments": "Yes",
+      "edited": false,
+      "draft": false
+    },
+    {
+      "id": 2,
+      "title": "Vue js 2 - Prueba de Vue",
+      "content": "<p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </em></p><p><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p style=\"text-align: left;\"><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </u></p>",
+      "date": "2018-04-17T02:51:16.934Z",
+      "enableComments": "Yes",
+      "edited": false,
+      "draft": false
+    }
+  ],
+  "comments": [],
+  "likes": []
+}
