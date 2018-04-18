@@ -49,6 +49,17 @@
   "comments": [],
   "likes": [],
   "users": [
-   
+    {
+      "id": 1,
+      "email": "carlosfollows@gmail.com",
+      "password": "walkman06",
+      "hash": "68ede34dc8487537db091859720225d582de67f3",
+      "active": true,
+      "username": "CarlosPolanco",
+      "firstName": "Carlos Abel",
+      "lastName": "Polanco Graciano",
+      "description": "asdasd",
+      "avatar": ""
+    }
   ]
 }

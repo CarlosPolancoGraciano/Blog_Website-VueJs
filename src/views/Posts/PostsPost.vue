@@ -86,12 +86,14 @@
 </template>
 <script>
 import axios from 'axios';
-import AppIcon from '@/shared/AppIcon.vue';
+import AppIcon from '@/components/AppIcon.vue';
 import VueFroala from 'vue-froala-wysiwyg';
 import moment from 'moment';
+import { global } from '@/components/mixins/global';
 
 export default {
   name: 'post',
+  mixins: [global],
   components: {
     AppIcon
   },
@@ -104,6 +106,8 @@ export default {
           }
         }
       },
+      siteURL: this.websiteURL(),
+      axiosURL: this.requestURL(),
       posts: [],
       comment: [],
       likes: 0,
@@ -117,10 +121,10 @@ export default {
       this.$router.push('/');
     }
     /* Request Post Data */
-    axios.get(`http://localhost:3000/posts/${this.$route.params.id}`)
+    axios.get(`${this.axiosURL}/posts/${this.$route.params.id}`)
          .then((response) => { this.posts.push(response.data) });
     /* Request Comment Data */
-    axios.get(`http://localhost:3000/comments/${this.$route.params.id}`)
+    axios.get(`${this.axiosURL}/comments/${this.$route.params.id}`)
          .then((response) => { 
            let commentArray = [];
            commentArray.push(response.data);
@@ -141,7 +145,7 @@ export default {
         //Missing user id
         postId: this.$route.params.id
       }
-      this.axiosPostRequest(`http://localhost:3000/comments`, comment);
+      this.axiosPostRequest(`${this.axiosURL}/comments`, comment);
     },
     transformPostDate(date){
       return moment(date).format('MMMM Do YYYY');

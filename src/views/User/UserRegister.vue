@@ -51,14 +51,18 @@
 import axios from 'axios';
 import swal from 'sweetalert';
 import hash from 'object-hash';
+import { global } from '@/components/mixins/global';
 
 export default {
   name: 'UserRegister',
+  mixins: [global],
   data(){
     return{
       email: "",
       password: "",
-      confirmPassword: ""
+      confirmPassword: "",
+      siteURL: this.websiteURL(),
+      axiosURL: this.requestURL()
     }
   },
   mounted(){
@@ -72,10 +76,10 @@ export default {
         if(that.password === that.confirmPassword){
 
           /*Create user Hash*/
-          hashVal = hash(that.email, {algorithm: 'sha1'});
+          hashVal = hash(that.email.trim().toLowerCase(), {algorithm: 'sha1'});
 
           /* New User Data */
-          let newUser = {
+          const newUser = {
             id: 1,
             email: that.email,
             password: that.password,
@@ -84,30 +88,23 @@ export default {
           };
 
           /* Http Post with New User Data */
-          axios.post('http://localhost:3000/users', newUser).then((response) => {
-            
+          axios.post(`${this.axiosURL}/users`, newUser).then((response) => {
             //Send Email to User
-            that.$toastr('success', 'User Created!', 'User created successfully');
-            //that.sendVerificationEmail(hash, that.email); 
+            that.sendVerificationEmail(newUser.hash, newUser.email); 
            });
 
         }else{
-          that.$toastr( 'add',
-                      { title: 'Ooops!', 
-                        msg: 'Las contraseñas ingresadas no coinciden', 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: 'toast-bottom-right', 
-                        type: 'error' });
+          // Password don't matches
+          that.dynamicToastr({title: `Ooops!`, 
+                            msg: `Typed passwords don't match`, 
+                            type: `error`});
+
         }
       }else{
-        that.$toastr( 'add',
-                    { title: 'Ooops!', 
-                      msg: 'El correo que intentas utilizar ya existe', 
-                      clickClose: true, 
-                      timeout: 10000, 
-                      position: 'toast-bottom-right', 
-                      type: 'error' });
+        // Email currently used
+        that.dynamicToastr({title: `Ooops!`, 
+                            msg: `Email currently beign used`, 
+                            type: `error`});
 
       }
       // let gResponse = grecaptcha.getResponse();
@@ -115,9 +112,11 @@ export default {
     },
     checkIfEmailExist(email){
       let userEmail = [];
-      axios.get(`http://localhost:3000/users?email=${email}`).then((response) => {
-        userEmail = response.data;
-      });
+
+      // Http resquest
+      axios.get(`${this.axiosURL}/users?email=${email}`).then((response) => { userEmail = response.data });
+
+      // Validations from request response
       if(userEmail === undefined){
         return false;
       }else if(userEmail.length > 0){
@@ -126,21 +125,30 @@ export default {
       return false;
     },
     sendVerificationEmail(hash, email){
-      Email.sendWithAttachment(
+      // console.log(hash, email);
+      Email.send(
                   "carlospolanco@mctekk.com",
                   `${email}`,
                   "Blog Company - Validate your account",
-                  `this is the body`,
+                  `Copy and paste or click the following link to complete your registration: ${this.siteURL}/#/completeregister/${hash}`,
                   "smtp25.elasticemail.com",
                   "carlospolanco@mctekk.com",
                   "52ddab70-dd62-4c8d-8b7d-ea181d9be63f",
-                  `http://localhost:8080/#/Register?h=${hash}`,
                   function done(message) { 
                     swal(`Registro parcial hecho!`, 
                           `A continuación revisa tu correo electronico para validar tu cuenta, este correo puede tardar unos minutos en llegar`, 
                           `success`);
                   }    
                );
+    },
+    dynamicToastr(toastrObj){
+      that.$toastr( 'add',
+                      { title: toastrObj.title, 
+                        msg: toastrObj.msg, 
+                        clickClose: true, 
+                        timeout: 10000, 
+                        position: 'toast-bottom-right', 
+                        type: toastrObj.type });
     }
   }
 }

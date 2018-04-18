@@ -75,17 +75,21 @@
 import axios from 'axios';
 import VueFroala from 'vue-froala-wysiwyg';
 import moment from 'moment';
+import { global } from '@/components/mixins/global';
 
 export default {
   name: 'HomePostsComponent',
+  mixins: [global],
   data(){
     return{
-      posts: []
+      posts: [],
+      siteURL: this.websiteURL(),
+      axiosURL: this.requestURL()
     }
   },
   mounted(){
     /* Request All Posts */
-    axios.get(`http://localhost:3000/posts`)
+    axios.get(`${this.axiosURL}/posts`)
          .then((response) => { 
             let postArray = [];
             postArray = response.data;
@@ -105,26 +109,26 @@ export default {
     },
     returnLikesAmount(postId){
       let likesQuantity = [];
-      axios.get(`http://localhost:3000/likes/${postId}`)
+      axios.get(`${this.axiosURL}/likes/${postId}`)
            .then((response) => { likesQuantity = response.data })
            .catch((error) => { 
              if(error.response.status === 404){
                likesQuantity = [];
              } 
            });
-      console.log(likesQuantity);
+      // console.log(likesQuantity);
       return likesQuantity.length;
     },
     returnCommentsAmount(postId){
       let commentsQuantity = [];
-      axios.get(`http://localhost:3000/comments/${postId}`)
+      axios.get(`${this.axiosURL}/comments/${postId}`)
            .then((response) => { commentsQuantity = response.data })
            .catch((error) => {
              if(error.response.status === 404){
                commentsQuantity = [];
              }
            });
-      console.log(commentsQuantity);
+      // console.log(commentsQuantity);
       return commentsQuantity.length;
     },
     returnPostParcialContent(postContent){

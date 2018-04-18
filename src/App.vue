@@ -6,8 +6,11 @@
   </div>
 </template>
 <script>
-import NavbarComponent from '@/shared/AppNavbar.vue'
-import FooterComponent from '@/shared/AppFooter.vue'
+import NavbarComponent from '@/components/AppNavbar.vue';
+import FooterComponent from '@/components/AppFooter.vue';
+
+//Seek for bootstrap js
+require('bootstrap');
 
 export default {
   name:'App',

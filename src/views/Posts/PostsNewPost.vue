@@ -142,16 +142,20 @@
 import axios from 'axios';
 import moment from 'moment';
 import swal from 'sweetalert';
-import AppIcon from '@/shared/AppIcon.vue'
 import VueFroala from 'vue-froala-wysiwyg';
+import AppIcon from '@/components/AppIcon.vue';
+import { global } from '@/components/mixins/global';;
 
 export default {
   name: 'NewPost',
+  mixins: [global],
   components:{
     AppIcon
   },
   data(){
     return{
+      siteURL: this.websiteURL(),
+      axiosURL: this.requestURL(),
       config: {
         events: {
           'froalaEditor.initialized': function () {
@@ -184,9 +188,10 @@ export default {
   methods:{
     createNewPost(){
       var that = this;
-      let latestId = this.getLatestPostId();
-      let post = {
-        id: latestId++,
+
+      // Post data
+      const post = {
+        id: that.getLatestPostId() + 1,
         title: that.form.title,
         content: that.form.content,
         date: that.form.date,
@@ -195,16 +200,17 @@ export default {
         draft: false
         //Missing User Id
       }
-      let swalMessage = {
+      
+      // Swal message data
+      const swalMessage = {
         title: "Publicación hecha!",
         message: "Tu publicación fue hecha serás redireccionado al listado principal",
         type: "success"
       }
-      this.axiosPostRequest('http://localhost:3000/posts', post, swalMessage);
+      this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
     },
     getLatestPostId(){
-      let posts = 0;
-      let postsArray = this.axiosPostRequest('http://localhost:3000/posts');
+      let postsArray = this.axiosGetRequest(`${this.axiosURL}/posts`);
       if(postsArray === undefined){
         return 0;
       }

@@ -36,7 +36,11 @@
                             placeholder="Repeat your secret password">
               </b-form-input>
             </b-form-group>
-            <b-form-file v-model="userCompletedData.file" placeholder="Upload your profile picture..."></b-form-file>
+            <b-form-group label="Profile Picture:"
+                          label-for="avatarUploadInput"
+                          description="You can drag and drop the image here">
+              <b-form-file id="avatarUploadInput" v-model="userCompletedData.avatar" accept="image/*" placeholder="Upload your profile picture..."></b-form-file>
+            </b-form-group>
             <b-form-group label="Description:"
                           label-for="descriptionInput">
               <b-form-textarea id="descriptionInput"
@@ -57,9 +61,11 @@
 <script>
 import axios from 'axios';
 import swal from 'sweetalert';
+import { global } from '@/components/mixins/global';
 
 export default {
   name: 'CompleteRegister',
+  mixins: [global],
   data(){
     return{
       user: [],
@@ -67,38 +73,86 @@ export default {
         username: "",
         firstName: "",
         lastName: "",
-        file: null,
+        avatar: null,
         description: ""
-      }
+      },
+      siteURL: this.websiteURL(),
+      axiosURL: this.requestURL()
     }
   },
   mounted(){
-    //this.checkForHash();
+    //console.log(this.siteURL);
+    if(this.$route.params.hash === undefined){
+        this.$router.push('/');
+    }
+    this.checkIfHashExistInUser(this.$route.params.hash);
   },
   methods:{
-    checkForHash(){
-      if(this.$route.query.q === undefined){
-        this.$router.push('/');
-      }
-      if(checkIfHashExistInUser(this.$route.query.q)){
-        swal('Cuenta verificada', 'Completa los siguientes campos para terminar de registrarte', 'success');
-      }
-    },
     checkIfHashExistInUser(hash){
       let that = this;
-      let user = [];
-      axios.get(`http://localhost:3000/users?hash=${hash}`)
-           .then((response) => {
-             user = response.data;
-           });
-      if(user.length > 0){
-        that.user = user;
-        return true;
-      }
-      return false;
+
+      axios.get(`${this.axiosURL}/users?hash=${hash}`).then((response) => { 
+
+        if(response.data.length > 0){
+          // Save User returned
+          that.user = response.data;
+
+          that.dynamicToastr({title: `Validation successful!`, 
+                           msg: `Fill the following fields to complete your registration process`, 
+                           type: `success`});
+        }
+
+      });
     },
     completeUserRegister(){
+      debugger;
+      let that = this;
+      const userId = that.user[0].id;
 
+      // Profile remaining data and existing user data
+      const completeUserData = {
+        id: userId,
+        email: that.user[0].email,
+        password: that.user[0].password,
+        hash: that.user[0].hash,
+        active: true,
+        username: that.userCompletedData.username,
+        firstName: that.userCompletedData.firstName,
+        lastName: that.userCompletedData.lastName,
+        description: that.userCompletedData.description,
+        avatar: "",
+      }
+
+      // Request to send complete user data
+      axios.put(`${that.axiosURL}/users/${userId}`, completeUserData)
+           .then((success) => {
+              //If request was successful
+              // Log in the user
+              localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+
+              //Send user to create new post and show a swal after
+              that.$router.push('/newpost', () => { 
+                swal("Registration completed!", "You're logged into your account and you were redirected to create your first post", "success") 
+              });
+            })
+            .catch((error) => {
+              //If request was failed
+              that.dynamicToastr({title: `Ooops!`, 
+                            msg: `Http error: ${error.response.status} ocurred trying to save your information`, 
+                            type: `error`});
+            });
+            
+    
+    },
+    dynamicToastr(toastrObj){
+      let that = this;
+      that.$toastr( 'add',
+                      { title: toastrObj.title, 
+                        msg: toastrObj.msg, 
+                        clickClose: true, 
+                        timeout: 10000, 
+                        position: 'toast-top-full-width', 
+                        type: toastrObj.type });
     }
   }
 }

@@ -43,7 +43,7 @@ export default new Router({
       component: UserProfile
     },
     {
-      path: '/completeregister',
+      path: '/completeregister/:hash',
       name: 'completeregister',
       component: UserCompleteRegister
     }
