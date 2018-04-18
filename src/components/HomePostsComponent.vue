@@ -9,7 +9,7 @@
           <router-link to="/"><img class="rounded-circle" src="../assets/UserAvatar.jpeg" alt="Card image cap"></router-link>
 
           <!-- Post Title -->
-          <router-link :to="'/Post?q=' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>
+          <router-link :to="'/post/' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>
 
           <!-- Post Content (Limit to 200 characters) -->
           <p class="card-text">
@@ -17,13 +17,13 @@
           </p>
 
           <!-- See more Post Content -->
-          <router-link :to="'/Post?q=' + post.id" class="btn btn-primary">Read More &rarr;</router-link>
+          <router-link :to="'/post/' + post.id" class="btn btn-primary">Read More &rarr;</router-link>
         </div>
         <div class="card-footer text-muted">
           <div class="row">
             <div class="col-6">
               <!-- More information of the post -->
-              Posted on <router-link :to="'/Post?q=' + post.id">
+              Posted on <router-link :to="'/post/' + post.id">
                           <span>{{ transformPostDates(post.date) }}</span>
                         </router-link> 
               by
@@ -38,7 +38,7 @@
                   <span><i class="fa fa-heart"></i>&nbsp;{{ returnLikesAmount(post.id) }}</span>
                   &nbsp;
                   <!-- Total Comments -->
-                  <router-link :to="'/Post?q=' + post.id" class="text-muted">
+                  <router-link :to="'/post/' + post.id" class="text-muted">
                     <span>
                       <i class="fa fa-comments"></i>
                       &nbsp;{{ returnCommentsAmount(post.id) }}
@@ -105,12 +105,26 @@ export default {
     },
     returnLikesAmount(postId){
       let likesQuantity = [];
-      axios.get(`http://localhost:3000/likes?id=${postId}`).then((response) => { likesQuantity = response.data });
+      axios.get(`http://localhost:3000/likes/${postId}`)
+           .then((response) => { likesQuantity = response.data })
+           .catch((error) => { 
+             if(error.response.status === 404){
+               likesQuantity = [];
+             } 
+           });
+      console.log(likesQuantity);
       return likesQuantity.length;
     },
     returnCommentsAmount(postId){
       let commentsQuantity = [];
-      axios.get(`http://localhost:3000/comments?id=${postId}`).then((response) => { commentsQuantity = response.data });
+      axios.get(`http://localhost:3000/comments/${postId}`)
+           .then((response) => { commentsQuantity = response.data })
+           .catch((error) => {
+             if(error.response.status === 404){
+               commentsQuantity = [];
+             }
+           });
+      console.log(commentsQuantity);
       return commentsQuantity.length;
     },
     returnPostParcialContent(postContent){

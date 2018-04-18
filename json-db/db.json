@@ -49,12 +49,6 @@
   "comments": [],
   "likes": [],
   "users": [
-    {
-      "id": 1,
-      "email": "carlosfollows@gmail.com",
-      "password": "walkman06",
-      "active": false,
-      "hash": "68ede34dc8487537db091859720225d582de67f3"
-    }
+   
   ]
 }

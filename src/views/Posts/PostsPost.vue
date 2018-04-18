@@ -113,18 +113,25 @@ export default {
     }
   },
   mounted(){
-    if(this.$route.query.q === undefined){
+    if(this.$route.params.id === undefined){
       this.$router.push('/');
     }
     /* Request Post Data */
-    axios.get(`http://localhost:3000/posts?id=${this.$route.query.q}`).then((response) => { this.posts = response.data });
+    axios.get(`http://localhost:3000/posts/${this.$route.params.id}`)
+         .then((response) => { this.posts.push(response.data) });
     /* Request Comment Data */
-    axios.get(`http://localhost:3000/comments?postId=${this.$route.query.q}`)
+    axios.get(`http://localhost:3000/comments/${this.$route.params.id}`)
          .then((response) => { 
            let commentArray = [];
-           commentArray = response.data;
+           commentArray.push(response.data);
            this.comment = commentArray.reverse();
+         })
+         .catch((error) => {
+           if(error.response.status === 404){
+             this.comment = [];
+           }
          });
+    
   },
   methods:{
     createComment(){
@@ -132,9 +139,9 @@ export default {
         id: 1,
         content: this.newComment.content,
         //Missing user id
-        postId: this.$router.query.q
+        postId: this.$route.params.id
       }
-      this.axiosPostRequest(`http://localhost:3000/comments?postId=${this.$route.query.q}`, comment);
+      this.axiosPostRequest(`http://localhost:3000/comments`, comment);
     },
     transformPostDate(date){
       return moment(date).format('MMMM Do YYYY');

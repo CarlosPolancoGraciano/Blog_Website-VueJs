@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Home from './views/Home.vue'
-import NewPost from './views/Posts/NewPost.vue'
-import Login from './views/User/Login.vue'
-import Register from './views/User/Register.vue'
-import Profile from './views/User/Profile.vue'
-import Post from './views/Posts/Post.vue'
-import CompleteRegister from './views/User/CompleteRegister.vue'
+import PostsNewPost from './views/Posts/PostsNewPost.vue'
+import PostsPost from './views/Posts/PostsPost.vue'
+import UserLogin from './views/User/UserLogin.vue'
+import UserRegister from './views/User/UserRegister.vue'
+import UserProfile from './views/User/UserProfile.vue'
+import UserCompleteRegister from './views/User/UserCompleteRegister.vue'
 
 Vue.use(Router)
 
@@ -18,34 +18,34 @@ export default new Router({
       component: Home
     },
     {
-      path: '/NewPost',
+      path: '/newpost',
       name: 'newpost',
-      component: NewPost
+      component: PostsNewPost
     },
     {
-      path: '/Post',
+      path: '/post/:id',
       name: 'post',
-      component: Post
+      component: PostsPost
     },
     {
-      path: '/Register',
+      path: '/register',
       name: 'register',
-      component: Register
+      component: UserRegister
     },
     {
-      path: '/Login',
+      path: '/login',
       name: 'login',
-      component: Login
+      component: UserLogin
     },
     {
-      path: '/Profile',
+      path: '/profile',
       name: 'profile',
-      component: Profile
+      component: UserProfile
     },
     {
-      path: '/CompleteRegister',
+      path: '/completeregister',
       name: 'completeregister',
-      component: CompleteRegister
+      component: UserCompleteRegister
     }
   ]
 })

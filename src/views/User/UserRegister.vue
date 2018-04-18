@@ -53,7 +53,7 @@ import swal from 'sweetalert';
 import hash from 'object-hash';
 
 export default {
-  name: 'Register',
+  name: 'UserRegister',
   data(){
     return{
       email: "",
