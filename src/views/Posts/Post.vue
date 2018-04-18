@@ -1,15 +1,18 @@
 <template>
   <div>
     <div class="mt-2">
-      <div class="container mt-5">
-        <div class="row">
-          <div class="col-2 text-left">
-            <router-link to="/" class="btn btn-secondary">&larr; Volver al listado</router-link>
-            <!-- <router-link class="btn btn-secondary">&larr; Volver a la busqueda</router-link> -->
-          </div>
-          <div class="col-10">
-            <!-- Title -->
-              <h1 class="mt-4">{{ post.title }}</h1>
+      <div class="container mt-3 card mb-3">
+        <div class="row card-body" v-for="(post, index) in posts" :key="index">
+          <div class="col-12">
+            <div class="row">
+              <div class="text-left">
+                <router-link to="/" class="btn btn-secondary">&larr; Volver al listado</router-link>
+                <!-- <router-link class="btn btn-secondary">&larr; Volver a la busqueda</router-link> -->
+              </div>
+            </div>
+            <div class="">
+              <!-- Title -->
+              <h1>{{ post.title }}</h1>
 
               <!-- Author -->
               <p class="lead">
@@ -29,58 +32,67 @@
 
               <hr>
 
-              <!-- Comments Form -->
-              <div class="card my-4">
-                <h5 class="card-header">Leave a Comment:</h5>
-                  <div class="card-body">
-                    <form>
-                      <div class="form-group">
-                        <b-form-textarea v-model="newComment.content"
-                                        placeholder="Enter your comment message"
-                                        :rows="3">
-                        </b-form-textarea>
-                      </div>
-                      <b-button variant="primary"
-                                @click="createComment">
-                        <AppIcon iconName="floppy-o" />
-                        Save comment
-                      </b-button>
-                    </form>
-                  </div>
-              </div>
-              
-              <!-- Single Comment -->
-              <div v-if="comment !== null">
-                <div class="media mb-4">
-                  <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="User picture">
-                    <div class="media-body">
-                      <h5 class="mt-0">Commenter Name</h5>
-                      <span>{{ comment.content }}</span>
+              <div v-if="postEnableComments(post.enableComments) === true">
+                <!-- Comments Form -->
+                <div class="card my-4">
+                  <h5 class="card-header">Leave a Comment:</h5>
+                    <div class="card-body">
+                      <form>
+                        <div class="form-group">
+                          <b-form-textarea v-model="newComment.content"
+                                          placeholder="Enter your comment message"
+                                          :rows="3">
+                          </b-form-textarea>
+                        </div>
+                        <b-button variant="primary"
+                                  @click="createComment">
+                          <AppIcon iconName="floppy-o" />
+                          Save comment
+                        </b-button>
+                      </form>
                     </div>
                 </div>
+                <!-- Single Comment -->
+                  <div v-if="comment.length > 0">
+                    <div class="media mb-4">
+                      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="User picture">
+                        <div class="media-body">
+                          <h5 class="mt-0">Commenter Name</h5>
+                          <span>{{ comment.content }}</span>
+                        </div>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <div class="jumbotron jumbotron-fluid">
+                      <div class="container text-center">
+                        <span class="h2">No se han encontrado comentarios</span>
+                      </div>
+                    </div>
+                  </div>
               </div>
               <div v-else>
                 <div class="jumbotron jumbotron-fluid">
                   <div class="container text-center">
-                    <span class="h2">No se han encontrado comentarios</span>
+                    <span class="h2">Sección de comentarios deshabilitada</span>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+        </div>
       </div>
     </div>
   </div>
 </template>
 <script>
 import axios from 'axios';
-import AppIcon from '@/shared/AppIcon.vue'
+import AppIcon from '@/shared/AppIcon.vue';
 import VueFroala from 'vue-froala-wysiwyg';
-let moment = require('moment');
+import moment from 'moment';
 
 export default {
   name: 'post',
-  component:{
+  components: {
     AppIcon
   },
   data(){
@@ -92,33 +104,29 @@ export default {
           }
         }
       },
-      post: {},
+      posts: [],
+      comment: [],
+      likes: 0,
       newComment: {
         content: ""
-      },
-      comment: {}
-    }
-  },
-  computed:{
-    transformPostDate(date){
-      return this.moment(date).format('MMMM Do YYYY');
+      }
     }
   },
   mounted(){
-    axios.all([this.retrievePostData()])
-    .then(axios.spread(function (acct, perms) {
-      // Both requests are now complete
-      console.log('All requested');
-    }));
+    if(this.$route.query.q === undefined){
+      this.$router.push('/');
+    }
+    /* Request Post Data */
+    axios.get(`http://localhost:3000/posts?id=${this.$route.query.q}`).then((response) => { this.posts = response.data });
+    /* Request Comment Data */
+    axios.get(`http://localhost:3000/comments?postId=${this.$route.query.q}`)
+         .then((response) => { 
+           let commentArray = [];
+           commentArray = response.data;
+           this.comment = commentArray.reverse();
+         });
   },
   methods:{
-    retrievePostData(){
-      if(this.$router.query.q === null){
-        this.$router.push('home');
-      }
-      this.post = axiosGetRequest(`http://localhost:3000/posts?id=${this.$router.query.q}`)
-      this.comment = axiosGetRequest(`http://localhost:3000/comments?postId=${this.$router.query.q}`)
-    },
     createComment(){
       let comment = {
         id: 1,
@@ -126,16 +134,17 @@ export default {
         //Missing user id
         postId: this.$router.query.q
       }
-      this.axiosPostRequest(`http://localhost:3000/comments?postId=${this.$router.query.q}`, comment);
+      this.axiosPostRequest(`http://localhost:3000/comments?postId=${this.$route.query.q}`, comment);
     },
-    axiosGetRequest(url){
-      axios.get(url)
-        .then((response) => {
-          return response.data
-        })
-        .catch((error) => {
-          console.log(error);
-        });
+    transformPostDate(date){
+      return moment(date).format('MMMM Do YYYY');
+    },
+    postEnableComments(enableComments){
+      if(enableComments !== "No"){
+        return true;
+      }else{
+        return false;
+      }
     },
     axiosPostRequest(url, postObj){
       axios.post(url, postObj)

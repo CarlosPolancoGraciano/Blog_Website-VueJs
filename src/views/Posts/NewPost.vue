@@ -141,6 +141,7 @@
 <script>
 import axios from 'axios';
 import moment from 'moment';
+import swal from 'sweetalert';
 import AppIcon from '@/shared/AppIcon.vue'
 import VueFroala from 'vue-froala-wysiwyg';
 
@@ -182,7 +183,6 @@ export default {
   },
   methods:{
     createNewPost(){
-      debugger;
       var that = this;
       let latestId = this.getLatestPostId();
       let post = {
@@ -193,8 +193,14 @@ export default {
         enableComments: that.form.enableComments,
         edited: false,
         draft: false
+        //Missing User Id
       }
-      this.axiosPostRequest('http://localhost:3000/posts', post);
+      let swalMessage = {
+        title: "Publicación hecha!",
+        message: "Tu publicación fue hecha serás redireccionado al listado principal",
+        type: "success"
+      }
+      this.axiosPostRequest('http://localhost:3000/posts', post, swalMessage);
     },
     getLatestPostId(){
       let posts = 0;
@@ -213,10 +219,18 @@ export default {
           console.log(error);
         });
     },
-    axiosPostRequest(url, postObj){
+    axiosPostRequest(url, postObj, swalMessage){
       axios.post(url, postObj)
         .then((response) => {
-          console.log(response.data);
+          swal( swalMessage.title, 
+                swalMessage.message, 
+                swalMessage.type)
+            .then((success) => {
+              if(success){
+                this.$router.push('/');
+              }
+            });
+          
         })
         .catch((error) => {
           console.log(error);
