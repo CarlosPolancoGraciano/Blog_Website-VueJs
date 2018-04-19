@@ -5,8 +5,11 @@ import PostsNewPost from './views/Posts/PostsNewPost.vue'
 import PostsPost from './views/Posts/PostsPost.vue'
 import UserLogin from './views/User/UserLogin.vue'
 import UserRegister from './views/User/UserRegister.vue'
-import UserProfile from './views/User/UserProfile.vue'
 import UserCompleteRegister from './views/User/UserCompleteRegister.vue'
+import UserForgotPassword from './views/User/UserForgotPassword.vue'
+import UserCompleteForgotPassword from './views/User/UserCompleteForgotPassword.vue'
+import UserProfile from './views/User/UserProfile.vue'
+import UserSettings from './views/User/UserSettings.vue'
 
 Vue.use(Router)
 
@@ -33,6 +36,21 @@ export default new Router({
       component: UserRegister
     },
     {
+      path: '/completeregister/:hash',
+      name: 'completeregister',
+      component: UserCompleteRegister
+    },
+    {
+      path: '/forgotpassword',
+      name: 'forgotpassword',
+      component: UserForgotPassword
+    },
+    {
+      path: '/completeforgotpassword/:hash',
+      name: 'completeforgotpassword',
+      component: UserCompleteForgotPassword
+    },
+    {
       path: '/login',
       name: 'login',
       component: UserLogin
@@ -43,9 +61,9 @@ export default new Router({
       component: UserProfile
     },
     {
-      path: '/completeregister/:hash',
-      name: 'completeregister',
-      component: UserCompleteRegister
+      path: '/settings',
+      name: 'settings',
+      component: UserSettings
     }
   ]
 })

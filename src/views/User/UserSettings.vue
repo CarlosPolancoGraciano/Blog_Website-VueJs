@@ -1,13 +1,11 @@
 <template>
   <div>
-    Profile
+    Settings
   </div>
 </template>
 <script>
-import axios from 'axios';
-
 export default {
-  name: 'Profile'
+  name: 'Settings'
 }
 </script>
 <style scoped>

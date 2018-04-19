@@ -34,6 +34,11 @@
                 <AppIcon iconName="user" />
                 Profile
               </router-link>
+              <router-link class="dropdown-item" to="/settings">
+                <AppIcon iconName="cogs" />
+                Settings
+              </router-link>
+              <div class="dropdown-divider"></div>
               <a class="dropdown-item pointer" @click="logOut">
                 <AppIcon iconName="sign-out" />
                 Log out
@@ -71,11 +76,21 @@ export default {
   },
   methods:{
     checkForLoggedUser(){
-      const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+      let currentUser = this.getCurrentUser();
+      
       if(currentUser !== null){
         this.user = currentUser;
         this.userLogged = true;
+
+        // Save data in Vuex
+        this.$store.dispatch('setCurrentUser', currentUser);
       }
+    },
+    logOut(){
+      this.removeCurrentUser();
+      this.userLogged = false;
+
+      this.$router.push('/', () => { location.reload(); })
     }
   }
 }

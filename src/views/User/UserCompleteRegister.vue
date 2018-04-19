@@ -77,7 +77,8 @@ export default {
         description: ""
       },
       siteURL: this.websiteURL(),
-      axiosURL: this.requestURL()
+      axiosURL: this.requestURL(),
+      isLocal: "true"
     }
   },
   mounted(){
@@ -105,16 +106,12 @@ export default {
       });
     },
     completeUserRegister(){
-      debugger;
       let that = this;
       const userId = that.user[0].id;
 
       // Profile remaining data and existing user data
       const completeUserData = {
-        id: userId,
-        email: that.user[0].email,
-        password: that.user[0].password,
-        hash: that.user[0].hash,
+        hash: "",
         active: true,
         username: that.userCompletedData.username,
         firstName: that.userCompletedData.firstName,
@@ -124,11 +121,11 @@ export default {
       }
 
       // Request to send complete user data
-      axios.put(`${that.axiosURL}/users/${userId}`, completeUserData)
+      axios.patch(`${that.axiosURL}/users/${userId}`, completeUserData)
            .then((success) => {
               //If request was successful
               // Log in the user
-              localStorage.setItem("currentUser", JSON.stringify(completeUserData));
+              this.saveCurrentUser(completeUserData, that.isLocal);
 
               //Send user to create new post and show a swal after
               that.$router.push('/newpost', () => { 

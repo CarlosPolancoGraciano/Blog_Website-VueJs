@@ -1,27 +1,27 @@
 
 // Vuex state
 const state = {
-    currentUserId: ''
+    currentUser: {} //User info
 };
 
 // Vuex getter
 const getters = {
     getCurrentUser(state){
-        return state.currentUserId;
+        return state.currentUser;
     }
 };
 
 // Vuex mutations
 const mutations = {
-    setCurrentUser(state, currentUserId){
-        state.currentUser = currentUserId;
+    setCurrentUser(state, currentUser){
+        state.currentUser = currentUser;
     }
 };
 
 // Vuex actions
 const actions = {
-    setCurrentUser({ commit }, currentUserId){
-        console.log(currentUserId);
+    setCurrentUser({ commit }, currentUser){
+        commit('setCurrentUser', currentUser)
     }
 };
 
