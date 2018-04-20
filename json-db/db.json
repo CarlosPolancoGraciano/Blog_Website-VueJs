@@ -2,48 +2,26 @@
   "posts": [
     {
       "id": 1,
-      "title": "Vue js 2 - Somethings else",
-      "content": "<p style=\"text-align: left;\"><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</em>&nbsp;</p><p style=\"text-align: left;\"><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</u> </p>",
-      "date": "2018-04-17T02:36:34.362Z",
-      "enableComments": "Yes",
-      "edited": false,
-      "draft": false
-    },
-    {
-      "id": 2,
-      "title": "Vue js 2 - Prueba de Vue",
-      "content": "<p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </em></p><p><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p style=\"text-align: left;\"><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </u></p>",
-      "date": "2018-04-17T02:51:16.934Z",
-      "enableComments": "Yes",
-      "edited": false,
-      "draft": false
-    },
-    {
-      "id": 4,
-      "title": "Vue js 2 - Sin Comentario",
-      "content": "<p style=\"text-align: left;\"><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p><strong><u><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </em></u></strong></p><p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </em></p>",
-      "date": "2018-04-17T14:47:44.990Z",
+      "title": "Vue js 2 - Prueba",
+      "content": "<p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?&nbsp;</em></p><p><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?&nbsp;</strong></p>",
+      "date": "2018-04-20T02:40:11.488Z",
       "enableComments": "No",
-      "edited": false,
-      "draft": false
-    },
-    {
-      "id": 6,
-      "title": "Prueba",
-      "content": "<p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?&nbsp;</p><p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?&nbsp;</p><p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </p>",
-      "date": "2018-04-17T15:25:37.580Z",
-      "enableComments": "No",
-      "edited": false,
-      "draft": false
-    },
-    {
-      "id": 8,
-      "title": "Prueba 2",
-      "content": "<p><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </em></p><p><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </u></p>",
-      "date": "2018-04-17T15:45:44.918Z",
-      "enableComments": "No",
-      "edited": false,
-      "draft": false
+      "edited": true,
+      "draft": false,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Abel",
+        "lastName": "Polanco Graciano",
+        "description": "asadasd",
+        "avatar": "",
+        "isPublic": "true"
+      },
+      "updateDate": "2018-04-20T02:40:11.488Z"
     }
   ],
   "comments": [],

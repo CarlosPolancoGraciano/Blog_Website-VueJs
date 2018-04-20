@@ -6,7 +6,9 @@
       <div class="card mb-4" v-for="(post, index) in posts" v-bind:key="index">
         <div class="card-body">
           <!-- User Image -->
-          <router-link to="/"><img class="rounded-circle" src="../../assets/UserAvatar.jpeg" alt="Card image cap"></router-link>
+          <router-link :to="'/profile/' + post.user.id">
+            <img class="rounded-circle" src="../../assets/UserAvatar.jpeg" alt="Card image cap">
+          </router-link>
 
           <!-- Post Title -->
           <router-link :to="'/post/' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>
@@ -27,7 +29,9 @@
                           <span>{{ transformPostDates(post.date) }}</span>
                         </router-link> 
               by
-              <router-link to="/" class="text-muted">UserName</router-link> - <span>{{ returnEditedMode(post.edited) }}</span>
+              <router-link :to="'/profile/' + post.user.id" class="text-muted">
+                {{ post.user.username }}
+              </router-link> - <span>{{ returnEditedMode(post.edited) }}</span>
             </div>
             <div class="col-2"></div>
             <div class="col-4">

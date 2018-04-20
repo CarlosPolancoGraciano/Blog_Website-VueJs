@@ -17,7 +17,7 @@
               <!-- Author -->
               <p class="lead">
                 by
-                <a href="#">Start Bootstrap</a>
+                <a href="#">{{ post.user.username }}</a>
               </p>
 
               <hr>
@@ -142,8 +142,8 @@ export default {
       let comment = {
         id: 1,
         content: this.newComment.content,
-        //Missing user id
-        postId: this.$route.params.id
+        postId: this.$route.params.id,
+        // Missing User Id
       }
       this.axiosPostRequest(`${this.axiosURL}/comments`, comment);
     },

@@ -1,15 +1,16 @@
-import Vue from 'vue'
-import Router from 'vue-router'
-import Home from './components/home/Home.vue'
-import PostsNewPost from './components/posts/PostsNewPost.vue'
-import PostsPost from './components/posts/PostsPost.vue'
-import UserLogin from './components/user/UserLogin.vue'
-import UserRegister from './components/user/UserRegister.vue'
-import UserCompleteRegister from './components/user/UserCompleteRegister.vue'
-import UserForgotPassword from './components/user/UserForgotPassword.vue'
-import UserCompleteForgotPassword from './components/user/UserCompleteForgotPassword.vue'
-import UserProfile from './components/user/UserProfile.vue'
-import UserSettings from './components/user/UserSettings.vue'
+import Vue from 'vue';
+import Router from 'vue-router';
+import Home from './components/home/Home.vue';
+import PostsNewPost from './components/posts/PostsNewPost.vue';
+import PostsEditPost from './components/posts/PostsEditPost.vue';
+import PostsPost from './components/posts/PostsPost.vue';
+import UserLogin from './components/user/UserLogin.vue';
+import UserRegister from './components/user/UserRegister.vue';
+import UserCompleteRegister from './components/user/UserCompleteRegister.vue';
+import UserForgotPassword from './components/user/UserForgotPassword.vue';
+import UserCompleteForgotPassword from './components/user/UserCompleteForgotPassword.vue';
+import UserProfile from './components/user/UserProfile.vue';
+import UserSettings from './components/user/UserSettings.vue';
 
 Vue.use(Router)
 
@@ -24,6 +25,11 @@ export default new Router({
       path: '/newpost',
       name: 'newpost',
       component: PostsNewPost
+    },
+    // NewPostComponent alias
+    { path: '/editpost/:id',
+      name: 'editpost',
+      component: PostsEditPost
     },
     {
       path: '/post/:id',
@@ -56,7 +62,7 @@ export default new Router({
       component: UserLogin
     },
     {
-      path: '/profile',
+      path: '/profile/:id',
       name: 'profile',
       component: UserProfile
     },

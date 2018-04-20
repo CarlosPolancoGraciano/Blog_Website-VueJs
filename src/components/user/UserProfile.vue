@@ -26,7 +26,7 @@
                                       </div>
                                       <div class="text-justify">
                                         <p class="h5">
-                                          {{ currentUser.firstName }}
+                                          {{ user.firstName }}
                                         </p>
                                       </div>
                                     </div>
@@ -36,7 +36,7 @@
                                       </div>
                                       <div class="text-justify">
                                         <p class="h5">
-                                          {{ currentUser.lastName }}
+                                          {{ user.lastName }}
                                         </p>
                                       </div>
                                     </div>
@@ -46,9 +46,9 @@
                                       <div class="text-left">
                                         <h4>Description</h4>
                                       </div>
-                                      <div v-if="currentUser.description !== ''" class="text-justify">
+                                      <div v-if="user.description !== ''" class="text-justify">
                                         <p class="h5">
-                                          {{ currentUser.description }}
+                                          {{ user.description }}
                                         </p>
                                       </div>
                                       <div v-else>
@@ -118,7 +118,7 @@
               </div>
               <div class="col-lg-4 order-lg-1 text-center">
                   <img src="//placehold.it/150" class="mx-auto img-fluid rounded-circle" alt="avatar">
-                  <h6 class="mt-2 font-weight-bold">@{{ currentUser.username }}</h6>
+                  <h6 class="mt-2 font-weight-bold">@{{ user.username }}</h6>
               </div>
           </div>
         </div>
@@ -130,15 +130,19 @@
 import swal from 'sweetalert';
 import axios from 'axios';
 import AppIcon from '@/components/app/AppIcon.vue';
+import { global } from '@/components/mixins/global';
 
 export default {
   name: 'Profile',
+  mixins: [global],
   components:{
     AppIcon
   },
   data(){
     return{
-      currentUser: null,
+      siteURL: this.websiteURL(),
+      axiosURL: this.requestURL(),
+      user: {},
       isPublic: null
     }
   },
@@ -146,18 +150,24 @@ export default {
 
   },
   mounted(){
-    this.loadCurrentUser();
+    if(this.$route.params.id === undefined){
+      this.$router.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
+    }
+    this.loadUser();
   },
   methods: {
-    loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
-      if(this.currentUser === null){
-        this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
-      }
-      this.isPublic = (this.currentUser.isPublic == 'true');
+    loadUser(){
+      // this.currentUser = this.$store.getters.getCurrentUser;
+      axios.get(`${this.axiosURL}/users/${this.$route.params.id}`)
+           .then((response) => {
+             this.user = response.data;
+             if(Object.keys(this.user).length == 0){
+                this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
+              }
+              this.isPublic = (this.user.isPublic == 'true');
+           })
     }
   }
-
 }
 </script>
 <style scoped>

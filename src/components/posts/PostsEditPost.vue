@@ -3,7 +3,7 @@
     <div class="container-fluid text-center">
       <div class="row">
         <div class="col-12">
-          <span class="h1 text-muted">Create a new post!</span>
+          <span class="h1 text-muted">Edit your post!</span>
         </div>
       </div>
     </div>
@@ -28,14 +28,14 @@
                               label-for="titleFormInput">
                   <b-form-input id="titleFormInput"
                                 type="email"
-                                v-model="form.title"
+                                v-model="post.title"
                                 required
                                 placeholder="Enter post title"></b-form-input>
                 </b-form-group>
               </div>
               <div class="col-6">
                 <b-form-group label="¿Do you want comments in your posts?">
-                  <b-form-radio-group id="radios2" v-model="form.enableComments" name="radioSubComponent">
+                  <b-form-radio-group id="radios2" v-model="post.enableComments" name="radioSubComponent">
                     <b-form-radio value="Yes">Yes</b-form-radio>
                     <b-form-radio value="No">No</b-form-radio>
                   </b-form-radio-group>
@@ -44,27 +44,27 @@
             </div>
             <div class="row">
               <div class="col-12">
-                <froala :tag="'textarea'" :config="config" v-model="form.content"></froala>
+                <froala :tag="'textarea'" :config="config" v-model="post.content"></froala>
               </div>
             </div>
             <div class="row text-center mt-3">
               <div class="col-12">
                 <b-button-group>
-                  <b-button variant="primary" @click="createNewPost">
-                    <AppIcon iconName="plus-square-o" />
-                    Create
-                  </b-button>
-                  <!-- <b-button variant="primary">
-                    <AppIcon iconName="paper-plane-o" />
-                    Post
-                  </b-button> -->
-                  <b-button variant="warning">
+                  <b-button variant="warning" v-if="post.draft === true">
                     <AppIcon iconName="pencil-square-o" />
-                    Draft
+                    Post
+                  </b-button>
+                  <b-button variant="warning" @click="updatePost">
+                    <AppIcon iconName="refresh" />
+                    Update
                   </b-button>
                   <b-button variant="danger">
                     <AppIcon iconName="ban" />
                     Cancel
+                  </b-button>
+                  <b-button variant="danger">
+                    <AppIcon iconName="trash-o" />
+                    Delete
                   </b-button>
                 </b-button-group>
               </div>
@@ -75,7 +75,7 @@
           <div class="card">
             <div class="card-body">
               <!-- Title -->
-              <h1 v-if="form.title != ''">{{ getPostTitle }}</h1>
+              <h1 v-if="post.title != ''">{{ getPostTitle }}</h1>
               <h1 v-else>Post Title</h1>
 
               <!-- Author -->
@@ -90,8 +90,8 @@
               <p>Posted on <span>{{ getPostDate }}</span></p>
 
               <hr>
-              <div v-if="form.content !== ''">
-                <froalaView v-model="form.content"></froalaView>
+              <div v-if="post.content !== ''">
+                <froalaView v-model="post.content"></froalaView>
               </div>
               <div v-else>
                 <p>
@@ -101,33 +101,6 @@
                   Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?
                 </p>
               </div>
-              <!-- Comments Form -->
-              <!-- <div v-if="form.enableComments === 'Yes'">
-                <hr>
-                <div class="card my-4">
-                  <h5 class="card-header">Leave a Comment:</h5>
-                    <div class="card-body">
-                      <form>
-                      <div class="form-group">
-                        <b-form-textarea placeholder="Enter your comment message"
-                                        :rows="3">
-                        </b-form-textarea>
-                      </div>
-                      <b-button variant="primary">
-                        <AppIcon iconName="floppy-o" />
-                        Save comment
-                      </b-button>
-                    </form>
-                    </div>
-                </div>
-              </div>
-              <div v-else>
-                <div class="jumbotron jumbotron-fluid">
-                  <div class="container text-center">
-                    <span class="h2">No se han encontrado comentarios</span>
-                  </div>
-                </div>
-              </div> -->
             </div>
           </div>
         </div>
@@ -152,6 +125,7 @@ export default {
   data(){
     return{
       currentUser: {},
+      post:{},
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
       config: {
@@ -160,83 +134,79 @@ export default {
             console.log('initialized')
           }
         }
-      },
-      form:{
-        title: "",
-        content: "",
-        enableComments: "Yes",
-        date: new Date()
       }
     }
   },
   computed: {
     getPostTitle(){
-      return this.form.title;
+      return this.post.title;
     },
     getPostContent(){
-      return this.form.content;
+      return this.post.content;
     },
     getPostEnableComments(){
-      return this.form.enableComments;
+      return this.post.enableComments;
     },
     getPostDate(){
-      return moment(this.form.date).format('MMMM Do YYYY');
+      return moment(this.post.date).format('MMMM Do YYYY');
     },
     getPostOwner(){
       return this.currentUser.username;
     }
   },
   mounted(){
-    this.loadCurrentUser();
+    if(this.$route.params.id === undefined){
+      this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
+    }
+    this.loadPostInfo();
   },
   methods:{
-    loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
-      if(Object.keys(this.currentUser).length == 0){
-        this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
-      }
-    },
-    createNewPost(){
-      let that = this;
-
-      // Post data
-      const post = {
-        id: that.getLatestPostId() + 1,
-        title: that.form.title,
-        content: that.form.content,
-        date: that.form.date,
-        enableComments: that.form.enableComments,
-        edited: false,
-        draft: false,
-        user: this.currentUser
-      }
-      
-      // Swal message data
-      const swalMessage = {
-        title: "Publicación hecha!",
-        message: "Tu publicación fue hecha serás redireccionado al listado principal",
-        type: "success"
-      }
-      this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
-    },
-    getLatestPostId(){
-      let postsArray = this.axiosGetRequest(`${this.axiosURL}/posts`);
-      if(postsArray === undefined){
-        return 0;
-      }
-      return postsArray.length
-    },
-    axiosGetRequest(url){
-      axios.get(url)
+    loadPostInfo(){
+      axios.get(`${this.axiosURL}/posts?id=${this.$route.params.id}`)
         .then((response) => {
-          return response.data
+          this.post = response.data[0]; //Obtain the only object returned
+          this.loadCurrentUser(this.post.id);
         })
         .catch((error) => {
           console.log(error);
         });
     },
-    axiosPostRequest(url, postObj, swalMessage){
-      axios.post(url, postObj)
+    loadCurrentUser(postId){
+      this.currentUser = this.$store.getters.getCurrentUser;
+      
+      // Validate there is a current user
+      if(Object.keys(this.currentUser).length == 0){
+        this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
+      }
+      // Validate current user is the post owner
+      if(this.currentUser.id !== postId){
+        this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
+      }
+    },
+    updatePost(){
+      let that = this;
+      let postId = Number(this.$route.params.id);
+
+      // Post data
+      const editPost = {
+        title: that.post.title,
+        content: that.post.content,
+        enableComments: that.post.enableComments,
+        updateDate: that.post.date,
+        edited: true
+      }
+      
+      // Swal message data
+      const swalMessage = {
+        title: "Post updated!",
+        message: "Your post was updated, you'll be redirected to the main post list",
+        type: "success"
+      }
+      
+      this.axiosPatchRequest(`${this.axiosURL}/posts/${postId}`, editPost, swalMessage);
+    },
+    axiosPatchRequest(url, patchObj, swalMessage){
+      axios.patch(url, patchObj)
         .then((response) => {
           swal( swalMessage.title, 
                 swalMessage.message, 

@@ -8,7 +8,11 @@
           <div class="col-lg-8 col-md-10 mx-auto">
             <div class="site-heading">
               <h1>Blog Company</h1>
-              <span class="subheading"><router-link to="/NewPost" class="btn btn-outline-primary">Crear nueva noticia</router-link></span>
+              <div v-if="currentUser !== null">
+                <span class="subheading">
+                  <router-link to="/NewPost" class="btn btn-outline-primary">Crear nueva noticia</router-link>
+                </span>
+              </div>
               <span class="subheading">Enterate de todas las nuevas noticias</span>
             </div>
           </div>
@@ -29,6 +33,22 @@ export default {
   name: 'home',
   components: {
     HomePostsComponent
+  },
+  data(){
+    return{
+      currentUser: null
+    }
+  },
+  mounted(){
+    this.loadCurrentUser();
+  },
+  methods:{
+    loadCurrentUser(){
+      this.currentUser = this.$store.getters.getCurrentUser;
+      if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
+        this.currentUser = null;
+      }
+    }
   }
 }
 </script>
