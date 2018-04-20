@@ -39,7 +39,7 @@
 <script>
 import axios from 'axios';
 import hash from 'object-hash';
-import AppIcon from '@/components/AppIcon.vue';
+import AppIcon from '@/components/app/AppIcon.vue';
 import { global } from '@/components/mixins/global.js';
 
 export default {

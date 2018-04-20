@@ -6,7 +6,7 @@
       <div class="card mb-4" v-for="(post, index) in posts" v-bind:key="index">
         <div class="card-body">
           <!-- User Image -->
-          <router-link to="/"><img class="rounded-circle" src="../assets/UserAvatar.jpeg" alt="Card image cap"></router-link>
+          <router-link to="/"><img class="rounded-circle" src="../../assets/UserAvatar.jpeg" alt="Card image cap"></router-link>
 
           <!-- Post Title -->
           <router-link :to="'/post/' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>

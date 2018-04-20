@@ -59,7 +59,8 @@
       "firstName": "Carlos Abel",
       "lastName": "Polanco Graciano",
       "description": "asadasd",
-      "avatar": ""
+      "avatar": "",
+      "isPublic": "true"
     }
   ]
 }

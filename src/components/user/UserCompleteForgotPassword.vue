@@ -48,7 +48,7 @@
 </template>
 <script>
 import axios from 'axios';
-import AppIcon from '@/components/AppIcon.vue';
+import AppIcon from '@/components/app/AppIcon.vue';
 import { global } from '@/components/mixins/global.js';
 
 export default {
@@ -94,7 +94,7 @@ export default {
       let that = this;
 
       if(that.newPassword === that.confirmNewPassword){
-        axios.patch(`${this.axiosURL}/users/${that.user[0].id}`, { password: that.newPassword, hash: "" })
+        axios.patch(`${this.axiosURL}/users/${that.user[0].id}`, { password: that.newPassword, hash: "", isPublic: "true" })
              .then((response) => {
                swal("Password changed!", "You'll be logged in and redirected to create a new post", "success")
                .then((success) => {

@@ -23,7 +23,7 @@
 
 <script>
 // @ is an alias to /src
-import HomePostsComponent from '@/components/HomePostsComponent.vue'
+import HomePostsComponent from '@/components/home/HomePostsComponent.vue'
 
 export default {
   name: 'home',
@@ -35,7 +35,7 @@ export default {
 
 <style scoped>
 header.masthead {
-  background-image: url('../assets/home-bg.jpg');
+  background-image: url('../../assets/home-bg.jpg');
   margin-bottom: 50px;
   background: no-repeat center center;
   background-color: #868e96;

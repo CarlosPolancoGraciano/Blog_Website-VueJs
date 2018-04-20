@@ -86,7 +86,7 @@
 </template>
 <script>
 import axios from 'axios';
-import AppIcon from '@/components/AppIcon.vue';
+import AppIcon from '@/components/app/AppIcon.vue';
 import VueFroala from 'vue-froala-wysiwyg';
 import moment from 'moment';
 import { global } from '@/components/mixins/global';

@@ -143,7 +143,7 @@ import axios from 'axios';
 import moment from 'moment';
 import swal from 'sweetalert';
 import VueFroala from 'vue-froala-wysiwyg';
-import AppIcon from '@/components/AppIcon.vue';
+import AppIcon from '@/components/app/AppIcon.vue';
 import { global } from '@/components/mixins/global';;
 
 export default {

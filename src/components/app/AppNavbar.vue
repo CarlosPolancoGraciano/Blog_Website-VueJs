@@ -3,7 +3,7 @@
     <div class="container">
       <router-link to="/" 
                    class="navbar-brand">
-                   <img src="../assets/WebIcon.png" width="30" height="30" alt="Logo Icon">
+                   <img src="../../assets/WebIcon.png" width="30" height="30" alt="Logo Icon">
       </router-link>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarResponsive"   aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -51,7 +51,7 @@
   </nav>
 </template>
 <script>
-import AppIcon from '@/components/AppIcon.vue';
+import AppIcon from '@/components/app/AppIcon.vue';
 import { global } from '@/components/mixins/global.js';
 
 export default {

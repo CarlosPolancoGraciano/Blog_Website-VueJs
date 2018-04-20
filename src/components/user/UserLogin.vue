@@ -67,7 +67,7 @@
   import swal from "sweetalert";
   import hash from "object-hash";
   import { global } from "@/components/mixins/global";
-  import AppIcon from "@/components/AppIcon.vue";
+  import AppIcon from "@/components/app/AppIcon.vue";
 
   export default {
     name: "Login",

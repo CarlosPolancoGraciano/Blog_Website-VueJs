@@ -6,8 +6,8 @@
   </div>
 </template>
 <script>
-import NavbarComponent from '@/components/AppNavbar.vue';
-import FooterComponent from '@/components/AppFooter.vue';
+import NavbarComponent from '@/components/app/AppNavbar.vue';
+import FooterComponent from '@/components/app/AppFooter.vue';
 
 //Seek for bootstrap js
 require('bootstrap');
