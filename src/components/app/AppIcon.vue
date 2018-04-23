@@ -1,6 +1,6 @@
 <template>
   <span>
-    <i :class="'fa fa-' + iconName"></i>
+    <i :class="'fa fa-' + iconName" ></i>
   </span>
 </template>
 <script>

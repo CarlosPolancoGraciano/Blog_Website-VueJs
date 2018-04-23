@@ -30,9 +30,13 @@
               {{ userFullName }}
             </a>
             <div class="dropdown-menu" aria-labelledby="loginDropdown">
-              <router-link class="dropdown-item" to="/profile">
-                <AppIcon iconName="user" />
+              <router-link class="dropdown-item" :to="'/profile/' + user.id">
+                <AppIcon iconName="user" class="fa-lg" />
                 Profile
+              </router-link>
+              <router-link class="dropdown-item" :to="'/myposts/' + user.id">
+                <AppIcon iconName="th-list" />
+                Posts
               </router-link>
               <router-link class="dropdown-item" to="/settings">
                 <AppIcon iconName="cogs" />

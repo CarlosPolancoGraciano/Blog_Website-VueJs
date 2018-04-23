@@ -50,7 +50,7 @@
             <div class="row text-center mt-3">
               <div class="col-12">
                 <b-button-group>
-                  <b-button variant="warning" v-if="post.draft === true">
+                  <b-button variant="warning" @click="publishDraftPost" v-if="post.draft === true">
                     <AppIcon iconName="pencil-square-o" />
                     Post
                   </b-button>
@@ -58,11 +58,11 @@
                     <AppIcon iconName="refresh" />
                     Update
                   </b-button>
-                  <b-button variant="danger">
+                  <b-button variant="danger" @click="cancelNewPost">
                     <AppIcon iconName="ban" />
                     Cancel
                   </b-button>
-                  <b-button variant="danger">
+                  <b-button variant="danger" @click="deletePost">
                     <AppIcon iconName="trash-o" />
                     Delete
                   </b-button>
@@ -75,8 +75,7 @@
           <div class="card">
             <div class="card-body">
               <!-- Title -->
-              <h1 v-if="post.title != ''">{{ getPostTitle }}</h1>
-              <h1 v-else>Post Title</h1>
+              <h1>{{ getPostTitle }}</h1>
 
               <!-- Author -->
               <p class="lead">
@@ -90,16 +89,8 @@
               <p>Posted on <span>{{ getPostDate }}</span></p>
 
               <hr>
-              <div v-if="post.content !== ''">
+              <div>
                 <froalaView v-model="post.content"></froalaView>
-              </div>
-              <div v-else>
-                <p>
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?
-                </p>
-                <p>
-                  Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?
-                </p>
               </div>
             </div>
           </div>
@@ -109,9 +100,6 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-import moment from 'moment';
-import swal from 'sweetalert';
 import VueFroala from 'vue-froala-wysiwyg';
 import AppIcon from '@/components/app/AppIcon.vue';
 import { global } from '@/components/mixins/global';;
@@ -183,27 +171,119 @@ export default {
         this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
       }
     },
+    publishDraftPost(){
+      let that = this;
+      let postId = Number(this.$route.params.id);
+
+      if(that.validateInput()){
+        // Post data
+        const editPost = {
+          title: that.post.title,
+          content: that.post.content,
+          enableComments: that.post.enableComments,
+          updateDate: that.post.date,
+          draft: false,
+          edited: true
+        }
+        
+        // Swal message data
+        const swalMessage = {
+          title: "Post published successfully!",
+          message: "Your post was published and you'll be redirected to the main list of posts",
+          type: "success"
+        }
+        
+        this.axiosPatchRequest(`${this.axiosURL}/posts/${postId}`, editPost, swalMessage);
+      }
+    },
     updatePost(){
       let that = this;
       let postId = Number(this.$route.params.id);
 
-      // Post data
-      const editPost = {
-        title: that.post.title,
-        content: that.post.content,
-        enableComments: that.post.enableComments,
-        updateDate: that.post.date,
-        edited: true
+      if(that.validateInput()){
+        // Post data
+        const editPost = {
+          title: that.post.title,
+          content: that.post.content,
+          enableComments: that.post.enableComments,
+          updateDate: that.post.date,
+          edited: true
+        }
+        
+        // Swal message data
+        const swalMessage = {
+          title: "Post updated!",
+          message: "Your post was updated, you'll be redirected to the main post list",
+          type: "success"
+        }
+        
+        this.axiosPatchRequest(`${this.axiosURL}/posts/${postId}`, editPost, swalMessage);
       }
+    },
+    cancelNewPost(){
+      this.$router.go(-1);
+    },
+    deletePost(){
+      let that = this;
+      let postId = Number(this.$route.params.id);
       
-      // Swal message data
-      const swalMessage = {
-        title: "Post updated!",
-        message: "Your post was updated, you'll be redirected to the main post list",
-        type: "success"
+      swal({
+        title: "Are you sure?",
+        text: "This post will be deleted permanently",
+        icon: "info",
+        buttons:{
+          cancel: {
+            text: "Cancel",
+            value: null,
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          confirm: {
+            text: "Yes, I'm sure!",
+            value: true,
+            visible: true,
+            className: "btn btn-danger",
+            closeModal: true
+          }
+        }
+      }).then((success) => {
+        if(success){
+          axios.delete(`${that.axiosURL}/posts/${postId}`)
+               .then((response) => {
+                //  swal({
+                //    title: "Post deleted succesfully!",
+                //    icon: "success"
+                //  });
+                that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
+               })
+               .catch((error) =>{
+                 that.dynamicToastr({title: `Error in deleting file proccess`, msg:`${error.response.status}`, type: `error`});
+               })
+        }
+      })
+    },
+    validateInput(){
+      let that = this;
+      let inputEmpties = []
+      let postData = that.post;
+
+      // Check for empty inputs
+      for(let item in postData){
+        if(postData[item] === ''){
+          inputEmpties.push(item);
+        }
       }
-      
-      this.axiosPatchRequest(`${this.axiosURL}/posts/${postId}`, editPost, swalMessage);
+      // If there is - Show to user with toastr which one
+      if(inputEmpties.length > 0){
+        for(let input in inputEmpties){
+          that.dynamicToastr({title: `Error - Field missing`, msg: `The ${inputEmpties[input]} field is empty`, type: `error`});
+        }
+        return false;
+      }
+
+      // If there is none, return true to save the post
+      return true;
     },
     axiosPatchRequest(url, patchObj, swalMessage){
       axios.patch(url, patchObj)
@@ -221,6 +301,16 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+    },
+    dynamicToastr(toastrObj){
+      let that = this;
+      that.$toastr( 'add',
+                      { title: toastrObj.title, 
+                        msg: toastrObj.msg, 
+                        clickClose: true, 
+                        timeout: 10000, 
+                        position: 'toast-bottom-right', 
+                        type: toastrObj.type });
     }
   }
 }

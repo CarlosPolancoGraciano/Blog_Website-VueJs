@@ -59,8 +59,6 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-import swal from 'sweetalert';
 import { global } from '@/components/mixins/global';
 
 export default {

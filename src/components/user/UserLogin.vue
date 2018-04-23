@@ -63,38 +63,38 @@
   </div>
 </template>
 <script>
-  import axios from "axios";
-  import swal from "sweetalert";
-  import hash from "object-hash";
-  import { global } from "@/components/mixins/global";
-  import AppIcon from "@/components/app/AppIcon.vue";
+import hash from "object-hash";
+import { global } from "@/components/mixins/global";
+import AppIcon from "@/components/app/AppIcon.vue";
 
-  export default {
-    name: "Login",
-    mixins: [global],
-    components: {
-      AppIcon
-    },
-    data() {
-      return {
-        siteURL: this.websiteURL(),
-        axiosURL: this.requestURL(),
-        storageKey: this.webstorageKey(),
-        login: {
-          email: "",
-          password: "",
-          rememberMe: ""
-        }
-      };
-    },
-    methods: {
-      loginUser() {
-        let that = this;
-        let isLocal = (that.login.rememberMe == "true");
+export default {
+  name: "Login",
+  mixins: [global],
+  components: {
+    AppIcon
+  },
+  data() {
+    return {
+      siteURL: this.websiteURL(),
+      axiosURL: this.requestURL(),
+      storageKey: this.webstorageKey(),
+      login: {
+        email: "",
+        password: "",
+        rememberMe: ""
+      }
+    };
+  },
+  methods: {
+    loginUser() {
+      let that = this;
+      let isLocal = (that.login.rememberMe == "true");
         
-        axios.get(`${that.axiosURL}/users?email=${that.login.email}&password=${that.login.password}`)
-          .then((response) => {
-            const user = response.data;
+      axios.get(`${that.axiosURL}/users?email=${that.login.email}&password=${that.login.password}`)
+        .then((response) => {
+          const user = response.data;
+          console.log(response.data);
+          if(response.data.length > 0){
             if (isLocal) {
               let saveResult = that.saveCurrentUser(user[0], isLocal);
               if(saveResult){
@@ -106,30 +106,34 @@
               if(saveResult){
                 this.$router.push("/", () => { location.reload(); });
               }
-
             }
-          })
-          .catch((error) => {
-            that.dynamicToastr({title: "Ooops!",
-                                msg: `Error while requesting to API`, 
-                                type: "error"});
-          });
+          }else{
+            that.dynamicToastr({title: "Access Denied",
+                              msg: `Your email or password is invalid`, 
+                              type: "error"});
+          }
           
-      },
-      dynamicToastr(toastrObj) {
-        var that = this;
-
-        that.$toastr("add", {
-          title: toastrObj.title,
-          msg: toastrObj.msg,
-          clickClose: true,
-          timeout: 10000,
-          position: "toast-bottom-right",
-          type: toastrObj.type
+        })
+        .catch((error) => {
+          that.dynamicToastr({title: "Ooops!",
+                              msg: `Error while requesting to API`, 
+                              type: "error"});
         });
-      }
+      },
+    dynamicToastr(toastrObj) {
+      let that = this;
+
+      that.$toastr("add", {
+        title: toastrObj.title,
+        msg: toastrObj.msg,
+        clickClose: true,
+        timeout: 5000,
+        position: "toast-bottom-right",
+        type: toastrObj.type
+      });
     }
-  };
+  }
+};
 </script>
 <style scoped>
 </style>

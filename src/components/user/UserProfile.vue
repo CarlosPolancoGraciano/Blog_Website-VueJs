@@ -127,8 +127,6 @@
   </div>
 </template>
 <script>
-import swal from 'sweetalert';
-import axios from 'axios';
 import AppIcon from '@/components/app/AppIcon.vue';
 import { global } from '@/components/mixins/global';
 

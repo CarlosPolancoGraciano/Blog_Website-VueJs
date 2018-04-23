@@ -25,7 +25,7 @@ export const global = {
 
             if(isLocal === null){
                 isLocal = JSON.parse(sessionStorage.getItem(isLocalKey));
-                return (isLocal == "true");
+                return (isLocal == "false");
             }
             return (isLocal == "true"); // String to bool
         },

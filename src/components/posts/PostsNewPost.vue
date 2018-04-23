@@ -58,11 +58,11 @@
                     <AppIcon iconName="paper-plane-o" />
                     Post
                   </b-button> -->
-                  <b-button variant="warning">
+                  <b-button variant="warning" @click="draftNewPost">
                     <AppIcon iconName="pencil-square-o" />
-                    Draft
+                    Save as draft
                   </b-button>
-                  <b-button variant="danger">
+                  <b-button variant="danger" @click="cancelNewPost">
                     <AppIcon iconName="ban" />
                     Cancel
                   </b-button>
@@ -136,9 +136,6 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-import moment from 'moment';
-import swal from 'sweetalert';
 import VueFroala from 'vue-froala-wysiwyg';
 import AppIcon from '@/components/app/AppIcon.vue';
 import { global } from '@/components/mixins/global';;
@@ -199,32 +196,89 @@ export default {
     createNewPost(){
       let that = this;
 
-      // Post data
-      const post = {
-        id: that.getLatestPostId() + 1,
-        title: that.form.title,
-        content: that.form.content,
-        date: that.form.date,
-        enableComments: that.form.enableComments,
-        edited: false,
-        draft: false,
-        user: this.currentUser
+      if(that.validateInput()){
+        // Post data
+        const post = {
+          id: that.getLatestPostId() + 1,
+          title: that.form.title,
+          content: that.form.content,
+          date: that.form.date,
+          enableComments: that.form.enableComments,
+          edited: false,
+          draft: false,
+          userId: this.currentUser.id
+        }
+        
+        // Swal message data
+        const swalMessage = {
+          title: "Post published successfully!",
+          message: "Your post was published and you'll be redirected to the main list of posts",
+          type: "success"
+        }
+        this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
       }
-      
-      // Swal message data
-      const swalMessage = {
-        title: "Publicación hecha!",
-        message: "Tu publicación fue hecha serás redireccionado al listado principal",
-        type: "success"
-      }
-      this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
     },
     getLatestPostId(){
-      let postsArray = this.axiosGetRequest(`${this.axiosURL}/posts`);
-      if(postsArray === undefined){
-        return 0;
+      axios.get(`${this.axiosURL}/posts`)
+          .then((response) => {
+            let postsArray = [];
+            postsArray = response.data;
+            if(postsArray.length === 0){
+              return 0;
+            }
+            return postsArray.length
+          })
+      
+    },
+    draftNewPost(){
+      let that = this;
+
+      if(that.validateInput()){
+        // Post data
+        const post = {
+          id: that.getLatestPostId() + 1,
+          title: that.form.title,
+          content: that.form.content,
+          date: that.form.date,
+          enableComments: that.form.enableComments,
+          edited: false,
+          draft: true,
+          userId: this.currentUser.id
+        }
+        
+        // Swal message data
+        const swalMessage = {
+          title: "Post saved as draft!",
+          message: "Your post was saved and can be found in the posts section on the navbar. You'll be redirected to home page",
+          type: "success"
+        }
+        this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
       }
-      return postsArray.length
+    },
+    cancelNewPost(){
+      this.$router.go(-1);
+    },
+    validateInput(){
+      let that = this;
+      let inputEmpties = []
+      let formData = that.form;
+
+      // Check for empty inputs
+      for(let item in formData){
+        if(formData[item] === ''){
+          inputEmpties.push(item);
+        }
+      }
+      // If there is - Show to user with toastr which one
+      if(inputEmpties.length > 0){
+        for(let input in inputEmpties){
+          that.dynamicToastr({title: `Error - Field missing`, msg: `The ${inputEmpties[input]} field is empty`, type: `error`});
+        }
+        return false;
+      }
+
+      // If there is none, return true to save the post
+      return true;
     },
     axiosGetRequest(url){
       axios.get(url)
@@ -251,6 +305,16 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+    },
+    dynamicToastr(toastrObj){
+      let that = this;
+      that.$toastr( 'add',
+                      { title: toastrObj.title, 
+                        msg: toastrObj.msg, 
+                        clickClose: true, 
+                        timeout: 10000, 
+                        position: 'toast-bottom-right', 
+                        type: toastrObj.type });
     }
   }
 }

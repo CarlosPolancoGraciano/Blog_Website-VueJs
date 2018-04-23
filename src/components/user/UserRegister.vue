@@ -48,8 +48,6 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-import swal from 'sweetalert';
 import hash from 'object-hash';
 import { global } from '@/components/mixins/global';
 

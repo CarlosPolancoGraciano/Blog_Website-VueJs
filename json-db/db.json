@@ -3,25 +3,22 @@
     {
       "id": 1,
       "title": "Vue js 2 - Prueba",
-      "content": "<p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?&nbsp;</em></p><p><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?&nbsp;</strong></p>",
-      "date": "2018-04-20T02:40:11.488Z",
-      "enableComments": "No",
-      "edited": true,
+      "content": "<p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </em></p><p style=\"text-align: left;\"><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p style=\"text-align: left;\"><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </u></p>",
+      "date": "2018-04-22T21:43:15.255Z",
+      "enableComments": "Yes",
+      "edited": false,
       "draft": false,
-      "user": {
-        "id": 1,
-        "email": "carlosfollows@gmail.com",
-        "password": "walkman06",
-        "active": true,
-        "hash": "",
-        "username": "CarlosPolanco",
-        "firstName": "Carlos Abel",
-        "lastName": "Polanco Graciano",
-        "description": "asadasd",
-        "avatar": "",
-        "isPublic": "true"
-      },
-      "updateDate": "2018-04-20T02:40:11.488Z"
+      "userId": 1
+    },
+    {
+      "id": 3,
+      "title": "Vue js 2 - Draft 3",
+      "content": "<p style=\"text-align: left;\"><strong><em><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </u></em></strong></p>",
+      "date": "2018-04-23T01:23:23.666Z",
+      "enableComments": "Yes",
+      "edited": false,
+      "draft": true,
+      "userId": 1
     }
   ],
   "comments": [],
