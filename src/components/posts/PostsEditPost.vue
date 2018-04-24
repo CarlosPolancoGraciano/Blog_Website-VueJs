@@ -263,6 +263,17 @@ export default {
         }
       })
     },
+    getLatestActivityId(){
+        axios.get(`${this.axiosURL}/posts`)
+            .then((response) => {
+              let postsArray = [];
+              postsArray = response.data;
+              if(postsArray.length === 0){
+                return 0;
+              }
+              return postsArray.length
+            });
+    },
     validateInput(){
       let that = this;
       let inputEmpties = []

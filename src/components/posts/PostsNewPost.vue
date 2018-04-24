@@ -197,9 +197,10 @@ export default {
       let that = this;
 
       if(that.validateInput()){
+        let latestId = that.getLatestPostId() + 1
         // Post data
         const post = {
-          id: that.getLatestPostId() + 1,
+          id: latestId,
           title: that.form.title,
           content: that.form.content,
           date: that.form.date,
@@ -215,6 +216,13 @@ export default {
           message: "Your post was published and you'll be redirected to the main list of posts",
           type: "success"
         }
+
+        this.axiosPostRequest(`${this.axiosURL}/activity`, {
+          id: this.getLatestActivityId() + 1, 
+          userId: this.currentUser.id,
+          postId: latestId,
+          action: 'created new post'
+        });
         this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
       }
     },
@@ -229,6 +237,17 @@ export default {
             return postsArray.length
           })
       
+    },
+    getLatestActivityId(){
+        axios.get(`${this.axiosURL}/posts`)
+            .then((response) => {
+              let postsArray = [];
+              postsArray = response.data;
+              if(postsArray.length === 0){
+                return 0;
+              }
+              return postsArray.length
+            });
     },
     draftNewPost(){
       let that = this;
@@ -289,10 +308,11 @@ export default {
           console.log(error);
         });
     },
-    axiosPostRequest(url, postObj, swalMessage){
+    axiosPostRequest(url, postObj, swalMessage = null){
       axios.post(url, postObj)
         .then((response) => {
-          swal( swalMessage.title, 
+          if(swalMessage !== null){
+            swal( swalMessage.title, 
                 swalMessage.message, 
                 swalMessage.type)
             .then((success) => {
@@ -300,6 +320,7 @@ export default {
                 this.$router.push('/');
               }
             });
+          }
           
         })
         .catch((error) => {

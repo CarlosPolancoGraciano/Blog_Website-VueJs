@@ -30,7 +30,7 @@
               {{ userFullName }}
             </a>
             <div class="dropdown-menu" aria-labelledby="loginDropdown">
-              <router-link class="dropdown-item" :to="'/profile/' + user.id">
+              <router-link class="dropdown-item" :to="'/profile/' + user.username">
                 <AppIcon iconName="user" class="fa-lg" />
                 Profile
               </router-link>
@@ -91,8 +91,12 @@ export default {
       }
     },
     logOut(){
+      // Clean from WebStorate
       this.removeCurrentUser();
       this.userLogged = false;
+
+      //Clean from Vuex
+      this.$store.dispatch('removeCurrentUser');
 
       this.$router.push('/', () => { location.reload(); })
     }

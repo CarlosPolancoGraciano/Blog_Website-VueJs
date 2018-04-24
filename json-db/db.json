@@ -31,11 +31,12 @@
       "active": true,
       "hash": "",
       "username": "CarlosPolanco",
-      "firstName": "Carlos Abel",
-      "lastName": "Polanco Graciano",
-      "description": "asadasd",
+      "firstName": "Carlos Daniel",
+      "lastName": "Polanco Ortega",
+      "description": "Hi! I'm Carlos a funny guy",
       "avatar": "",
-      "isPublic": "true"
+      "isPublic": "false"
     }
-  ]
+  ],
+  "activity":[]
 }

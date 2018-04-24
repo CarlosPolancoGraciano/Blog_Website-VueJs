@@ -45,19 +45,22 @@
                 <div class="card my-4">
                   <h5 class="card-header">Leave a Comment:</h5>
                     <div class="card-body">
-                      <form>
+                      <b-form @submit.prevent="createComment">
                         <div class="form-group">
-                          <b-form-textarea v-model="newComment.content"
-                                          placeholder="Enter your comment message"
-                                          :rows="3">
-                          </b-form-textarea>
+                          <froala :tag="'textarea'" :config="config" v-model="newComment.content"></froala>
                         </div>
                         <b-button variant="primary"
-                                  @click="createComment">
+                                  type="submit">
                           <AppIcon iconName="floppy-o" />
                           Save comment
                         </b-button>
-                      </form>
+                        &nbsp;
+                        <b-button variant="danger"
+                                  type="reset">
+                          <AppIcon iconName="ban" />
+                          Cancel
+                        </b-button>
+                      </b-form>
                     </div>
                 </div>
                 <!-- Single Comment -->
@@ -117,7 +120,7 @@ export default {
       config: {
         events: {
           'froalaEditor.initialized': function () {
-            console.log('initialized')
+            // console.log('initialized')
           }
         }
       },
@@ -206,13 +209,26 @@ export default {
       })
     },
     createComment(){
-      let comment = {
-        id: 1,
-        content: this.newComment.content,
-        postId: this.$route.params.id,
-        // Missing User Id
+      let that = this;
+      
+      if(that.currentUser !== undefined){
+        if(that.newComment.content !== ''){
+            let comment = {
+              id: 1,
+              content: that.newComment.content,
+              postId: that.$route.params.id,
+              userId: that.currentUser.id
+            };
+          that.axiosPostRequest(`${that.axiosURL}/comments`, comment);
+        }
+        that.dynamicToastr({title: 'Oops!', msg: 'The comments field is empty', type: 'error' });
+      }else{
+        swal("Oops!", "No puedes comentar debes iniciar sesión primero", "error")
+          .then((success) => {
+            that.$router.push('/login');
+          })
       }
-      this.axiosPostRequest(`${this.axiosURL}/comments`, comment);
+      
     },
     transformPostDate(date){
       return moment(date).format('MMMM Do YYYY');

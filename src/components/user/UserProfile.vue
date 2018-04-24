@@ -148,22 +148,35 @@ export default {
 
   },
   mounted(){
-    if(this.$route.params.id === undefined){
+    if(this.$route.params.username === undefined){
       this.$router.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
     }
-    this.loadUser();
+    axios.all([this.loadUser()])
+    .then(axios.spread(function (acct, perms) {
+      // Both requests are now complete
+    }));
   },
   methods: {
     loadUser(){
+      let that = this;
       // this.currentUser = this.$store.getters.getCurrentUser;
-      axios.get(`${this.axiosURL}/users/${this.$route.params.id}`)
+      return axios.get(`${that.axiosURL}/users?username=${that.$route.params.username}`)
            .then((response) => {
-             this.user = response.data;
-             if(Object.keys(this.user).length == 0){
-                this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
+              let currentUser = that.$store.getters.getCurrentUser;
+              that.user = response.data[0];
+
+              if(Object.keys(that.user).length == 0){
+                that.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
               }
-              this.isPublic = (this.user.isPublic == 'true');
-           })
+              else if(Object.keys(currentUser).length > 0){
+                if(that.user.id === currentUser.id){
+                  that.isPublic = true;
+                }
+              }else{
+                that.isPublic = (that.user.isPublic == 'true');
+              }
+            
+           });
     }
   }
 }

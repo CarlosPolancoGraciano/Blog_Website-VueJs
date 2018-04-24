@@ -15,13 +15,19 @@ const getters = {
 const mutations = {
     setCurrentUser(state, currentUser){
         state.currentUser = currentUser;
+    },
+    removeCurrentUser(state){
+        state.currentUser = {};
     }
 };
 
 // Vuex actions
 const actions = {
     setCurrentUser({ commit }, currentUser){
-        commit('setCurrentUser', currentUser)
+        commit('setCurrentUser', currentUser);
+    },
+    removeCurrentUser({ commit }){
+        commit('removeCurrentUser');
     }
 };
 
