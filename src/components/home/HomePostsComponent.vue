@@ -33,7 +33,10 @@
           <!-- Post Button Actions -->
           <div class="btn-group" role="group" aria-label="Post owner button" v-if="currentUser.id === post.userId">
             <!-- See more Post Content if post owner is logged in -->
-            <router-link :to="'/post/' + post.id" class="btn btn-primary">Read More &rarr;</router-link>
+            <router-link :to="'/post/' + post.id" class="btn btn-primary">
+              Read More 
+              <AppIcon iconName="eye" />
+            </router-link>
             <!-- Edit Post Content -->
             <router-link :to="'/editpost/' + post.id" class="btn btn-warning">
               <AppIcon iconName="pencil-square-o" /> 
@@ -42,7 +45,10 @@
           </div>
           <div v-else>
             <!-- See more Post Content -->
-            <router-link :to="'/post/' + post.id" class="btn btn-primary">Read More &rarr;</router-link>
+            <router-link :to="'/post/' + post.id" class="btn btn-primary">
+              Read More 
+              <AppIcon iconName="eye" />
+            </router-link>
           </div>
         </div>
 

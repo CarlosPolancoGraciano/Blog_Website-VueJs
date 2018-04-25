@@ -8,12 +8,16 @@
           <div class="col-lg-8 col-md-10 mx-auto">
             <div class="site-heading">
               <h1>Blog Company</h1>
+              <span class="subheading">See and learn from the latest news</span>
               <div v-if="currentUser !== null">
                 <span class="subheading">
-                  <router-link to="/NewPost" class="btn btn-outline-primary">Crear nueva noticia</router-link>
+                  <router-link to="/NewPost" class="btn btn-success btn-lg">
+                    Create a post
+                    &nbsp;
+                    <AppIcon iconName="caret-right" class="fa-lg" />
+                  </router-link>
                 </span>
               </div>
-              <span class="subheading">Enterate de todas las nuevas noticias</span>
             </div>
           </div>
         </div>
@@ -27,12 +31,14 @@
 
 <script>
 // @ is an alias to /src
-import HomePostsComponent from '@/components/home/HomePostsComponent.vue'
+import HomePostsComponent from '@/components/home/HomePostsComponent.vue';
+import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'home',
   components: {
-    HomePostsComponent
+    HomePostsComponent,
+    AppIcon
   },
   data(){
     return{
