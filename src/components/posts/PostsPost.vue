@@ -47,7 +47,9 @@
                     <div class="card-body">
                       <b-form @submit.prevent="createComment">
                         <div class="form-group text-left">
-                          <froala :tag="'textarea'" :config="config" v-model="newComment.content"></froala>
+                          <at :members="users" v-model="vueAtContent">
+                            <froala :tag="'textarea'" :config="config" v-model="newComment.content" contenteditable></froala>
+                          </at>
                         </div>
                         <b-button variant="primary"
                                   type="submit">
@@ -115,22 +117,27 @@
 <script>
 import AppIcon from '@/components/app/AppIcon.vue';
 import VueFroala from 'vue-froala-wysiwyg';
+import At from 'vue-at';
 import { global } from '@/components/mixins/global';
 
 export default {
   name: 'post',
   mixins: [global],
   components: {
-    AppIcon
+    AppIcon,
+    At
   },
   data(){
     return{
+      notificationsURL: this.pusherURL(),
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
       likes: 0,
+      users: [],
       posts: [],
       comments: [],
       currentUser: {},
+      vueAtContent: '',
       newComment: {
         content: ""
       },
@@ -148,81 +155,89 @@ export default {
       this.$router.push('/');
     }
     
-    this.getPostData();     
-    this.getCommentData();
-    this.loadCurrentUser();
+    // Seek in API
+    this.getAllInitialData();
   },
   methods:{
+    getAllInitialData(){
+      let that = this;
+
+      axios.all([that.getPostData(), that.getCommentData(), that.getUsersData()])
+      .then(axios.spread(function (post, comment, users) {
+        // Both requests are now complete
+      }));
+
+       // Seek in Vuex
+      this.loadCurrentUser();
+    },
     getPostData(){
       /* Request Post Data */
-      axios.get(`${this.axiosURL}/posts/${this.$route.params.id}`)
-        .then((response) => { 
-          let post = response.data;
+      return axios.get(`${this.axiosURL}/posts/${this.$route.params.id}`)
+              .then((response) => { 
+                let post = response.data;
 
-          // Request for Post Owner Info
-          axios.get(`${this.axiosURL}/users/${response.data.id}`)
-            .then((response) => {
-              post.username = response.data.username;
-              this.posts.push(post);
-            });
-        });
+                // Request for Post Owner Info
+                axios.get(`${this.axiosURL}/users/${response.data.id}`)
+                  .then((response) => {
+                    post.username = response.data.username;
+                    this.posts.push(post);
+                  });
+              });
     },
     getCommentData(){
       /* Request Comment Data */
-      axios.get(`${this.axiosURL}/comments?postId=${this.$route.params.id}`)
-        .then((response) => { 
-          let commentArray = [];
-          if(response.data != undefined && response.data.length > 0){
-            commentArray = response.data;
-            this.comments = commentArray.reverse();
-            console.log(response.data);
-          }
-        })
-        .catch((error) => {
-          if(error.response.status === 404){
-            this.comments = [];
-          }
-        });
+      return axios.get(`${this.axiosURL}/comments?postId=${this.$route.params.id}`)
+            .then((response) => { 
+              let commentArray = [];
+              if(response.data != undefined && response.data.length > 0){
+                commentArray = response.data;
+                this.comments = commentArray.reverse();
+                // console.log(response.data);
+                return;
+              }
+              this.comments = commentArray;
+            })
+            .catch((error) => {
+              if(error.response.status === 404){
+                this.comments = [];
+              }
+            });
     },
-    deleteComment(commentId){
+    getUsersData(){
+      // Vue-at main data 
+
       let that = this;
-      swal({
-        title: "Are you sure?",
-        text: "This comment will be deleted permanently",
-        icon: "info",
-        buttons:{
-          cancel: {
-            text: "Cancel",
-            value: null,
-            visible: true,
-            className: "",
-            closeModal: true,
-          },
-          confirm: {
-            text: "Accept",
-            value: true,
-            visible: true,
-            className: "btn btn-danger",
-            closeModal: true
-          }
+
+      return axios.get(`${that.axiosURL}/users`).then((response) =>{
+        // Complete users load
+        if(response != undefined || response.length > 0){
+          let returnedUsers = [];
+          let mapUsers = response.data;
+          mapUsers.forEach((user, index, usersArr) => {
+            returnedUsers.push(String(usersArr[index].username));
+          });
+          that.users = returnedUsers;
         }
-      }).then((success) => {
-        if(success){
-          axios.delete(`${that.axiosURL}/comments/${commentId}`)
-               .then((response) => {
-                that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
-                that.getCommentData();
-               })
-               .catch((error) =>{
-                 that.dynamicToastr({title: `Error in deleting comment proccess`, msg:`${error.response.status}`, type: `error`});
-               })
-        }
-      })
+      });
     },
     loadCurrentUser(){
       this.currentUser = this.$store.getters.getCurrentUser;
       if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
         this.currentUser = {};
+      }
+    },
+    formatPostDate(date){
+      return moment(date).format('MMMM Do YYYY');
+    },
+    formatCommentDateFromNow(date){
+      if(date === null) return '';
+      return moment(date).fromNow();
+    },
+    postEnableComments(enableComments){
+      if(enableComments !== "No"){
+        return true;
+      }else{
+        return false;
       }
     },
     deletePost(postId){
@@ -263,28 +278,38 @@ export default {
         }
       })
     },
+    getLatestCommentId(){
+      axios.get(`${this.axiosURL}/comments`).then((response) => {
+            let commentsArray = [];
+            commentsArray = response.data;
+            if(commentsArray.length === 0){
+              return 0;
+            }
+            return commentsArray.length
+          })
+    },
     createComment(){
       let that = this;
       
       if(Object.keys(that.currentUser).length > 0){
         if(that.newComment.content !== ''){
 
-            let comment = {
-              id: that.getLatestCommentId() + 1,
-              content: that.newComment.content,
-              postId: Number(that.$route.params.id),
-              created_at: new Date(),
-              userId: that.currentUser.id,
-              userName: that.currentUser.firstName + " " + that.currentUser.lastName,
-              userAvatar: that.currentUser.avatar
-            };
-            
-            axios.post(`${that.axiosURL}/comments`, comment)
-                  .then((response) => {
-                    that.newComment.content = '';
-                    that.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
-                    that.getCommentData();
-                  });
+        let comment = {
+          id: that.getLatestCommentId() + 1,
+          content: that.newComment.content,
+          postId: Number(that.$route.params.id),
+          created_at: new Date(),
+          userId: that.currentUser.id,
+          userName: that.currentUser.firstName + " " + that.currentUser.lastName,
+          userAvatar: that.currentUser.avatar
+        };
+
+        axios.all([that.saveCommentInDB(comment), that.sendCommentNotifications(comment)])
+              .then(axios.spread(function (comment, notification) {
+                // Both requests are now complete
+                console.log("Both sent!");
+              }));
+
         }else{
           that.dynamicToastr({title: 'Oops!', msg: 'The comments field is empty', type: 'error' });
         }
@@ -297,34 +322,67 @@ export default {
       }
       
     },
-    getLatestCommentId(){
-      axios.get(`${this.axiosURL}/comments`).then((response) => {
-            let commentsArray = [];
-            commentsArray = response.data;
-            if(commentsArray.length === 0){
-              return 0;
-            }
-            return commentsArray.length
-          })
+    saveCommentInDB(comment){
+      return axios.post(`${this.axiosURL}/comments`, comment)
+        .then((response) => {
+          this.newComment.content = '';
+          this.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
+          this.getCommentData();
+      });
     },
-    formatPostDate(date){
-      return moment(date).format('MMMM Do YYYY');
+    sendCommentNotifications(comment){
+      return axios.post(`${this.notificationsURL}/notification`, comment)
+        .then((response) => {
+          this.$store.dispatch('setNewNotification', true);
+          this.dynamicToastr({title: "Notification send", msg: '', type: 'success' });
+      });
     },
-    formatCommentDateFromNow(date){
-      if(date === null) return '';
-      return moment(date).fromNow();
-    },
-    postEnableComments(enableComments){
-      if(enableComments !== "No"){
-        return true;
-      }else{
-        return false;
-      }
+    deleteComment(commentId){
+      let that = this;
+      swal({
+        title: "Are you sure?",
+        text: "This comment will be deleted permanently",
+        icon: "info",
+        buttons:{
+          cancel: {
+            text: "Cancel",
+            value: null,
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          confirm: {
+            text: "Accept",
+            value: true,
+            visible: true,
+            className: "btn btn-danger",
+            closeModal: true
+          }
+        }
+      }).then((success) => {
+        if(success){
+          axios.delete(`${that.axiosURL}/comments/${commentId}`)
+               .then((response) => {
+                //  swal({
+                //    title: "Cooment deleted succesfully!",
+                //    icon: "success"
+                //  }).then((success) => {
+                //    that.getCommentData();
+                //  });
+                that.dynamicToastr({title: "Comment deleted succesfully", msg:"", type: "success"});
+                that.getCommentData();
+                
+               })
+               .catch((error) =>{
+                 that.dynamicToastr({title: `Error in deleting comment proccess`, msg:`${error.response.status}`, type: `error`});
+               })
+        }
+      })
     },
     axiosPostRequest(url, postObj){
       axios.post(url, postObj)
         .then((response) => {
-          console.log(response.data);
+          // console.log(response.data);
         })
         .catch((error) => {
           console.log(error);

@@ -1,6 +1,10 @@
 export const global = {
     methods: {
         /* Static URLs Methods */
+        pusherURL(){
+            const pusherURL = "http://localhost:15536";
+            return pusherURL;
+        },
         websiteURL(){
             const websiteURL = "http://localhost:8080";
             return websiteURL;

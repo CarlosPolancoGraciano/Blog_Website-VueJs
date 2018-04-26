@@ -56,7 +56,9 @@
 </template>
 <script>
 import AppIcon from '@/components/app/AppIcon.vue';
+import Pusher from 'pusher-js';
 import { global } from '@/components/mixins/global.js';
+import { mapGetters } from 'vuex';
 
 export default {
   name: 'NavbarComponent',
@@ -66,6 +68,7 @@ export default {
   },
   data(){
     return{
+      commentNotifications: [],
       user: {},
       userLogged: false
     }
@@ -73,12 +76,37 @@ export default {
   computed:{
     userFullName(){
       return this.user.firstName + " " + this.user.lastName
+    },
+    ...mapGetters({
+      newNotification: 'getNewNotification'
+    })
+  },
+  watch: {
+    newNotification(newVal, oldVal){
+      console.log(newVal);
+      if(newVal){
+        this.subscribe();
+        this.$store.dispatch('setNewNotification', false);
+      }
     }
+  },
+  created () {
+    this.subscribe();
   },
   mounted(){
     this.checkForLoggedUser();
   },
   methods:{
+    subscribe(){
+      // Pusher methods! 
+      let pusher = new Pusher('f9a2f81061f58802038f', { cluster: 'mt1' });
+      pusher.subscribe('private-notifications');
+      pusher.bind('notification_added', data => {
+        this.commentNotifications.unshift(data.content);
+        console.log(this.commentNotifications);
+      });
+
+    },
     checkForLoggedUser(){
       let currentUser = this.getCurrentUser();
       
