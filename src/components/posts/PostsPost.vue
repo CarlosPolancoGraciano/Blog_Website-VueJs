@@ -31,7 +31,7 @@
               <hr>
 
               <!-- Date/Time -->
-              <p>Posted on {{ transformPostDate(post.date) }}</p>
+              <p>Posted on {{ formatPostDate(post.date) }}</p>
 
               <hr>
 
@@ -46,7 +46,7 @@
                   <h5 class="card-header">Leave a Comment:</h5>
                     <div class="card-body">
                       <b-form @submit.prevent="createComment">
-                        <div class="form-group">
+                        <div class="form-group text-left">
                           <froala :tag="'textarea'" :config="config" v-model="newComment.content"></froala>
                         </div>
                         <b-button variant="primary"
@@ -64,13 +64,30 @@
                     </div>
                 </div>
                 <!-- Single Comment -->
-                  <div v-if="comment.length > 0">
-                    <div class="media mb-4">
-                      <img class="d-flex mr-3 rounded-circle" src="http://placehold.it/50x50" alt="User picture">
-                        <div class="media-body">
-                          <h5 class="mt-0">Commenter Name</h5>
-                          <span>{{ comment.content }}</span>
+                  <div class="row" v-if="comments.length > 0">
+                    <div class="col-md-12" v-for="(comment, index) in comments" :key="index">
+                      <div class="card">
+                        <div class="card-body text-left">
+                          <div class="media mb-4">
+                            <img class="mr-3 rounded-circle" src="http://placehold.it/50x50" alt="User picture">
+                            <div class="media-body">
+                              <div class="row">
+                                <div class="col-md-6 text-left">
+                                  <h5 class="mt-0">{{ comment.userName }}</h5>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                  <!-- Delete post button -->
+                                  <button class="btn btn-link" @click="deleteComment(comment.id)">
+                                    <AppIcon iconName="times" class="fa-lg text-danger" />
+                                  </button>
+                                </div>
+                              </div>
+                              <div v-html="comment.content"></div>
+                              <p class="mb-0 mt-2 text-primary">{{ formatCommentDateFromNow(comment.created_at) }}</p>
+                            </div>
+                          </div>
                         </div>
+                      </div>
                     </div>
                   </div>
                   <div v-else>
@@ -112,7 +129,7 @@ export default {
       axiosURL: this.requestURL(),
       likes: 0,
       posts: [],
-      comment: [],
+      comments: [],
       currentUser: {},
       newComment: {
         content: ""
@@ -152,17 +169,55 @@ export default {
     },
     getCommentData(){
       /* Request Comment Data */
-      axios.get(`${this.axiosURL}/comments/${this.$route.params.id}`)
+      axios.get(`${this.axiosURL}/comments?postId=${this.$route.params.id}`)
         .then((response) => { 
           let commentArray = [];
-          commentArray.push(response.data);
-          this.comment = commentArray.reverse();
+          if(response.data != undefined && response.data.length > 0){
+            commentArray = response.data;
+            this.comments = commentArray.reverse();
+            console.log(response.data);
+          }
         })
         .catch((error) => {
           if(error.response.status === 404){
-            this.comment = [];
+            this.comments = [];
           }
         });
+    },
+    deleteComment(commentId){
+      let that = this;
+      swal({
+        title: "Are you sure?",
+        text: "This comment will be deleted permanently",
+        icon: "info",
+        buttons:{
+          cancel: {
+            text: "Cancel",
+            value: null,
+            visible: true,
+            className: "",
+            closeModal: true,
+          },
+          confirm: {
+            text: "Accept",
+            value: true,
+            visible: true,
+            className: "btn btn-danger",
+            closeModal: true
+          }
+        }
+      }).then((success) => {
+        if(success){
+          axios.delete(`${that.axiosURL}/comments/${commentId}`)
+               .then((response) => {
+                that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
+                that.getCommentData();
+               })
+               .catch((error) =>{
+                 that.dynamicToastr({title: `Error in deleting comment proccess`, msg:`${error.response.status}`, type: `error`});
+               })
+        }
+      })
     },
     loadCurrentUser(){
       this.currentUser = this.$store.getters.getCurrentUser;
@@ -211,17 +266,29 @@ export default {
     createComment(){
       let that = this;
       
-      if(that.currentUser !== undefined){
+      if(Object.keys(that.currentUser).length > 0){
         if(that.newComment.content !== ''){
+
             let comment = {
-              id: 1,
+              id: that.getLatestCommentId() + 1,
               content: that.newComment.content,
-              postId: that.$route.params.id,
-              userId: that.currentUser.id
+              postId: Number(that.$route.params.id),
+              created_at: new Date(),
+              userId: that.currentUser.id,
+              userName: that.currentUser.firstName + " " + that.currentUser.lastName,
+              userAvatar: that.currentUser.avatar
             };
-          that.axiosPostRequest(`${that.axiosURL}/comments`, comment);
+            
+            axios.post(`${that.axiosURL}/comments`, comment)
+                  .then((response) => {
+                    that.newComment.content = '';
+                    that.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
+                    that.getCommentData();
+                  });
+        }else{
+          that.dynamicToastr({title: 'Oops!', msg: 'The comments field is empty', type: 'error' });
         }
-        that.dynamicToastr({title: 'Oops!', msg: 'The comments field is empty', type: 'error' });
+        
       }else{
         swal("Oops!", "No puedes comentar debes iniciar sesión primero", "error")
           .then((success) => {
@@ -230,8 +297,22 @@ export default {
       }
       
     },
-    transformPostDate(date){
+    getLatestCommentId(){
+      axios.get(`${this.axiosURL}/comments`).then((response) => {
+            let commentsArray = [];
+            commentsArray = response.data;
+            if(commentsArray.length === 0){
+              return 0;
+            }
+            return commentsArray.length
+          })
+    },
+    formatPostDate(date){
       return moment(date).format('MMMM Do YYYY');
+    },
+    formatCommentDateFromNow(date){
+      if(date === null) return '';
+      return moment(date).fromNow();
     },
     postEnableComments(enableComments){
       if(enableComments !== "No"){

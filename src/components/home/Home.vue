@@ -42,7 +42,8 @@ export default {
   },
   data(){
     return{
-      currentUser: null
+      currentUser: null,
+      avatar: null
     }
   },
   mounted(){

@@ -39,7 +39,7 @@
             <b-form-group label="Profile Picture:"
                           label-for="avatarUploadInput"
                           description="You can drag and drop the image here">
-              <b-form-file id="avatarUploadInput" v-model="userCompletedData.avatar" accept="image/*" placeholder="Upload your profile picture..."></b-form-file>
+              <b-form-file id="avatarUploadInput" name="avatar" v-model="userCompletedData.avatar" accept="image/*" placeholder="Upload your profile picture..."></b-form-file>
             </b-form-group>
             <b-form-group label="Description:"
                           label-for="descriptionInput">
@@ -107,6 +107,9 @@ export default {
       let that = this;
       const userId = that.user[0].id;
 
+      let avatar = new FormData();
+      avatar.append('avatar', this.userCompletedData.avatar);
+
       // Profile remaining data and existing user data
       const completeUserData = {
         hash: "",
@@ -115,29 +118,43 @@ export default {
         firstName: that.userCompletedData.firstName,
         lastName: that.userCompletedData.lastName,
         description: that.userCompletedData.description,
-        avatar: "",
+        avatar: ""
       }
 
-      // Request to send complete user data
-      axios.patch(`${that.axiosURL}/users/${userId}`, completeUserData)
-           .then((success) => {
-              //If request was successful
-              // Log in the user
-              this.saveCurrentUser(completeUserData, that.isLocal);
+      // Upload user image
+      axios.post('http://localhost:15536/upload', avatar, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      }).then((response) => {
+        let requestResponse = response.data;
 
-              //Send user to create new post and show a swal after
-              that.$router.push('/newpost', () => { 
-                swal("Registration completed!", "You're logged into your account and you were redirected to create your first post", "success") 
+        // Complete user data
+        completeUserData.avatar = requestResponse.url;        
+
+        if(completeUserData.avatar != ''){
+            axios.patch(`${that.axiosURL}/users/${userId}`, completeUserData)
+              .then((success) => {
+                //If request was successful
+
+                // Log in the user
+                this.saveCurrentUser(completeUserData, that.isLocal);
+
+                //Send user to create new post and show a swal after
+                that.$router.push('/newpost', () => { 
+                  swal("Registration completed!", "You're logged into your account and you were redirected to create your first post", "success") 
+                });
+              })
+              .catch((error) => {
+
+                //If request was failed
+                that.dynamicToastr({title: `Ooops!`, 
+                              msg: `Http error: ${error.response.status} ocurred trying to save your information`, 
+                              type: `error`});
               });
-            })
-            .catch((error) => {
-              //If request was failed
-              that.dynamicToastr({title: `Ooops!`, 
-                            msg: `Http error: ${error.response.status} ocurred trying to save your information`, 
-                            type: `error`});
-            });
-            
-    
+         }
+      });
+
     },
     dynamicToastr(toastrObj){
       let that = this;

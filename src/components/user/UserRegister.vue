@@ -78,7 +78,7 @@ export default {
 
           /* New User Data */
           const newUser = {
-            id: 1,
+            id: that.getLatestId() + 1,
             email: that.email,
             password: that.password,
             active: false,
@@ -86,7 +86,7 @@ export default {
           };
 
           /* Http Post with New User Data */
-          axios.post(`${this.axiosURL}/users`, newUser).then((response) => {
+          axios.post(`${that.axiosURL}/users`, newUser).then((response) => {
             //Send Email to User
             that.sendVerificationEmail(newUser.hash, newUser.email); 
            });
@@ -138,6 +138,17 @@ export default {
                           `success`);
                   }    
                );
+    },
+    getLatestId(){
+       axios.get(`${this.axiosURL}/users`)
+            .then((response) => {
+              let usersArray = [];
+              usersArray = response.data;
+              if(usersArray.length === 0){
+                return 0;
+              }
+              return usersArray.length;
+            });
     },
     dynamicToastr(toastrObj){
       that.$toastr( 'add',

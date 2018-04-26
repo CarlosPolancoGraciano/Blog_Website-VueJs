@@ -117,7 +117,9 @@
                   </div>
               </div>
               <div class="col-lg-4 order-lg-1 text-center">
-                  <img src="//placehold.it/150" class="mx-auto img-fluid rounded-circle" alt="avatar">
+                  <!-- <img src="//placehold.it/150" class="mx-auto img-fluid rounded-circle" alt="avatar"> -->
+                  <!-- <img src="../../../public/images/" class="mx-auto img-fluid rounded-circle" alt="avatar"> -->
+                  <img :src="'../assets/images/' + user.avatar" class="mx-auto img-fluid rounded-circle" :alt="user.username + ' profile image'">
                   <h6 class="mt-2 font-weight-bold">@{{ user.username }}</h6>
               </div>
           </div>

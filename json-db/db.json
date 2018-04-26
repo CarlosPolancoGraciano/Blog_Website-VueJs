@@ -34,9 +34,21 @@
       "firstName": "Carlos Daniel",
       "lastName": "Polanco Ortega",
       "description": "Hi! I'm Carlos a funny guy",
-      "avatar": "",
+      "avatar": "avatar-1524706120060.jpeg",
       "isPublic": "false"
+    },
+    {
+      "id": 2,
+      "email": "sincedayonerch26@gmail.com",
+      "password": "walkman06",
+      "active": true,
+      "hash": "",
+      "username": "CarlosPeguero",
+      "firstName": "Carlos Aurelio",
+      "lastName": "Peguero Graciano",
+      "description": "Hi! I'm a cute guy",
+      "avatar": "avatar-1524706120060.jpeg"
     }
   ],
-  "activity":[]
+  "activity": []
 }

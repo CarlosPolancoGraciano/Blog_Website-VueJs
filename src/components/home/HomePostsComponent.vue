@@ -180,7 +180,7 @@ export default {
             closeModal: true,
           },
           confirm: {
-            text: "Yes, I'm sure!",
+            text: "Accept",
             value: true,
             visible: true,
             className: "btn btn-danger",
