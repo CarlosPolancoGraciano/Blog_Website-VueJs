@@ -57,12 +57,10 @@
 <script>
 import AppIcon from '@/components/app/AppIcon.vue';
 import Pusher from 'pusher-js';
-import { global } from '@/components/mixins/global.js';
-import { mapGetters } from 'vuex';
+// import { mapGetters } from 'vuex';
 
 export default {
   name: 'NavbarComponent',
-  mixins: [global],
   components:{
     AppIcon
   },
@@ -77,9 +75,9 @@ export default {
     userFullName(){
       return this.user.firstName + " " + this.user.lastName
     },
-    ...mapGetters({
-      newNotification: 'getNewNotification'
-    })
+    // ...mapGetters({
+    //   newNotification: 'getNewNotification'
+    // })
   },
   watch: {
     newNotification(newVal, oldVal){
@@ -91,42 +89,39 @@ export default {
     }
   },
   created () {
-    this.subscribe();
+    // this.subscribe();
   },
   mounted(){
     this.checkForLoggedUser();
   },
   methods:{
-    subscribe(){
-      // Pusher methods! 
-      let pusher = new Pusher('f9a2f81061f58802038f', { cluster: 'mt1' });
-      pusher.subscribe('private-notifications');
-      pusher.bind('notification_added', data => {
-        this.commentNotifications.unshift(data.content);
-        console.log(this.commentNotifications);
-      });
+    // subscribe(){
+    //   // Pusher methods! 
+    //   let pusher = new Pusher('f9a2f81061f58802038f', { cluster: 'mt1' });
+    //   pusher.subscribe('private-notifications');
+    //   pusher.bind('notification_added', data => {
+    //     this.commentNotifications.unshift(data.content);
+    //     console.log(this.commentNotifications);
+    //   });
 
-    },
+    // },
     checkForLoggedUser(){
-      let currentUser = this.getCurrentUser();
-      
+      let currentUser = this.getCurrentUser;
       if(currentUser !== null){
         this.user = currentUser;
-        this.userLogged = true;
 
-        // Save data in Vuex
-        this.$store.dispatch('setCurrentUser', currentUser);
+        this.userLogged = this.getUserLogged;
       }
     },
     logOut(){
-      // Clean from WebStorate
-      this.removeCurrentUser();
-      this.userLogged = false;
+      // Clean from WebStorage
+      this.removeWebStorageCurrentUser();
 
       //Clean from Vuex
-      this.$store.dispatch('removeCurrentUser');
+      this.removeAuthCurrentUser();
+      this.removeUserLogged();
 
-      this.$router.push('/', () => { location.reload(); })
+      this.$router.push('/');
     }
   }
 }

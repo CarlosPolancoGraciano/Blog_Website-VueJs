@@ -49,11 +49,9 @@
 </template>
 <script>
 import hash from 'object-hash';
-import { global } from '@/components/mixins/global';
 
 export default {
   name: 'UserRegister',
-  mixins: [global],
   data(){
     return{
       email: "",

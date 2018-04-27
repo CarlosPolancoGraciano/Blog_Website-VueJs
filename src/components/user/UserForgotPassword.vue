@@ -39,11 +39,9 @@
 <script>
 import hash from 'object-hash';
 import AppIcon from '@/components/app/AppIcon.vue';
-import { global } from '@/components/mixins/global.js';
 
 export default {
   name: 'ForgotPassword',
-  mixins: [global],
   components:{
     AppIcon
   },

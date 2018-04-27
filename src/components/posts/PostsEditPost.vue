@@ -102,11 +102,9 @@
 <script>
 import VueFroala from 'vue-froala-wysiwyg';
 import AppIcon from '@/components/app/AppIcon.vue';
-import { global } from '@/components/mixins/global';;
 
 export default {
   name: 'NewPost',
-  mixins: [global],
   components:{
     AppIcon
   },
@@ -116,6 +114,7 @@ export default {
       post:{},
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
+      userLogged: null,
       config: {
         events: {
           'froalaEditor.initialized': function () {
@@ -153,17 +152,21 @@ export default {
       axios.get(`${this.axiosURL}/posts?id=${this.$route.params.id}`)
         .then((response) => {
           this.post = response.data[0]; //Obtain the only object returned
-          this.loadCurrentUser(this.post.id);
+          this.checkLoggedUser(this.post.id);
         })
         .catch((error) => {
           console.log(error);
         });
     },
+    checkLoggedUser(postId){
+      this.userLogged = this.getUserLogged;
+      this.loadCurrentUser(postId);
+    },
     loadCurrentUser(postId){
-      this.currentUser = this.$store.getters.getCurrentUser;
+      this.currentUser = this.getCurrentUser;
       
       // Validate there is a current user
-      if(Object.keys(this.currentUser).length == 0){
+      if(Object.keys(this.currentUser).length == 0 && this.userLogged){
         this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
       }
       // Validate current user is the post owner

@@ -64,12 +64,10 @@
 </template>
 <script>
 import hash from "object-hash";
-import { global } from "@/components/mixins/global";
 import AppIcon from "@/components/app/AppIcon.vue";
 
 export default {
   name: "Login",
-  mixins: [global],
   components: {
     AppIcon
   },
@@ -88,38 +86,60 @@ export default {
   methods: {
     loginUser() {
       let that = this;
-      let isLocal = (that.login.rememberMe == "true");
+      let isLocal = (this.login.rememberMe == "true");
         
-      axios.get(`${that.axiosURL}/users?email=${that.login.email}&password=${that.login.password}`)
-        .then((response) => {
+      axios.get(`${this.axiosURL}/users?email=${this.login.email}&password=${this.login.password}`)
+        .then(response => {
           const user = response.data;
-          console.log(response.data);
-          if(response.data.length > 0){
-            if (isLocal) {
-              let saveResult = that.saveCurrentUser(user[0], isLocal);
-              if(saveResult){
-                this.$router.push("/", () => { location.reload(); });
-              }
 
-            }else{
-              let saveResult = that.saveCurrentUser(user[0], isLocal);
+          if(user.length > 0){
+            if (isLocal) {
+              //localStorage
+
+              /* Mixin methods */
+              // GLOBAL
+              let saveResult = this.saveWebStorageCurrentUser(user[0], isLocal);
+
+              // Save data in Vuex through Mixins - USER_AUTH
+              this.setAuthCurrentUser(user);
+
+              // USER_LOGGED
+              this.setUserLogged();
+
               if(saveResult){
-                this.$router.push("/", () => { location.reload(); });
+                that.$router.push("/");
+              }
+            }else{
+              //sessionStorage
+
+              /* Mixin methods */
+              // GLOBAL
+              let saveResult = this.saveWebStorageCurrentUser(user[0], isLocal);
+
+              // Save data in Vuex through Mixins - USER_AUTH
+              this.setAuthCurrentUser(user);
+
+              // USER_LOGGED
+              this.setUserLogged();
+
+              if(saveResult){
+                that.$router.push("/");
               }
             }
           }else{
-            that.dynamicToastr({title: "Access Denied",
+            this.dynamicToastr({title: "Access Denied",
                               msg: `Your email or password is invalid`, 
                               type: "error"});
           }
           
         })
         .catch((error) => {
-          that.dynamicToastr({title: "Ooops!",
+          console.log(error);
+          this.dynamicToastr({title: "Ooops!",
                               msg: `Error while requesting to API`, 
                               type: "error"});
         });
-      },
+    },
     dynamicToastr(toastrObj) {
       let that = this;
 

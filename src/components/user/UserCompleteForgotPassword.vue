@@ -48,11 +48,9 @@
 </template>
 <script>
 import AppIcon from '@/components/app/AppIcon.vue';
-import { global } from '@/components/mixins/global.js';
 
 export default {
   name: 'CompleteForgotPassword',
-  mixins:[global],
   components:{
     AppIcon
   },
@@ -90,16 +88,19 @@ export default {
       });
     },
     saveNewPasswords(){
-      let that = this;
-
-      if(that.newPassword === that.confirmNewPassword){
-        axios.patch(`${this.axiosURL}/users/${that.user[0].id}`, { password: that.newPassword, hash: "", isPublic: "true" })
+      if(this.newPassword === this.confirmNewPassword){
+        axios.patch(`${this.axiosURL}/users/${this.user[0].id}`, { password: this.newPassword, hash: "", isPublic: "true" })
              .then((response) => {
                swal("Password changed!", "You'll be logged in and redirected to create a new post", "success")
                .then((success) => {
                  if(success){
-                   that.saveCurrentUser(that.user[0], 'true'); // Log user [true = local | false = session]
-                   that.$router.push('/newpost', () => { location.reload(); });
+                  /* Methods in mixins */
+                  // GLOBAL
+                  this.saveCurrentUser(this.user[0], 'true'); // Log user [true = local | false = session]
+
+                  // USER_LOGGED
+                  this.setUserLogged();
+                  this.$router.push('/newpost');
                  }
                })
              })

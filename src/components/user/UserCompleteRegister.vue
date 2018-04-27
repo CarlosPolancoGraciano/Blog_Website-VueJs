@@ -59,11 +59,9 @@
   </div>
 </template>
 <script>
-import { global } from '@/components/mixins/global';
 
 export default {
   name: 'CompleteRegister',
-  mixins: [global],
   data(){
     return{
       user: [],

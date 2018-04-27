@@ -1,13 +1,17 @@
 
 // Vuex state
 const state = {
-    currentUser: {} //User info
+    currentUser: {}, //User info
+    userLogged: false,
 };
 
 // Vuex getter
 const getters = {
     getCurrentUser(state){
         return state.currentUser;
+    },
+    getUserLogged(state){
+        return state.userLogged;
     }
 };
 
@@ -18,6 +22,9 @@ const mutations = {
     },
     removeCurrentUser(state){
         state.currentUser = {};
+    },
+    setUserLogged(state, userIsLogged){
+        state.userLogged = userIsLogged;
     }
 };
 
@@ -28,6 +35,9 @@ const actions = {
     },
     removeCurrentUser({ commit }){
         commit('removeCurrentUser');
+    },
+    setUserLogged({ commit }, userIsLogged){
+        commit('setUserLogged', userIsLogged);
     }
 };
 

@@ -210,11 +210,9 @@
 </template>
 <script>
 import AppIcon from '@/components/app/AppIcon.vue';
-import { global } from '@/components/mixins/global';
 
 export default {
   name: 'Settings',
-  mixins: [global],
   components:{
     AppIcon
   },
@@ -239,7 +237,7 @@ export default {
   },
   methods:{
     loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
+      this.currentUser = this.getCurrentUser;
       if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
         this.$route.push('/');
       }

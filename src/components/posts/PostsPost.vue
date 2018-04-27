@@ -10,7 +10,7 @@
                 <!-- <router-link class="btn btn-secondary">&larr; Volver a la busqueda</router-link> -->
               </div>
               <div class="col-md-4 offset-md-4 text-right">
-                <div class="text-right" v-if="currentUser.id === post.userId">
+                <div class="text-right" v-if="currentUser.id === post.userId && userLogged">
                   <!-- Delete post button -->
                   <button class="btn btn-link" @click="deletePost(post.id)">
                     <AppIcon iconName="times" class="fa-lg text-danger" />
@@ -118,11 +118,9 @@
 import AppIcon from '@/components/app/AppIcon.vue';
 import VueFroala from 'vue-froala-wysiwyg';
 import At from 'vue-at';
-import { global } from '@/components/mixins/global';
 
 export default {
   name: 'post',
-  mixins: [global],
   components: {
     AppIcon,
     At
@@ -132,6 +130,7 @@ export default {
       notificationsURL: this.pusherURL(),
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
+      userLogged: null,
       likes: 0,
       users: [],
       posts: [],
@@ -168,7 +167,7 @@ export default {
       }));
 
        // Seek in Vuex
-      this.loadCurrentUser();
+      this.checkUserLogged();
     },
     getPostData(){
       /* Request Post Data */
@@ -220,8 +219,12 @@ export default {
         }
       });
     },
+    checkUserLogged(){
+      this.userLogged = this.getUserLogged;
+      this.loadCurrentUser();
+    },
     loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
+      this.currentUser = this.getCurrentUser;
       if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
         this.currentUser = {};
       }
@@ -291,7 +294,7 @@ export default {
     createComment(){
       let that = this;
       
-      if(Object.keys(that.currentUser).length > 0){
+      if(Object.keys(that.currentUser).length > 0 && this.userLogged){
         if(that.newComment.content !== ''){
 
         let comment = {

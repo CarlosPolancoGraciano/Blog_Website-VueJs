@@ -130,11 +130,9 @@
 </template>
 <script>
 import AppIcon from '@/components/app/AppIcon.vue';
-import { global } from '@/components/mixins/global';
 
 export default {
   name: 'Profile',
-  mixins: [global],
   components:{
     AppIcon
   },
@@ -164,7 +162,7 @@ export default {
       // this.currentUser = this.$store.getters.getCurrentUser;
       return axios.get(`${that.axiosURL}/users?username=${that.$route.params.username}`)
            .then((response) => {
-              let currentUser = that.$store.getters.getCurrentUser;
+              let currentUser = that.getCurrentUser;
               that.user = response.data[0];
 
               if(Object.keys(that.user).length == 0){

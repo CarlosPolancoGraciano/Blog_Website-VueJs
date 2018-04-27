@@ -9,7 +9,7 @@
             <div class="site-heading">
               <h1>Blog Company</h1>
               <span class="subheading">See and learn from the latest news</span>
-              <div v-if="currentUser !== null">
+              <div v-if="userLogged">
                 <span class="subheading">
                   <router-link to="/NewPost" class="btn btn-success btn-lg">
                     Create a post
@@ -43,15 +43,20 @@ export default {
   data(){
     return{
       currentUser: null,
+      userLogged: false,
       avatar: null
     }
   },
   mounted(){
-    this.loadCurrentUser();
+    this.checkUserLogged();
   },
   methods:{
+    checkUserLogged(){
+      this.userLogged = this.getUserLogged;
+      this.loadCurrentUser();
+    },
     loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
+      this.currentUser = this.getCurrentUser;
       if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
         this.currentUser = null;
       }

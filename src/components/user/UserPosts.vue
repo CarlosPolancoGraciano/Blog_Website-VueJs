@@ -32,12 +32,10 @@
   </div>
 </template>
 <script>
-import { global } from '@/components/mixins/global';
 import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'UserPosts',
-  mixins: [global],
   components:{
     AppIcon
   },
@@ -59,7 +57,7 @@ export default {
   },
   methods:{
     loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
+      this.currentUser = this.getCurrentUser;
       if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
         this.currentUser = {};
       }

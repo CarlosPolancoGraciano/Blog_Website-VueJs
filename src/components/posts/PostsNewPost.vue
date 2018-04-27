@@ -138,11 +138,9 @@
 <script>
 import VueFroala from 'vue-froala-wysiwyg';
 import AppIcon from '@/components/app/AppIcon.vue';
-import { global } from '@/components/mixins/global';;
 
 export default {
   name: 'NewPost',
-  mixins: [global],
   components:{
     AppIcon
   },
@@ -151,6 +149,7 @@ export default {
       currentUser: {},
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
+      userLogged: null,
       config: {
         events: {
           'froalaEditor.initialized': function () {
@@ -184,12 +183,16 @@ export default {
     }
   },
   mounted(){
-    this.loadCurrentUser();
+    this.checkUserLogged();
   },
   methods:{
+    checkUserLogged(){
+      this.userLogged = this.getUserLogged;
+      this.loadCurrentUser();
+    },
     loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
-      if(Object.keys(this.currentUser).length == 0){
+      this.currentUser = this.getCurrentUser;
+      if(Object.keys(this.currentUser).length == 0 || this.userLogged){
         this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
       }
     },

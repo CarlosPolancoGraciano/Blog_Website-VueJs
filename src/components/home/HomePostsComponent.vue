@@ -12,7 +12,7 @@
                 <img class="rounded-circle mx-auto d-block" src="../../assets/UserAvatar.jpeg" alt="Card image cap">
               </router-link>
             </div>
-            <div class="col-4" v-if="currentUser.id === post.userId">
+            <div class="col-4" v-if="currentUser.id === post.userId && userLogged">
               <div class="text-right">
                 <!-- Delete post button -->
                 <button class="btn btn-link" @click="deletePost(post.id)">
@@ -31,7 +31,7 @@
           </p>
 
           <!-- Post Button Actions -->
-          <div class="btn-group" role="group" aria-label="Post owner button" v-if="currentUser.id === post.userId">
+          <div class="btn-group" role="group" aria-label="Post owner button" v-if="currentUser.id === post.userId && userLogged">
             <!-- See more Post Content if post owner is logged in -->
             <router-link :to="'/post/' + post.id" class="btn btn-primary">
               Read More 
@@ -112,7 +112,6 @@
 </template>
 <script>
 import VueFroala from 'vue-froala-wysiwyg';
-import { global } from '@/components/mixins/global';
 import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
@@ -120,23 +119,27 @@ export default {
   components:{
     AppIcon
   },
-  mixins: [global],
   data(){
     return{
       posts: [],
       postOwner: {},
       currentUser: {},
+      userLogged: null,
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL()
     }
   },
   mounted(){
     this.getAllPosts();
-    this.loadCurrentUser();
+    this.checkUserLogged();
   },
   methods:{
+    checkUserLogged(){
+      this.userLogged = this.getUserLogged;
+      this.loadCurrentUser();
+    },
     loadCurrentUser(){
-      this.currentUser = this.$store.getters.getCurrentUser;
+      this.currentUser = this.getCurrentUser;
       if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
         this.currentUser = {};
       }
@@ -195,11 +198,8 @@ export default {
                 //    title: "Post deleted succesfully!",
                 //    icon: "success"
                 //  });
-                that.dynamicToastr(
-                  {title: "Post deleted succesfully", msg:"", type: "success"},
-                  () => { location.reload() },
-                  () => { location.reload() }
-                );
+                this.getAllPosts();
+                that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
                })
                .catch((error) =>{
                  that.dynamicToastr({title: `Error in deleting file proccess`, msg:`${error.response.status}`, type: `error`});
@@ -263,7 +263,7 @@ export default {
           console.log(error);
         });
     },
-    dynamicToastr(toastrObj, onClosed = () => {}, onClicked = () => {}){
+    dynamicToastr(toastrObj){
       let that = this;
       that.$toastr( 'add',
                       { title: toastrObj.title, 
@@ -271,9 +271,7 @@ export default {
                         clickClose: true, 
                         timeout: 1500, 
                         position: 'toast-bottom-right', 
-                        type: toastrObj.type,
-                        onClosed: onClosed,
-                        onClicked: onClicked });
+                        type: toastrObj.type});
     }
   }
 }
