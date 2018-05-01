@@ -51,6 +51,11 @@ export default {
       postsfields: []
     }
   },
+  watch:{
+    getCurrentUser(newVal, oldVal){
+      this.currentUser.push(this.getCurrentUser);
+    }
+  },
   mounted(){
     this.loadCurrentUser();
     this.getUserPublishedPosts();

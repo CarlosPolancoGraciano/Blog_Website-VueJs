@@ -124,9 +124,17 @@ export default {
       posts: [],
       postOwner: {},
       currentUser: {},
-      userLogged: null,
+      userLogged: false,
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL()
+    }
+  },
+  watch:{
+    getUserLogged(newVal, oldVal){
+      this.userLogged = this.getUserLogged;
+    },
+    getCurrentUser(newVal, oldVal){
+      this.currentUser = this.getCurrentUser;
     }
   },
   mounted(){

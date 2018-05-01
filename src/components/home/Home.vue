@@ -47,6 +47,14 @@ export default {
       avatar: null
     }
   },
+  watch:{
+    getUserLogged(newVal, oldVal){
+      this.userLogged = this.getUserLogged;
+    },
+    getCurrentUser(newVal, oldVal){
+      this.currentUser = this.getCurrentUser;
+    }
+  },
   mounted(){
     this.checkUserLogged();
   },

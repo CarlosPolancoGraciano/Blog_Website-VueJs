@@ -55,9 +55,9 @@
   </nav>
 </template>
 <script>
+import { mapGetters } from 'vuex';
 import AppIcon from '@/components/app/AppIcon.vue';
 import Pusher from 'pusher-js';
-// import { mapGetters } from 'vuex';
 
 export default {
   name: 'NavbarComponent',
@@ -76,23 +76,27 @@ export default {
       return this.user.firstName + " " + this.user.lastName
     },
     // ...mapGetters({
-    //   newNotification: 'getNewNotification'
+    //   // newNotification: 'getNewNotification'
     // })
   },
   watch: {
-    newNotification(newVal, oldVal){
-      console.log(newVal);
-      if(newVal){
-        this.subscribe();
-        this.$store.dispatch('setNewNotification', false);
-      }
+    getCurrentUser(newVal, oldVal){
+      this.user = this.getCurrentUser;
     }
+    // newNotification(newVal, oldVal){
+    //   console.log(newVal);
+    //   if(newVal){
+    //     this.subscribe();
+    //     this.$store.dispatch('setNewNotification', false);
+    //   }
+    // }
   },
   created () {
     // this.subscribe();
   },
   mounted(){
-    this.checkForLoggedUser();
+    //Execute this when app initialize
+    this.checkForPreviousLoggedUser();
   },
   methods:{
     // subscribe(){
@@ -105,11 +109,32 @@ export default {
     //   });
 
     // },
-    checkForLoggedUser(){
+    checkForPreviousLoggedUser(){
+      //Execute this when app initialize
+      let currentUser = this.getWebStorageCurrentUser();
+
+      if(currentUser != undefined || currentUser != null){
+        // Save current user with Vuex
+        this.setAuthCurrentUser(currentUser);
+
+        // Set userLogged state to true
+        this.setUserLogged();
+      }
+    },
+    currentUserLoggedState(newVal){
+      if(newVal){
+        this.saveUserLoggedInfo();
+      }
+      if(!newVal){
+        this.userLogged = this.getUserLogged;
+      }
+    },
+    saveUserLoggedInfo(){
+      // Execute this if user login
       let currentUser = this.getCurrentUser;
+
       if(currentUser !== null){
         this.user = currentUser;
-
         this.userLogged = this.getUserLogged;
       }
     },

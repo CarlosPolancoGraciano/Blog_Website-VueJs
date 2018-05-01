@@ -36,7 +36,8 @@ Vue.use(BootstrapVue);
 Vue.use(VueToastr,{ defaultPosition: 'toast-bottom-left' });
 
 // Add All App Mixins Globally
-Vue.mixin({ ...USER_LOGGED, ...GLOBAL });
+Vue.mixin({ ...USER_LOGGED });
+Vue.mixin({ ...GLOBAL });
 Vue.mixin({ ...USER_AUTH });
 
 Vue.config.productionTip = false;

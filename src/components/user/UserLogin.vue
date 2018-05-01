@@ -107,7 +107,7 @@ export default {
               this.setUserLogged();
 
               if(saveResult){
-                that.$router.push("/");
+                this.$router.push("/");
               }
             }else{
               //sessionStorage
@@ -123,7 +123,7 @@ export default {
               this.setUserLogged();
 
               if(saveResult){
-                that.$router.push("/");
+                this.$router.push("/");
               }
             }
           }else{
@@ -134,7 +134,6 @@ export default {
           
         })
         .catch((error) => {
-          console.log(error);
           this.dynamicToastr({title: "Ooops!",
                               msg: `Error while requesting to API`, 
                               type: "error"});

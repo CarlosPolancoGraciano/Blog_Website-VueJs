@@ -35,6 +35,7 @@ const GLOBAL = {
             return currentUser;
         },
         saveWebStorageCurrentUser(user, isLocal){
+            debugger;
             const webStorageKey = this.webstorageKey();
 
             // isLocal indicates the webstorage that will be used
@@ -64,6 +65,11 @@ const USER_LOGGED = {
             'getUserLogged'
         ])
     },
+    watch:{
+        getUserLogged(newVal, oldVal){
+            this.currentUserLoggedState(newVal);
+        }
+    },
     methods: {
         setUserLogged(){
             this.$store.dispatch('setUserLogged', true);
@@ -81,9 +87,20 @@ const USER_AUTH = {
             'getCurrentUser'
         ])
     },
+    watch:{
+        getCurrentUser(newVal, oldVal){
+            this.currentUserInfo
+        }
+    },
     methods:{
         setAuthCurrentUser(user){
-            this.$store.dispatch('setCurrentUser', user[0]);
+            if(user.length > 0){
+                // Recieve an array with current user object
+                this.$store.dispatch('setCurrentUser', user[0]);
+            }else{
+               // Recieve the current user object
+               this.$store.dispatch('setCurrentUser', user);
+            }
         },
         removeAuthCurrentUser(){
             this.$store.dispatch('removeCurrentUser');
