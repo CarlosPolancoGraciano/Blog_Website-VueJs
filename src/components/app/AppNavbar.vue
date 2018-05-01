@@ -25,6 +25,29 @@
               Log in
             </router-link>
           </li>
+          <!-- If new notification arrived -->
+          <li class="nav-item active" v-if="userLogged">
+            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown"
+               v-if="counterNewNotifications > 0">
+              Notifications <span class="badge badge-primary">{{ counterNewNotifications }}</span>
+            </a>
+            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" 
+               v-else>
+              Notifications
+            </a>
+            <div class="dropdown-menu" aria-labelledby="notificationDropdown">
+              <span v-if="commentNotifications.length > 0">
+                <span v-for="(notification, index) in commentNotifications" :key="index">
+                  <router-link class="dropdown-item" :to="'/post/' + notification.postId">
+                    You were mention by {{ notification.username }} in a post
+                  </router-link>
+                </span>
+              </span>
+              <a href="#" class="dropdown-item" v-else>
+                  No mention!
+              </a>
+            </div>
+          </li>
           <li class="nav-item dropdown active" v-if="userLogged">
             <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-toggle="dropdown">
               {{ userFullName }}
@@ -66,9 +89,13 @@ export default {
   },
   data(){
     return{
+      notificationURL: this.pusherURL(),
+      axiosURL: this.requestURL(),
+      counterNewNotifications: 0,
       commentNotifications: [],
       user: {},
-      userLogged: false
+      userLogged: false,
+
     }
   },
   computed:{
@@ -76,6 +103,7 @@ export default {
       return this.user.firstName + " " + this.user.lastName
     },
     // ...mapGetters({
+<<<<<<< HEAD
     //   // newNotification: 'getNewNotification'
     // })
   },
@@ -85,6 +113,13 @@ export default {
     }
     // newNotification(newVal, oldVal){
     //   console.log(newVal);
+=======
+    //   newNotification: 'getNewNotification'
+    // })
+  },
+  watch: {
+    // newNotification(newVal, oldVal){
+>>>>>>> 92fb756e9d48efbafc9ca55d6f0cc0fe90fc98f0
     //   if(newVal){
     //     this.subscribe();
     //     this.$store.dispatch('setNewNotification', false);
@@ -95,6 +130,7 @@ export default {
     // this.subscribe();
   },
   mounted(){
+<<<<<<< HEAD
     //Execute this when app initialize
     this.checkForPreviousLoggedUser();
   },
@@ -120,6 +156,37 @@ export default {
         // Set userLogged state to true
         this.setUserLogged();
       }
+=======
+    this.getInitialNotifications();
+    this.checkForLoggedUser();
+  },
+  methods:{
+    subscribe(){
+
+      // Pusher methods! 
+      let pusher = new Pusher('f9a2f81061f58802038f', { 
+        cluster: 'mt1',
+        encrypted: true,
+        authEndpoint: `${this.notificationURL}/notification`
+      });
+
+      pusher.subscribe('notifications');
+      pusher.bind('notification_added', data => {
+        if(data.notification.userId === this.user.id){
+          this.commentNotifications.unshift(data.notification);
+          axios.post(`${this.axiosURL}/notifications`, data.notification);
+          this.counterNewNotifications += 1;
+        }
+      });
+    },
+    getInitialNotifications(){
+      axios.get(`${this.axiosURL}/notifications?userId=${this.user.id}`)
+           .then(response => {
+             if(response.data.length > 0){
+               this.commentNotifications = response.data;
+             }
+           });
+>>>>>>> 92fb756e9d48efbafc9ca55d6f0cc0fe90fc98f0
     },
     currentUserLoggedState(newVal){
       if(newVal){

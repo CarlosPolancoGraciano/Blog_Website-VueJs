@@ -25,7 +25,7 @@
               <!-- Author -->
               <p class="lead">
                 by
-                <a href="#">{{ post.username }}</a>
+                <router-link :to="'/profile/' + post.username">{{ post.username }}</router-link>
               </p>
 
               <hr>
@@ -77,7 +77,7 @@
                                 <div class="col-md-6 text-left">
                                   <h5 class="mt-0">{{ comment.userName }}</h5>
                                 </div>
-                                <div class="col-md-6 text-right">
+                                <div class="col-md-6 text-right" v-if="comment.userId == currentUser.id">
                                   <!-- Delete post button -->
                                   <button class="btn btn-link" @click="deleteComment(comment.id)">
                                     <AppIcon iconName="times" class="fa-lg text-danger" />
@@ -303,11 +303,11 @@ export default {
           postId: Number(that.$route.params.id),
           created_at: new Date(),
           userId: that.currentUser.id,
-          userName: that.currentUser.firstName + " " + that.currentUser.lastName,
+          userName: that.currentUser.username,
           userAvatar: that.currentUser.avatar
         };
 
-        axios.all([that.saveCommentInDB(comment), that.sendCommentNotifications(comment)])
+        axios.all([that.saveCommentInDB(comment), that.sendCommentNotifications()])
               .then(axios.spread(function (comment, notification) {
                 // Both requests are now complete
                 console.log("Both sent!");
@@ -333,12 +333,38 @@ export default {
           this.getCommentData();
       });
     },
-    sendCommentNotifications(comment){
-      return axios.post(`${this.notificationsURL}/notification`, comment)
-        .then((response) => {
-          this.$store.dispatch('setNewNotification', true);
-          this.dynamicToastr({title: "Notification send", msg: '', type: 'success' });
-      });
+    sendCommentNotifications(username){
+      
+      return axios.get(`${this.axiosURL}/users?username=${username}`).then(response => {
+              if(Object.keys(response.data).length > 0){
+                let commentUser = response.data;
+
+                let commentNotification = {
+                  id: this.getLatestNotificationsId() + 1,
+                  postId: Number(this.$route.params.id),
+                  created_at: new Date(),
+                  userId: commentUser.id,
+                  username: commentUser.username
+                };
+
+                axios.post(`${this.notificationsURL}/notification`, commentNotification)
+                  .then((response) => {
+                    this.$store.dispatch('setNewNotification', true);
+                    this.dynamicToastr({title: "Notification send", msg: '', type: 'success' });
+                });
+              }
+            });
+      
+    },
+    getLatestNotificationsId(){
+      axios.get(`${this.axiosURL}/notifications`).then((response) => {
+            let notificationsArray = [];
+            notificationsArray = response.data;
+            if(notificationsArray.length === 0){
+              return 0;
+            }
+            return notificationsArray.length
+          })
     },
     deleteComment(commentId){
       let that = this;

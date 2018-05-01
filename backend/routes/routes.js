@@ -45,7 +45,8 @@ let appRouter = function (app) {
  
   // Send notifications
   app.post('/notification', (req, res) => {
-    pusher.trigger('private-notifications', 'notification_added', {notification: req.body});
+    pusher.trigger('notifications', 'notification_added', {notification: req.body});
+    console.log(req.body);
     res.status(200).send();
   });
 }

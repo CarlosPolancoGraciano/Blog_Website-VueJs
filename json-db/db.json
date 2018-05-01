@@ -23,6 +23,34 @@
   ],
   "comments": [],
   "likes": [],
+<<<<<<< HEAD
+=======
+  "notifications": [
+    {
+      "id": 1,
+      "content": "<p>Excelente hermano</p>",
+      "postId": 1,
+      "created_at": "2018-04-27T03:55:36.295Z",
+      "userId": 1,
+      "userName": "Carlos Daniel Polanco Ortega",
+      "userAvatar": "avatar-1524706120060.jpeg"
+    },
+    {
+      "id": 2,
+      "postId": 1,
+      "created_at": "2018-04-27T04:21:53.090Z",
+      "userId": 1,
+      "username": "CarlosPolanco"
+    },
+    {
+      "id": 3,
+      "postId": 1,
+      "created_at": "2018-04-27T04:29:10.271Z",
+      "userId": 2,
+      "username": "CarlosPeguero"
+    }
+  ],
+>>>>>>> 92fb756e9d48efbafc9ca55d6f0cc0fe90fc98f0
   "users": [
     {
       "id": 1,
