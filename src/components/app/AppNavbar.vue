@@ -103,7 +103,6 @@ export default {
       return this.user.firstName + " " + this.user.lastName
     },
     // ...mapGetters({
-<<<<<<< HEAD
     //   // newNotification: 'getNewNotification'
     // })
   },
@@ -113,13 +112,6 @@ export default {
     }
     // newNotification(newVal, oldVal){
     //   console.log(newVal);
-=======
-    //   newNotification: 'getNewNotification'
-    // })
-  },
-  watch: {
-    // newNotification(newVal, oldVal){
->>>>>>> 92fb756e9d48efbafc9ca55d6f0cc0fe90fc98f0
     //   if(newVal){
     //     this.subscribe();
     //     this.$store.dispatch('setNewNotification', false);
@@ -130,7 +122,6 @@ export default {
     // this.subscribe();
   },
   mounted(){
-<<<<<<< HEAD
     //Execute this when app initialize
     this.checkForPreviousLoggedUser();
   },
@@ -156,37 +147,6 @@ export default {
         // Set userLogged state to true
         this.setUserLogged();
       }
-=======
-    this.getInitialNotifications();
-    this.checkForLoggedUser();
-  },
-  methods:{
-    subscribe(){
-
-      // Pusher methods! 
-      let pusher = new Pusher('f9a2f81061f58802038f', { 
-        cluster: 'mt1',
-        encrypted: true,
-        authEndpoint: `${this.notificationURL}/notification`
-      });
-
-      pusher.subscribe('notifications');
-      pusher.bind('notification_added', data => {
-        if(data.notification.userId === this.user.id){
-          this.commentNotifications.unshift(data.notification);
-          axios.post(`${this.axiosURL}/notifications`, data.notification);
-          this.counterNewNotifications += 1;
-        }
-      });
-    },
-    getInitialNotifications(){
-      axios.get(`${this.axiosURL}/notifications?userId=${this.user.id}`)
-           .then(response => {
-             if(response.data.length > 0){
-               this.commentNotifications = response.data;
-             }
-           });
->>>>>>> 92fb756e9d48efbafc9ca55d6f0cc0fe90fc98f0
     },
     currentUserLoggedState(newVal){
       if(newVal){

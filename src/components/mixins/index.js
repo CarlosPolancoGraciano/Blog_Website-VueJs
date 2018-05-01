@@ -35,7 +35,6 @@ const GLOBAL = {
             return currentUser;
         },
         saveWebStorageCurrentUser(user, isLocal){
-            debugger;
             const webStorageKey = this.webstorageKey();
 
             // isLocal indicates the webstorage that will be used
