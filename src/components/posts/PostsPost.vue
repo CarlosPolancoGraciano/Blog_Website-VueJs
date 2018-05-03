@@ -40,38 +40,79 @@
 
               <hr>
 
-              <div v-if="postEnableComments(post.enableComments) === true">
+              
+              <div >
                 <!-- Comments Form -->
                 <div class="card my-4">
-                  <h5 class="card-header">Leave a Comment:</h5>
-                    <div class="card-body">
-                      <b-form @submit.prevent="createComment">
-                        <div class="form-group text-left">
-                          <at :members="users" v-model="vueAtContent">
-                            <froala :tag="'textarea'" :config="config" v-model="newComment.content" contenteditable></froala>
-                          </at>
-                        </div>
-                        <b-button variant="primary"
-                                  type="submit">
-                          <AppIcon iconName="floppy-o" />
-                          Save comment
-                        </b-button>
-                        &nbsp;
-                        <b-button variant="danger"
-                                  type="reset">
-                          <AppIcon iconName="ban" />
-                          Cancel
-                        </b-button>
-                      </b-form>
+                  <div class="card-header">
+                    <div class="btn-group text-center">
+                      <!-- Like And Unlike Buttons -->
+                      <!-- Button to show if user is not logged -->
+                      <button v-if="!userLogged" 
+                              disabled 
+                              data-toggle="tooltip" 
+                              data-placement="top" 
+                              title="You have to log-in in order to like a post" 
+                              class="btn btn-outline-danger btn-lg">
+                        <AppIcon iconName="heart" />
+                        Like ({{ likes }})
+                      </button>
+                      <!-- Button to show if user is logged -->
+                      <button class="btn btn-outline-danger btn-lg" @click="likePost(post.id)" v-if="!userPostLike.isLiked && userLogged">
+                        <AppIcon iconName="heart" />
+                        Like ({{ likes }})
+                      </button>
+                      <button class="btn btn-outline-danger btn-lg" @click="unlikePost(post.id)" v-if="userPostLike.isLiked && userLogged">
+                        <AppIcon iconName="heart" />
+                        Unlike ({{ likes }})
+                      </button>
+                      <!-- Bootstrap 4 Collapse Button -->
+                      <button :disabled="postEnableComments(post.enableComments) != true"
+                              class="btn btn-outline-primary btn-lg" 
+                              data-toggle="collapse" 
+                              data-target="#commentCollapse" 
+                              aria-expanded="false" 
+                              aria-controls="multiCollapseExample2">
+                        <AppIcon iconName="comment" />
+                        Comment
+                      </button>
+                    </div>
+                  </div>
+                  <!-- Bootstrap 4 Collapse -->
+                  <div class="card-body collapse" id="commentCollapse">
+                    <b-form @submit.prevent="createComment">
+                      <div class="form-group text-left">
+                        <at :members="users" 
+                            v-model="vueAtContent">
+                          <froala :tag="'textarea'" 
+                                  :config="config" 
+                                  v-model="newComment.content" 
+                                  contenteditable>
+                          </froala>
+                        </at>
+                      </div>
+                      <b-button variant="primary"
+                                type="submit">
+                        <AppIcon iconName="floppy-o" />
+                         Save comment
+                      </b-button>
+                      &nbsp;
+                      <b-button variant="danger"
+                                type="reset">
+                         <AppIcon iconName="ban" />
+                        Cancel
+                      </b-button>
+                    </b-form>
                     </div>
                 </div>
                 <!-- Single Comment -->
-                  <div class="row" v-if="comments.length > 0">
+                  <div class="row" v-if="comments.length > 0 && postEnableComments(post.enableComments) === true">
                     <div class="col-md-12" v-for="(comment, index) in comments" :key="index">
                       <div class="card">
                         <div class="card-body text-left">
                           <div class="media mb-4">
                             <img class="mr-3 rounded-circle" src="http://placehold.it/50x50" alt="User picture">
+
                             <!-- No edit mode -->
                             <div class="media-body" v-if="!comment.editing">
                               <div class="row">
@@ -92,6 +133,7 @@
                               <div v-html="comment.content"></div>
                               <p class="mb-0 mt-2 text-primary">{{ comment.created_at | formatCommentDateFromNow }}</p>
                             </div>
+
                             <!-- Edit mode -->
                             <div class="media-body" v-if="comment.editing">
                               <div class="row">
@@ -124,12 +166,13 @@
                               </b-form>
                             </div>
                             <!-- End edit mode -->
+
                           </div>
                         </div>
                       </div>
                     </div>
                   </div>
-                  <div v-else>
+                  <div v-if="comments.length == 0 && postEnableComments(post.enableComments) === true">
                     <div class="jumbotron jumbotron-fluid">
                       <div class="container text-center">
                         <span class="h2">No se han encontrado comentarios</span>
@@ -137,7 +180,7 @@
                     </div>
                   </div>
               </div>
-              <div v-else>
+              <div v-if="postEnableComments(post.enableComments) != true">
                 <div class="jumbotron jumbotron-fluid">
                   <div class="container text-center">
                     <span class="h2">Sección de comentarios deshabilitada</span>
@@ -176,9 +219,10 @@ export default {
       notificationsURL: this.pusherURL(),
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
-      userLogged: null,
+      userLogged: false,
       editCommentContent: '',
       likes: 0,
+      userPostLike: {},
       users: [],
       posts: [],
       comments: [],
@@ -214,13 +258,14 @@ export default {
     getAllInitialData(){
       let that = this;
 
-      axios.all([that.getPostData(), that.getCommentData(), that.getUsersData()])
-      .then(axios.spread(function (post, comment, users) {
+      axios.all([that.getPostData(), that.getCommentData(), that.getLikesData(), that.getUsersData()])
+      .then(axios.spread(function (post, comment, likes, users) {
         // Both requests are now complete
       }));
 
        // Seek in Vuex
-      this.checkUserLogged();
+      this.userLogged = this.getUserLogged;
+      this.currentUser = this.getCurrentUser;
     },
     getPostData(){
       /* Request Post Data */
@@ -229,7 +274,7 @@ export default {
                 let post = response.data;
 
                 // Request for Post Owner Info
-                axios.get(`${this.axiosURL}/users/${response.data.id}`)
+                axios.get(`${this.axiosURL}/users/${response.data.userId}`)
                   .then((response) => {
                     post.username = response.data.username;
                     this.posts.push(post);
@@ -257,6 +302,25 @@ export default {
               }
             });
     },
+    getLikesData(){
+      return axios.get(`${this.axiosURL}/likes?postId=${this.$route.params.id}`)
+                  .then(response => {
+                    this.likes = response.data.length > 0 ? response.data.length : 0;
+                    if(this.likes > 0 && this.userLogged){
+                      // Save my like of this post if it exist [It's an object]
+                      let currentUserLike = response.data.reduce((acc, val, index) => {
+                        if(val.userId === this.currentUser.id){
+                          return val;
+                        }
+                      }, {});
+                      // If like was giving set it to true - else set it to false
+                      this.userPostLike = {
+                        likeId: currentUserLike.id,
+                        isLiked: Object.keys(currentUserLike).length > 0 ? true : false
+                      }
+                    }
+                  });
+    },
     getUsersData(){
       // Vue-at main data 
       let that = this;
@@ -271,16 +335,6 @@ export default {
           that.users = returnedUsers;
         }
       });
-    },
-    checkUserLogged(){
-      this.userLogged = this.getUserLogged;
-      this.loadCurrentUser();
-    },
-    loadCurrentUser(){
-      this.currentUser = this.getCurrentUser;
-      if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
-        this.currentUser = {};
-      }
     },
     postEnableComments(enableComments){
       if(enableComments !== "No"){
@@ -323,12 +377,46 @@ export default {
         }
       })
     },
-    getLatestCommentId(){
-      axios.get(`${this.axiosURL}/comments`).then(response => {
-            if(response.data.length === 0){
-              return 0;
-            }
-            return response.data.length
+    likePost(){
+      let like = {
+          id: this.getLatestTableId('comments') + 1,
+          postId: Number(this.$route.params.id),
+          created_at: new Date(),
+          userId: this.currentUser.id,
+      };
+      let likeActivity = { 
+        id: this.getLatestTableId('activity') + 1, 
+        type: 'like', 
+        userId: this.currentUser.id, 
+        postId: Number(this.$route.params.id) 
+      };
+      axios.all([this.saveLikeInDB(like), this.setUserActivity(likeActivity)])
+            .then(axios.spread(function (likes) {
+              // Both requests are now complete
+             
+            }));
+    },
+    saveLikeInDB(like){
+      return axios.post(`${this.axiosURL}/likes`, like)
+                  .then(response => {
+                    this.getLikesData();
+                    this.userPostLike = true;
+                    this.dynamicToastr({title: 'You liked this post!', msg: '', type: 'success' });
+                  })
+                  .catch(error => {
+                    this.dynamicToastr({title: 'Oops!', msg: 'Error while liking this post', type: 'error' });
+                    console.error("Error while liking this post", error);
+                  });
+    },
+    unlikePost(){
+      axios.delete(`${this.axiosURL}/likes/${this.userPostLike.likeId}`)  
+          .then(response => {
+            this.userPostLike = false;
+            this.getLikesData();
+            this.dynamicToastr({title: 'Post unliked!', msg: '', type: 'success' });
+          })
+          .catch(error => {
+            console.error("Error while unliking a post", error);
           })
     },
     createComment(){
@@ -338,7 +426,7 @@ export default {
         if(that.newComment.content !== ''){
 
         let comment = {
-          id: that.getLatestCommentId() + 1,
+          id: that.getLatestTableId('comments') + 1,
           content: that.newComment.content,
           postId: Number(that.$route.params.id),
           created_at: new Date(),
@@ -346,9 +434,15 @@ export default {
           userName: that.currentUser.username,
           userAvatar: that.currentUser.avatar
         };
+        let commentActivity = { 
+          id: this.getLatestTableId('activity') + 1, 
+          type: 'comment', 
+          userId: this.currentUser.id, 
+          postId: Number(this.$route.params.id) 
+        };
 
-        axios.all([that.saveCommentInDB(comment), that.sendCommentNotifications()])
-              .then(axios.spread(function (comment, notification) {
+        axios.all([that.saveCommentInDB(comment), this.setUserActivity(commentActivity)])
+              .then(axios.spread(function (comment, activity) {
                 // Both requests are now complete
               }));
 
@@ -368,8 +462,8 @@ export default {
       return axios.post(`${this.axiosURL}/comments`, comment)
         .then((response) => {
           this.newComment.content = '';
-          this.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
           this.getCommentData();
+          this.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
       });
     },
     editCommentMode(commentId, content){
@@ -422,7 +516,7 @@ export default {
                 let commentUser = response.data;
 
                 let commentNotification = {
-                  id: this.getLatestNotificationsId() + 1,
+                  id: this.getLatestTableId('notifications') + 1,
                   postId: Number(this.$route.params.id),
                   created_at: new Date(),
                   userId: commentUser.id,
@@ -436,17 +530,6 @@ export default {
                 });
               }
             });
-      
-    },
-    getLatestNotificationsId(){
-      axios.get(`${this.axiosURL}/notifications`).then((response) => {
-            let notificationsArray = [];
-            notificationsArray = response.data;
-            if(notificationsArray.length === 0){
-              return 0;
-            }
-            return notificationsArray.length
-          })
     },
     deleteComment(commentId){
       let that = this;
@@ -490,6 +573,23 @@ export default {
         }
       })
     },
+    setUserActivity(activityObj){
+        axios.post(`${this.axiosURL}/activity`, activityObj)
+          .then(response => {
+            // console.log("Activity response", response.data);
+          })
+          .catch(error => {
+            console.log("Error on activity request", error);
+          })
+            // switch(activityObj.type){
+            //     case 'like':
+            //         break;
+            //     case 'comment':
+            //         break;
+            //     case 'post':
+            //         break;
+            // }
+    },
     axiosPostRequest(url, postObj){
       axios.post(url, postObj)
         .then((response) => {
@@ -498,16 +598,6 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
-    dynamicToastr(toastrObj){
-      let that = this;
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: 'toast-bottom-right', 
-                        type: toastrObj.type });
     }
   }
 }

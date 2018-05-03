@@ -138,18 +138,6 @@ export default {
                               msg: `Error while requesting to API`, 
                               type: "error"});
         });
-    },
-    dynamicToastr(toastrObj) {
-      let that = this;
-
-      that.$toastr("add", {
-        title: toastrObj.title,
-        msg: toastrObj.msg,
-        clickClose: true,
-        timeout: 5000,
-        position: "toast-bottom-right",
-        type: toastrObj.type
-      });
     }
   }
 };

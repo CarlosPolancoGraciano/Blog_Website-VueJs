@@ -168,9 +168,6 @@ export default {
     },
     checkLoggedUser(postId){
       this.userLogged = this.getUserLogged;
-      this.loadCurrentUser(postId);
-    },
-    loadCurrentUser(postId){
       this.currentUser = this.getCurrentUser;
       
       // Validate there is a current user
@@ -181,6 +178,7 @@ export default {
       if(this.currentUser.id !== postId){
         this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
       }
+      
     },
     publishDraftPost(){
       let that = this;
@@ -262,10 +260,6 @@ export default {
         if(success){
           axios.delete(`${that.axiosURL}/posts/${postId}`)
                .then((response) => {
-                //  swal({
-                //    title: "Post deleted succesfully!",
-                //    icon: "success"
-                //  });
                 that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
                })
                .catch((error) =>{
@@ -273,17 +267,6 @@ export default {
                })
         }
       })
-    },
-    getLatestActivityId(){
-        axios.get(`${this.axiosURL}/posts`)
-            .then((response) => {
-              let postsArray = [];
-              postsArray = response.data;
-              if(postsArray.length === 0){
-                return 0;
-              }
-              return postsArray.length
-            });
     },
     validateInput(){
       let that = this;
@@ -323,16 +306,6 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
-    dynamicToastr(toastrObj){
-      let that = this;
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: 'toast-bottom-right', 
-                        type: toastrObj.type });
     }
   }
 }

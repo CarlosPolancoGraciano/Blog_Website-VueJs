@@ -156,21 +156,15 @@ export default {
   },
   mounted(){
     this.getAllPosts();
-    this.checkUserLogged();
+    this.checkUserLoggedInfo();
   },
   methods:{
     setPage(page) {
       this.page = page;
     },
-    checkUserLogged(){
+    checkUserLoggedInfo(){
       this.userLogged = this.getUserLogged;
-      this.loadCurrentUser();
-    },
-    loadCurrentUser(){
       this.currentUser = this.getCurrentUser;
-      if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
-        this.currentUser = {};
-      }
     },
     getAllPosts(){
       /* Request All Posts */
@@ -216,12 +210,9 @@ export default {
         }
       }).then((success) => {
         if(success){
+          debugger;
           axios.delete(`${that.axiosURL}/posts/${postId}`)
                .then((response) => {
-                //  swal({
-                //    title: "Post deleted succesfully!",
-                //    icon: "success"
-                //  });
                 this.getAllPosts();
                 that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
                })
@@ -267,16 +258,6 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
-    dynamicToastr(toastrObj){
-      let that = this;
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 1500, 
-                        position: 'toast-bottom-right', 
-                        type: toastrObj.type});
     }
   }
 }

@@ -1,16 +1,6 @@
 {
   "posts": [
     {
-      "id": 1,
-      "title": "Vue js 2 - Prueba",
-      "content": "<p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </em></p><p style=\"text-align: left;\"><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </strong></p><p style=\"text-align: left;\"><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </u></p>",
-      "date": "2018-04-22T21:43:15.255Z",
-      "enableComments": "Yes",
-      "edited": false,
-      "draft": false,
-      "userId": 1
-    },
-    {
       "id": 3,
       "title": "Vue js 2 - Draft 3",
       "content": "<p style=\"text-align: left;\"><strong><em><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi? </u></em></strong></p>",
@@ -19,54 +9,44 @@
       "edited": false,
       "draft": true,
       "userId": 1
+    },
+    {
+      "id": 4,
+      "title": "Vue js 2 - Pruebas",
+      "content": "<p style=\"text-align: left;\"><em>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</em></p><p style=\"text-align: left;\"><strong>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</strong></p><p><u>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</u></p>",
+      "date": "2018-05-03T14:23:06.299Z",
+      "enableComments": "Yes",
+      "edited": false,
+      "draft": false,
+      "userId": 1
     }
   ],
   "comments": [
     {
       "id": 1,
-      "content": "<p>Excelente respuesta! Cool</p>",
-      "postId": 1,
-      "created_at": "2018-05-03T01:47:33.486Z",
-      "userId": 1,
-      "userName": "CarlosPolanco",
-      "userAvatar": "avatar-1524706120060.jpeg"
-    },
-    {
-      "id": 2,
-      "content": "<p>Me parece interesante tu propuesta</p>",
-      "postId": 1,
-      "created_at": "2018-05-03T01:53:04.466Z",
+      "content": "Excelente tu propuesta hermano!",
+      "postId": 4,
+      "created_at": "2018-05-03T17:59:55.020Z",
       "userId": 1,
       "userName": "CarlosPolanco",
       "userAvatar": "avatar-1524706120060.jpeg"
     }
   ],
-  "likes": [],
-  "notifications": [
+  "likes": [
     {
       "id": 1,
-      "content": "<p>Excelente hermano</p>",
-      "postId": 1,
-      "created_at": "2018-04-27T03:55:36.295Z",
-      "userId": 1,
-      "userName": "Carlos Daniel Polanco Ortega",
-      "userAvatar": "avatar-1524706120060.jpeg"
+      "postId": 4,
+      "created_at": "2018-05-03T18:38:21.765Z",
+      "userId": 2
     },
     {
       "id": 2,
-      "postId": 1,
-      "created_at": "2018-04-27T04:21:53.090Z",
-      "userId": 1,
-      "username": "CarlosPolanco"
-    },
-    {
-      "id": 3,
-      "postId": 1,
-      "created_at": "2018-04-27T04:29:10.271Z",
-      "userId": 2,
-      "username": "CarlosPeguero"
+      "postId": 4,
+      "created_at": "2018-05-03T18:38:30.542Z",
+      "userId": 1
     }
   ],
+  "notifications": [],
   "users": [
     {
       "id": 1,
@@ -94,5 +74,108 @@
       "avatar": "avatar-1524706120060.jpeg"
     }
   ],
-  "activity": []
+  "activity": [
+    {
+      "id": 1,
+      "type": "comment",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 2,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 3,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 4,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 5,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 6,
+      "type": "like",
+      "userId": 2,
+      "postId": 4
+    },
+    {
+      "id": 7,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 8,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 9,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 10,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 11,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 12,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 13,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 14,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    },
+    {
+      "id": 15,
+      "type": "like",
+      "userId": 2,
+      "postId": 4
+    },
+    {
+      "id": 16,
+      "type": "like",
+      "userId": 2,
+      "postId": 4
+    },
+    {
+      "id": 17,
+      "type": "like",
+      "userId": 1,
+      "postId": 4
+    }
+  ]
 }

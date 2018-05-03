@@ -53,6 +53,25 @@ const GLOBAL = {
             localStorage.removeItem(webStorageKey);
             sessionStorage.removeItem(webStorageKey);
             return true;
+        },
+        getLatestTableId(tableName = ''){
+            axios.get(`${this.axiosURL}/${tableName}`)
+            .then(response => {
+                if(response.data.length === 0){
+                    return 0;
+                }
+                return response.data.length
+            })
+        },
+        dynamicToastr(toastrObj){
+            let that = this;
+            that.$toastr( 'add',
+                            { title: toastrObj.title, 
+                              msg: toastrObj.msg, 
+                              clickClose: true, 
+                              timeout: 10000, 
+                              position: 'toast-bottom-right', 
+                              type: toastrObj.type });
         }
     }
 }

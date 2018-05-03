@@ -61,13 +61,7 @@ export default {
   methods:{
     checkUserLogged(){
       this.userLogged = this.getUserLogged;
-      this.loadCurrentUser();
-    },
-    loadCurrentUser(){
       this.currentUser = this.getCurrentUser;
-      if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
-        this.currentUser = null;
-      }
     }
   }
 }

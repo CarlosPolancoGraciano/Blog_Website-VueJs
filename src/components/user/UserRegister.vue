@@ -147,15 +147,6 @@ export default {
               }
               return usersArray.length;
             });
-    },
-    dynamicToastr(toastrObj){
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: 'toast-bottom-right', 
-                        type: toastrObj.type });
     }
   }
 }

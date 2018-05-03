@@ -196,9 +196,6 @@ export default {
   methods:{
     checkUserLogged(){
       this.userLogged = this.getUserLogged;
-      this.loadCurrentUser();
-    },
-    loadCurrentUser(){
       this.currentUser = this.getCurrentUser;
       if(Object.keys(this.currentUser).length == 0 || this.userLogged){
         this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });
@@ -208,7 +205,7 @@ export default {
       let that = this;
 
       if(that.validateInput()){
-        let latestId = that.getLatestPostId() + 1
+        let latestId = that.getLatestTableId('posts') + 1
         // Post data
         const post = {
           id: latestId,
@@ -221,44 +218,21 @@ export default {
           userId: this.currentUser.id
         }
         
-        // Swal message data
-        const swalMessage = {
-          title: "Post published successfully!",
-          message: "Your post was published and you'll be redirected to the main list of posts",
-          type: "success"
-        }
-
-        this.axiosPostRequest(`${this.axiosURL}/activity`, {
-          id: this.getLatestActivityId() + 1, 
-          userId: this.currentUser.id,
-          postId: latestId,
-          action: 'created new post'
-        });
-        this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
+        axios.post(`${this.axiosURL}/posts`, post)
+              .then((response) => {
+                swal( "Post published successfully!", 
+                      "Your post was published and you'll be redirected to the main list of posts", 
+                      "success").then((success) => {
+                    if(success){
+                      this.setUserActivity({ id: this.getLatestTableId('activity') , type: 'post', userId: this.currentUser.id, postId: Number(this.$route.params.id) });
+                      this.$router.push('/');
+                    }
+                  });
+              })
+              .catch((error) => {
+                console.error("Error while creating new post", error);
+              });
       }
-    },
-    getLatestPostId(){
-      axios.get(`${this.axiosURL}/posts`)
-          .then((response) => {
-            let postsArray = [];
-            postsArray = response.data;
-            if(postsArray.length === 0){
-              return 0;
-            }
-            return postsArray.length
-          })
-      
-    },
-    getLatestActivityId(){
-        axios.get(`${this.axiosURL}/posts`)
-            .then((response) => {
-              let postsArray = [];
-              postsArray = response.data;
-              if(postsArray.length === 0){
-                return 0;
-              }
-              return postsArray.length
-            });
     },
     draftNewPost(){
       let that = this;
@@ -266,7 +240,7 @@ export default {
       if(that.validateInput()){
         // Post data
         const post = {
-          id: that.getLatestPostId() + 1,
+          id: that.getLatestTableId('posts') + 1,
           title: that.form.title,
           content: that.form.content,
           date: that.form.date,
@@ -276,13 +250,19 @@ export default {
           userId: this.currentUser.id
         }
         
-        // Swal message data
-        const swalMessage = {
-          title: "Post saved as draft!",
-          message: "Your post was saved and can be found in the posts section on the navbar. You'll be redirected to home page",
-          type: "success"
-        }
-        this.axiosPostRequest(`${this.axiosURL}/posts`, post, swalMessage);
+        axios.post(`${this.axiosURL}/posts`, post)
+              .then((response) => {
+                swal( "Post saved as draft!", 
+                      "Your post was saved and can be found in the posts section on the navbar. You'll be redirected to home page", 
+                      "success").then((success) => {
+                    if(success){
+                      this.$router.push('/');
+                    }
+                  });
+              })
+              .catch((error) => {
+                console.error("Error while adding to draft the post", error);
+              });
       }
     },
     cancelNewPost(){
@@ -318,35 +298,6 @@ export default {
         .catch((error) => {
           console.log(error);
         });
-    },
-    axiosPostRequest(url, postObj, swalMessage = null){
-      axios.post(url, postObj)
-        .then((response) => {
-          if(swalMessage !== null){
-            swal( swalMessage.title, 
-                swalMessage.message, 
-                swalMessage.type)
-            .then((success) => {
-              if(success){
-                this.$router.push('/');
-              }
-            });
-          }
-          
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    },
-    dynamicToastr(toastrObj){
-      let that = this;
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: 'toast-bottom-right', 
-                        type: toastrObj.type });
     }
   }
 }

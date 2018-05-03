@@ -110,16 +110,6 @@ export default {
                            position: `toast-bottom-right`,
                            type: `error`});
       }
-    },
-    dynamicToastr(toastrObj){
-      let that = this;
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: toastrObj.position, 
-                        type: toastrObj.type });
     }
   }
 }

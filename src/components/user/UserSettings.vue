@@ -361,16 +361,6 @@ export default {
 
       // If there is none, return true to save the post
       return true;
-    },
-    dynamicToastr(toastrObj){
-      let that = this;
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: 'toast-bottom-right', 
-                        type: toastrObj.type });
     }
   }
 }

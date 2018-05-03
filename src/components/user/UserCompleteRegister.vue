@@ -153,16 +153,6 @@ export default {
          }
       });
 
-    },
-    dynamicToastr(toastrObj){
-      let that = this;
-      that.$toastr( 'add',
-                      { title: toastrObj.title, 
-                        msg: toastrObj.msg, 
-                        clickClose: true, 
-                        timeout: 10000, 
-                        position: 'toast-top-full-width', 
-                        type: toastrObj.type });
     }
   }
 }
