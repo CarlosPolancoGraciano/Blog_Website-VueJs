@@ -152,7 +152,7 @@ export default {
       this.$router.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
     }
     axios.all([this.loadUser()])
-    .then(axios.spread(function (acct, perms) {
+    .then(axios.spread(function (loadUser) {
       // Both requests are now complete
     }));
   },

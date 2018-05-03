@@ -31,7 +31,7 @@
               <hr>
 
               <!-- Date/Time -->
-              <p>Posted on {{ formatPostDate(post.date) }}</p>
+              <p>Posted on {{ post.date | formatPostDate }}</p>
 
               <hr>
 
@@ -72,21 +72,58 @@
                         <div class="card-body text-left">
                           <div class="media mb-4">
                             <img class="mr-3 rounded-circle" src="http://placehold.it/50x50" alt="User picture">
-                            <div class="media-body">
+                            <!-- No edit mode -->
+                            <div class="media-body" v-if="!comment.editing">
                               <div class="row">
                                 <div class="col-md-6 text-left">
                                   <h5 class="mt-0">{{ comment.userName }}</h5>
                                 </div>
                                 <div class="col-md-6 text-right" v-if="comment.userId == currentUser.id">
-                                  <!-- Delete post button -->
+                                  <!-- Edit comment button -->
+                                  <button class="btn btn-link" @click="editCommentMode(comment.id, comment.content)">
+                                    <AppIcon iconName="pencil" class="fa-lg text-primary" />
+                                  </button>
+                                  <!-- Delete comment button -->
                                   <button class="btn btn-link" @click="deleteComment(comment.id)">
                                     <AppIcon iconName="times" class="fa-lg text-danger" />
                                   </button>
                                 </div>
                               </div>
                               <div v-html="comment.content"></div>
-                              <p class="mb-0 mt-2 text-primary">{{ formatCommentDateFromNow(comment.created_at) }}</p>
+                              <p class="mb-0 mt-2 text-primary">{{ comment.created_at | formatCommentDateFromNow }}</p>
                             </div>
+                            <!-- Edit mode -->
+                            <div class="media-body" v-if="comment.editing">
+                              <div class="row">
+                                <div class="col-md-6 text-left">
+                                  <h5 class="mt-0">{{ comment.userName }}</h5>
+                                </div>
+                                <div class="col-md-6 text-right">
+                                  <!-- Delete comment button -->
+                                  <button class="btn btn-link" @click="deleteComment(comment.id)">
+                                    <AppIcon iconName="times" class="fa-lg text-danger" />
+                                  </button>
+                                </div>
+                              </div>
+                              <b-form @submit.prevent="editComment(comment.id)">
+                                <div class="form-group text-left">
+                                  <at :members="users" v-model="vueAtContent">
+                                    <froala :tag="'textarea'" :config="config" v-model="comment.content" contenteditable></froala>
+                                  </at>
+                                </div>
+                                <b-button variant="primary"
+                                          type="submit">
+                                  <AppIcon iconName="floppy-o" />
+                                  Save comment
+                                </b-button>
+                                &nbsp;
+                                <b-button variant="danger" @click="cancelEditComment(comment.id)">
+                                  <AppIcon iconName="ban" />
+                                  Cancel
+                                </b-button>
+                              </b-form>
+                            </div>
+                            <!-- End edit mode -->
                           </div>
                         </div>
                       </div>
@@ -125,21 +162,29 @@ export default {
     AppIcon,
     At
   },
+  filters:{
+    formatPostDate(date){
+      return moment(date).format('MMMM Do YYYY');
+    },
+    formatCommentDateFromNow(date){
+      if(date === null) return '';
+      return moment(date).fromNow();
+    },
+  },
   data(){
     return{
       notificationsURL: this.pusherURL(),
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
       userLogged: null,
+      editCommentContent: '',
       likes: 0,
       users: [],
       posts: [],
       comments: [],
       currentUser: {},
       vueAtContent: '',
-      newComment: {
-        content: ""
-      },
+      newComment: {},
       config: {
         events: {
           'froalaEditor.initialized': function () {
@@ -147,6 +192,14 @@ export default {
           }
         }
       },
+    }
+  },
+  watch:{
+    getUserLogged(newVal, oldVal){
+      this.userLogged = this.getUserLogged;
+    },
+    getCurrentUser(newVal, oldVal){
+      this.currentUser = this.getCurrentUser;
     }
   },
   mounted(){
@@ -187,14 +240,16 @@ export default {
       /* Request Comment Data */
       return axios.get(`${this.axiosURL}/comments?postId=${this.$route.params.id}`)
             .then((response) => { 
-              let commentArray = [];
+              
               if(response.data != undefined && response.data.length > 0){
-                commentArray = response.data;
-                this.comments = commentArray.reverse();
-                // console.log(response.data);
+                let commentsEdited = response.data.map((obj, index, arr) => {
+                  obj.editing = false;
+                  return obj;
+                });
+                this.comments = commentsEdited.reverse();
                 return;
               }
-              this.comments = commentArray;
+              this.comments = response.data;
             })
             .catch((error) => {
               if(error.response.status === 404){
@@ -204,16 +259,14 @@ export default {
     },
     getUsersData(){
       // Vue-at main data 
-
       let that = this;
 
-      return axios.get(`${that.axiosURL}/users`).then((response) =>{
+      return axios.get(`${that.axiosURL}/users`).then(response =>{
         // Complete users load
-        if(response != undefined || response.length > 0){
-          let returnedUsers = [];
-          let mapUsers = response.data;
-          mapUsers.forEach((user, index, usersArr) => {
-            returnedUsers.push(String(usersArr[index].username));
+        if(response.data != undefined || response.data.length > 0){
+          // Return all users username
+          let returnedUsers = response.data.map((val, index, arr) => {
+            return val.username
           });
           that.users = returnedUsers;
         }
@@ -228,13 +281,6 @@ export default {
       if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
         this.currentUser = {};
       }
-    },
-    formatPostDate(date){
-      return moment(date).format('MMMM Do YYYY');
-    },
-    formatCommentDateFromNow(date){
-      if(date === null) return '';
-      return moment(date).fromNow();
     },
     postEnableComments(enableComments){
       if(enableComments !== "No"){
@@ -268,27 +314,21 @@ export default {
       }).then((success) => {
         if(success){
           axios.delete(`${that.axiosURL}/posts/${postId}`)
-               .then((response) => {
-                //  swal({
-                //    title: "Post deleted succesfully!",
-                //    icon: "success"
-                //  });
+               .then(response => {
                 that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
                })
-               .catch((error) =>{
+               .catch(error =>{
                  that.dynamicToastr({title: `Error in deleting file proccess`, msg:`${error.response.status}`, type: `error`});
                })
         }
       })
     },
     getLatestCommentId(){
-      axios.get(`${this.axiosURL}/comments`).then((response) => {
-            let commentsArray = [];
-            commentsArray = response.data;
-            if(commentsArray.length === 0){
+      axios.get(`${this.axiosURL}/comments`).then(response => {
+            if(response.data.length === 0){
               return 0;
             }
-            return commentsArray.length
+            return response.data.length
           })
     },
     createComment(){
@@ -310,7 +350,6 @@ export default {
         axios.all([that.saveCommentInDB(comment), that.sendCommentNotifications()])
               .then(axios.spread(function (comment, notification) {
                 // Both requests are now complete
-                console.log("Both sent!");
               }));
 
         }else{
@@ -332,6 +371,49 @@ export default {
           this.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
           this.getCommentData();
       });
+    },
+    editCommentMode(commentId, content){
+      this.editCommentContent = content;
+      this.comments.map((obj, index, arr) => {
+        if(obj.id == commentId){
+          obj.editing = true;
+        }
+      });
+    },
+    editComment(commentId){
+      let that = this;
+      // Obtaing edited comment in array
+      let editedComment = this.comments.reduce((acc, obj) => {
+        if(obj.id == commentId){
+          delete obj.editing;
+          return obj;
+        }
+      }, {});
+
+      // Request to edit the comment
+      axios.patch(`${this.axiosURL}/comments/${commentId}`, editedComment)
+           .then(response => {
+            swal("Comment updated succesfully", "", "success")
+            .then(success => {
+              if(success){
+                that.editCommentContent = '';
+                this.getCommentData();
+              }
+            });
+          }).catch(error => {
+            console.log("Error", error);
+            console.log("Error http status", error.response.status);
+          });
+    },
+    cancelEditComment(commentId){
+      let that = this;
+      this.comments.map((obj, index, arr) => {
+        if(obj.id == commentId){
+          obj.content = that.editCommentContent;
+          obj.editing = false;
+        }
+      });
+      that.editCommentContent = '';
     },
     sendCommentNotifications(username){
       

@@ -26,7 +26,7 @@
             </router-link>
           </li>
           <!-- If new notification arrived -->
-          <li class="nav-item active" v-if="userLogged">
+          <!-- <li class="nav-item active" v-if="userLogged">
             <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown"
                v-if="counterNewNotifications > 0">
               Notifications <span class="badge badge-primary">{{ counterNewNotifications }}</span>
@@ -47,7 +47,7 @@
                   No mention!
               </a>
             </div>
-          </li>
+          </li> -->
           <li class="nav-item dropdown active" v-if="userLogged">
             <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-toggle="dropdown">
               {{ userFullName }}

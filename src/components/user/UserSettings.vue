@@ -231,6 +231,11 @@ export default {
       profile: {}
     }
   },
+  watch:{
+    getCurrentUser(newVal, oldVal){
+      this.currentUser = this.getCurrentUser;
+    }
+  },
   mounted(){
     this.loadCurrentUser();
     this.loadUserProfileData();

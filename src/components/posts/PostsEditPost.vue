@@ -141,6 +141,14 @@ export default {
       return this.currentUser.username;
     }
   },
+  watch: {
+    getUserLogged(newVal, oldVal){
+      this.userLogged = this.getUserLogged;
+    },
+    getCurrentUser(newVal, oldVal){
+      this.currentUser = this.getCurrentUser;
+    }
+  },
   mounted(){
     if(this.$route.params.id === undefined){
       this.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") });

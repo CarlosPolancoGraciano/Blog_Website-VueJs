@@ -182,6 +182,14 @@ export default {
       return this.currentUser.username;
     }
   },
+  watch: {
+    getUserLogged(newVal, oldVal){
+      this.userLogged = this.getUserLogged;
+    },
+    getCurrentUser(newVal, oldVal){
+      this.currentUser = this.getCurrentUser;
+    }
+  },
   mounted(){
     this.checkUserLogged();
   },

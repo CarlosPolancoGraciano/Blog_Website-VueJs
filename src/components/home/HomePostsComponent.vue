@@ -58,14 +58,14 @@
             <div class="col-6">
               <!-- More information of the post -->
               Posted on <router-link :to="'/post/' + post.id">
-                          <span>{{ transformPostDates(post.date) }}</span>
+                          <span>{{ post.date | transformPostDates }}</span>
                         </router-link> 
               by
               <!-- Redirect to Post Owner Profile  -->
               <router-link :to="'/profile/' + post.userId" class="text-muted">
               <!-- Post Owner Username  -->
                 {{ post.username }}
-              </router-link> - <span>{{ returnEditedMode(post.edited) }}</span>
+              </router-link> - <span>{{ post.edited | returnEditedMode }}</span>
             </div>
             <div class="col-2"></div>
             <div class="col-4">
@@ -91,14 +91,18 @@
       </div>
 
       <!-- Pagination -->
-      <ul class="pagination justify-content-center mb-4">
+      <pagination :records="posts.length" 
+                  :per-page="20" 
+                  @paginate="setPage"
+                  :options="{ theme: 'bootstrap4' }"></pagination>
+      <!-- <ul class="pagination justify-content-center mb-4">
         <li class="page-item">
           <a class="page-link" href="#">&larr; Older</a>
         </li>
         <li class="page-item disabled">
           <a class="page-link" href="#">Newer &rarr;</a>
         </li>
-      </ul>
+      </ul> -->
     </div>
     <!-- If not show this -->
     <div v-else>
@@ -119,8 +123,21 @@ export default {
   components:{
     AppIcon
   },
+  filters:{
+     transformPostDates(date){
+      return moment(date).format('MMMM Do YYYY');
+    },
+    returnEditedMode(wasEdited){
+      if(wasEdited){
+        return 'Edited';
+      }else{
+        return 'Not Edited';
+      }
+    },
+  },
   data(){
     return{
+      page: 1,
       posts: [],
       postOwner: {},
       currentUser: {},
@@ -142,6 +159,9 @@ export default {
     this.checkUserLogged();
   },
   methods:{
+    setPage(page) {
+      this.page = page;
+    },
     checkUserLogged(){
       this.userLogged = this.getUserLogged;
       this.loadCurrentUser();
@@ -156,19 +176,15 @@ export default {
       /* Request All Posts */
       axios.get(`${this.axiosURL}/posts?draft=false`)
          .then((response) => { 
-            let postArray = [];
-            postArray = response.data;
-            // console.log(response.data);
+            let postArray = response.data;
 
             //Request for user info
             axios.get(`${this.axiosURL}/users/${postArray[0].userId}`)
             .then((response) => {
               let username = response.data.username;
-              // console.log(username);
 
               //Setting username
               postArray[0].username = username;
-              // console.log(postArray);
 
               //Newer to older
               this.posts = postArray.reverse();
@@ -215,19 +231,12 @@ export default {
         }
       })
     },
-    transformPostDates(date){
-      return moment(date).format('MMMM Do YYYY');
-    },
-    returnEditedMode(wasEdited){
-      if(wasEdited){
-        return 'Edited';
-      }else{
-        return 'Not Edited';
-      }
+    returnPostParcialContent(postContent){
+      return String(postContent).substring(0, 199);
     },
     returnLikesAmount(postId){
       let likesQuantity = [];
-      axios.get(`${this.axiosURL}/likes/${postId}`)
+      axios.get(`${this.axiosURL}/likes?postId=${postId}`)
            .then((response) => { 
              if(response.data.length > 0){
                likesQuantity = response.data;
@@ -243,24 +252,12 @@ export default {
       return likesQuantity.length;
     },
     returnCommentsAmount(postId){
-      let commentsQuantity = [];
-      axios.get(`${this.axiosURL}/comments/${postId}`)
-           .then((response) => { 
-              if(response.data.length > 0){
-                commentsQuantity = response.data;
-                return;
-              }
-            })
-           .catch((error) => {
-             if(error.response.status === 404){
-               commentsQuantity = [];
-               return;
-             }
-           });
-      return commentsQuantity.length;
-    },
-    returnPostParcialContent(postContent){
-      return String(postContent).substring(0, 199);
+      let comments = axios.get(`${this.axiosURL}/comments?postId=${postId}`)
+        .then(response => { 
+          console.log(response.data.length);
+          return response.data.length;
+        });
+      console.log(comments);
     },
     axiosPostRequest(url, postObj){
       axios.post(url, postObj)
