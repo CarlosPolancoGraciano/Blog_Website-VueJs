@@ -9,20 +9,41 @@
           </div>
           <div class="list-group">
             <button class="list-group-item list-group-item-action"
-                    @click="getUserPublishedPosts"
+                    @click="showUsersPosts()"
                     :class="{'active': publishIsActive}">Publish posts</button>
             <button class="list-group-item list-group-item-action"
-                    @click="getUserDraftedPosts"
+                    @click="showUsersPosts('drafted')"
                     :class="{'active': draftedIsActive}">Draft posts</button>
-            <button class="list-group-item list-group-item-action">Deleted posts</button>
+            <button class="list-group-item list-group-item-action"
+                    @click="showUsersPosts('deleted')"
+                    :class="{'active': deletedIsActive}">Deleted posts</button>
           </div>
         </div>
         <!-- Posts options content -->
         <div class="col-md-8 border-left">
           <b-table striped 
                   hovered
+                  :sort-by.sync="sortBy"
+                  :sort-desc.sync="sortDesc"
+                  :current-page="currentPage" 
+                  :per-page="25"
                   :fields="postsfields" 
                   :items="posts">
+             <!-- <template slot="id" scope="data">
+                {{data.item.id}}
+              </template>
+              <template slot="title" scope="data">
+                {{data.item.title}}
+              </template>
+              <template slot="comments" scope="data">
+                {{data.item.comments}}
+              </template>
+              <template slot="likes" scope="data">
+                {{data.item.likes}} 
+              </template>
+              <template slot="created_at" scope="data">
+               {{data.item.created_at}}
+              </template> -->
           </b-table>
           <b-pagination size="md" :total-rows="posts.length" v-model="currentPage" :per-page="25">
           </b-pagination>
@@ -45,155 +66,219 @@ export default {
       axiosURL: this.requestURL(),
       publishIsActive: false,
       draftedIsActive: false,
+      deletedIsActive: false,
+      sortDesc: false,
+      sortBy: 'title',
       currentPage: 0,
       currentUser: {},
+      postsfields: {},
+      likes: [],
+      comments: [],
       posts: [],
-      postsfields: []
+      requestPosts: []
     }
   },
   watch:{
     getCurrentUser(newVal, oldVal){
-      this.currentUser.push(this.getCurrentUser);
+      this.currentUser = this.getCurrentUser;
+    }
+  },
+  computed:{
+    getUserPublishedPosts(){
+      let postArray = null;
+
+      // Setting active class binding
+      this.setPostsFields();
+
+      let resultArray = this.requestPosts.filter((val, index , arr) => {
+        return val.draft == false && val.is_deleted == false;
+      });
+
+      postArray = resultArray.map((val, index , arr) => {
+        return {
+          id: val.id,
+          title: val.title,
+          comments: this.returnCommentsAmount(val.id),
+          likes: this.returnLikesAmount(val.id),
+          created_at: moment(val.date).format('MMMM Do YYYY')
+        }
+      });
+
+      return postArray;
+    },
+    getUserDraftedPosts(){
+      let postArray = null;
+
+      // Setting active class binding
+      this.setPostsFields();
+
+      let resultArray = this.requestPosts.filter((val, index , arr) => {
+        return val.draft == true && val.is_deleted == false;
+      });
+
+      postArray = resultArray.map((val, index , arr) => {
+        return {
+          id: val.id,
+          title: val.title,
+          comments: this.returnCommentsAmount(val.id),
+          likes: this.returnLikesAmount(val.id),
+          created_at: moment(val.date).format('MMMM Do YYYY')
+        }
+      });
+
+      return postArray;
+    },
+    getUserDeletedPosts(){
+      let postArray = null;
+
+      // Setting active class binding
+      this.setPostsFields(true);
+
+      let resultArray = this.requestPosts.filter((val, index , arr) => {
+        return val.is_deleted == true;
+      });
+
+      postArray = resultArray.map((val, index , arr) => {
+        return {
+          id: val.id,
+          title: val.title,
+          comments: this.returnCommentsAmount(val.id),
+          likes: this.returnLikesAmount(val.id),
+          created_at: moment(val.date).format('MMMM Do YYYY'),
+          published_at: moment(val.date).format('MMMM Do YYYY')
+        }
+      });
+
+      return postArray;
     }
   },
   mounted(){
-    this.loadCurrentUser();
-    this.getUserPublishedPosts();
+    this.getInitialData();
   },
   methods:{
-    loadCurrentUser(){
+    getInitialData(){
+      let that = this;
       this.currentUser = this.getCurrentUser;
-      if(Object.keys(this.currentUser).length == 0){ //Check if object is empty
-        this.currentUser = {};
+
+      axios.all([this.getLikesData(), this.getCommentsData(), this.getAllPosts()])
+      .then(axios.spread(function (likesResp, commentResp, postsResp) {
+        // All requests are now complete
+
+        // Likes request successful
+        that.likes = likesResp.data.length > 0 ? likesResp.data : [];
+
+        // Comments request successful
+        that.comments = commentResp.data.length > 0 ? commentResp.data : [];
+
+        // Post request successful
+        that.requestPosts = postsResp.data.length > 0 ? postsResp.data : [];
+
+        that.showUsersPosts();
+      }));
+    },
+    getAllPosts(){
+      /* Request all posts */
+      return axios.get(`${this.axiosURL}/posts?userId=${this.currentUser.id}`);
+    },
+    getLikesData(){
+      /* Request All Likes */
+      return axios.get(`${this.axiosURL}/likes`);
+    },
+    getCommentsData(){
+      /* Request All Comments */
+      return axios.get(`${this.axiosURL}/comments`);
+    },
+    showUsersPosts(type = 'published'){
+      switch(type){
+        case 'published':
+          this.publishIsActive = true;
+          this.draftedIsActive = false;
+          this.deletedIsActive = false;
+          this.posts = this.getUserPublishedPosts;
+          break;
+        case 'drafted':
+          this.publishIsActive = false;
+          this.draftedIsActive = true;
+          this.deletedIsActive = false;
+          this.posts = this.getUserDraftedPosts;
+          break;
+        case 'deleted':
+          this.publishIsActive = false;
+          this.draftedIsActive = false;
+          this.deletedIsActive = true;
+          this.posts = this.getUserDeletedPosts;
+          break;
       }
     },
-    getUserPublishedPosts(){
-      let that = this;
-
-      // Setting active class binding
-      that.draftedIsActive = false;
-      that.publishIsActive = true;
-      that.setPostsFields();
-
-      /* Request All Posts */
-      axios.get(`${that.axiosURL}/posts?draft=false&userid=${that.currentUser.id}`)
-         .then((response) => { 
-            let respArray = [];
-            let postArray = [];
-            respArray = response.data;
-            // console.log(response.data);
-
-            if(respArray.length > 0){
-              for(let post in respArray){
-
-                // Setting specific data from posts
-                let postObj = {
-                  id: respArray[post].id,
-                  title: respArray[post].title,
-                  comments: that.returnCommentsAmount(respArray[post].id),
-                  likes: that.returnLikesAmount(respArray[post].id),
-                  created_at: moment(respArray[post].date).format('MMMM Do YYYY')
-                };
-
-                postArray.push(postObj);
-              }
-            }
-
-            // console.log("custom object", postArray);
-            that.posts = postArray.reverse();
-          });
-    },
-    getUserDraftedPosts(){
-      let that = this;
-
-      // Setting active class binding
-      that.publishIsActive = false;
-      that.draftedIsActive = true;
-      that.setPostsFields(true);
-
-      /* Request All Posts */
-      axios.get(`${that.axiosURL}/posts?draft=true&userId=${that.currentUser.id}`)
-         .then((response) => { 
-           debugger;
-            let respArray = [];
-            let postArray = [];
-            respArray = response.data;
-            // console.log("posts response", response.data);
-
-            if(respArray.length > 0){
-              for(let post in respArray){
-                let postObj = {
-                  id: respArray[post].id,
-                  title: respArray[post].title,
-                  comments: that.returnCommentsAmount(respArray[post].id),
-                  likes: that.returnLikesAmount(respArray[post].id),
-                  created_at: moment(respArray[post].date).format('MMMM Do YYYY')
-                };
-                postArray.push(postObj);
-              }
-            }
-
-            that.posts = postArray.reverse();
-        })
-    },
     setPostsFields(isDeleted = false){
+      let fields = null;
 
-      let fields = [
-        {key: 'id', sortable: false, label: '#'},
-        {key: 'title', sortable: true, label: 'Title'},
-        {key: 'comments', sortable: true, label: 'Comments Qty.'},
-        {key: 'likes', sortable: true, label: 'Likes Qty.'},
-        {key: 'created_at', sortable: true, label: 'Created at'}
-      ];
+      if(isDeleted == true){
+        fields = {
+          id: {
+            label: '#',
+            sortable: false
+          },
+          title: {
+            label: 'Title',
+            sortable: true
+          },
+          comments: {
+            label: 'Comments Qty.',
+            sortable: true
+          },
+          likes: {
+            label: 'Likes Qty.',
+            sortable: true
+          },
+          created_at: {
+            label: 'Created at',
+            sortable: true
+          },
+          published_at: {
+            label: 'Published at',
+            sortable: true
+          }
+        }
+      }else{
+        fields = {
+          id: {
+            label: '#',
+            sortable: false
+          },
+          title: {
+            label: 'Title',
+            sortable: true
+          },
+          comments: {
+            label: 'Comments Qty.',
+            sortable: true
+          },
+          likes: {
+            label: 'Likes Qty.',
+            sortable: true
+          },
+          created_at: {
+            label: 'Created at',
+            sortable: true
+          }
+        }
+      }
 
-      this.postsFields = fields;
+      this.postsfields = fields;
     },
     transformPostDates(date){
       return moment(date).format('MMMM Do YYYY');
     },
-    returnEditedMode(wasEdited){
-      if(wasEdited){
-        return 'Edited';
-      }else{
-        return 'Not Edited';
-      }
-    },
     returnLikesAmount(postId){
-      let likesQuantity = [];
-      axios.get(`${this.axiosURL}/likes/${postId}`)
-           .then((response) => { 
-             if(response.data.length > 0){
-               likesQuantity = response.data;
-               return;
-             }
-           })
-           .catch((error) => { 
-             if(error.response.status === 404){
-               likesQuantity = [];
-               return;
-             } 
-           });
-      return likesQuantity.length;
+      return this.likes.reduce((acc, obj, index) => {
+        return obj.postId == postId ? acc += 1 : acc;
+      }, 0);
     },
     returnCommentsAmount(postId){
-      let commentsQuantity = [];
-      axios.get(`${this.axiosURL}/comments/${postId}`)
-           .then((response) => { 
-              if(response.data.length > 0){
-                commentsQuantity = response.data;
-                return;
-              }
-            })
-           .catch((error) => {
-             if(error.response.status === 404){
-               commentsQuantity = [];
-               return;
-             }
-           });
-      return commentsQuantity.length;
-    },
-    returnPostParcialContent(postContent){
-      return String(postContent).substring(0, 199);
+      return this.comments.reduce((acc, obj, index) => {
+        return obj.postId == postId ? acc += 1 : acc;
+      }, 0);
     },
   }
 }

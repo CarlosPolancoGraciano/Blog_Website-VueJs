@@ -89,6 +89,9 @@ const USER_LOGGED = {
         }
     },
     methods: {
+        currentUserLoggedState(){
+
+        },
         setUserLogged(){
             this.$store.dispatch('setUserLogged', true);
         },

@@ -215,6 +215,7 @@ export default {
           enableComments: that.form.enableComments,
           edited: false,
           draft: false,
+          is_deleted: false,
           userId: this.currentUser.id
         }
         
@@ -247,6 +248,7 @@ export default {
           enableComments: that.form.enableComments,
           edited: false,
           draft: true,
+          is_deleted: false,
           userId: this.currentUser.id
         }
         

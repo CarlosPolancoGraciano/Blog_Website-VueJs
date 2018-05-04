@@ -3,7 +3,7 @@
     <!-- If there is post show this -->
     <div v-if="posts.length > 0">
       <!-- Blog Post -->
-      <div class="card mb-4" v-for="(post, index) in posts" v-bind:key="index">
+      <div class="card mb-4" v-for="(post, index) in paginatedPosts" v-bind:key="index">
         <div class="card-body">
           <div class="row">
             <div class="col-4 offset-md-4">
@@ -91,18 +91,9 @@
       </div>
 
       <!-- Pagination -->
-      <pagination :records="posts.length" 
-                  :per-page="20" 
-                  @paginate="setPage"
-                  :options="{ theme: 'bootstrap4' }"></pagination>
-      <!-- <ul class="pagination justify-content-center mb-4">
-        <li class="page-item">
-          <a class="page-link" href="#">&larr; Older</a>
-        </li>
-        <li class="page-item disabled">
-          <a class="page-link" href="#">Newer &rarr;</a>
-        </li>
-      </ul> -->
+      <!-- Bootstrap vue pagination -->
+      <b-pagination size="md" :total-rows="posts.length" v-model="currentPage" :per-page="perPage">
+      </b-pagination>
     </div>
     <!-- If not show this -->
     <div v-else>
@@ -137,7 +128,9 @@ export default {
   },
   data(){
     return{
-      page: 1,
+      perPage: 1,
+      currentPage: 1,
+      paginatedPosts: [],
       posts: [],
       postOwner: {},
       currentUser: {},
@@ -159,6 +152,12 @@ export default {
     this.checkUserLoggedInfo();
   },
   methods:{
+    paginatePosts(){
+      let min = ((this.currentPage * this.perPage) + 1);
+      let max = min + this.perPage < this.posts.length ? min + this.perPage : this.posts.length;
+
+      this.paginatedPosts = this.posts.slice(min, max);
+    },
     setPage(page) {
       this.page = page;
     },
@@ -168,7 +167,7 @@ export default {
     },
     getAllPosts(){
       /* Request All Posts */
-      axios.get(`${this.axiosURL}/posts?draft=false`)
+      axios.get(`${this.axiosURL}/posts?draft=false&is_deleted=false`)
          .then((response) => { 
             let postArray = response.data;
 
@@ -210,13 +209,12 @@ export default {
         }
       }).then((success) => {
         if(success){
-          debugger;
-          axios.delete(`${that.axiosURL}/posts/${postId}`)
-               .then((response) => {
+          axios.patch(`${that.axiosURL}/posts/${postId}`, { is_deleted: true })
+               .then(response => {
                 this.getAllPosts();
                 that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
                })
-               .catch((error) =>{
+               .catch(error =>{
                  that.dynamicToastr({title: `Error in deleting file proccess`, msg:`${error.response.status}`, type: `error`});
                })
         }

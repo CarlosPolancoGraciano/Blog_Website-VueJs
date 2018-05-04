@@ -8,7 +8,8 @@
       "enableComments": "Yes",
       "edited": false,
       "draft": true,
-      "userId": 1
+      "userId": 1,
+      "is_deleted": false
     },
     {
       "id": 4,
@@ -18,7 +19,19 @@
       "enableComments": "Yes",
       "edited": false,
       "draft": false,
-      "userId": 1
+      "userId": 1,
+      "is_deleted": false
+    },
+    {
+      "id": 5,
+      "title": "Vue js 2 - Prueba 4",
+      "content": "<p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</p><p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</p><p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Quisquam, ullam voluptatum? Praesentium nihil distinctio eius, nemo quidem iste debitis beatae voluptate porro sequi quasi, quis facilis eum repellendus similique modi?</p>",
+      "date": "2018-05-03T21:13:56.604Z",
+      "enableComments": "Yes",
+      "edited": false,
+      "draft": false,
+      "userId": 1,
+      "is_deleted": false
     }
   ],
   "comments": [
@@ -29,6 +42,15 @@
       "created_at": "2018-05-03T17:59:55.020Z",
       "userId": 1,
       "userName": "CarlosPolanco",
+      "userAvatar": "avatar-1524706120060.jpeg"
+    },
+    {
+      "id": 2,
+      "content": "<p>Klk chapi chapi ya</p>",
+      "postId": 5,
+      "created_at": "2018-05-03T21:40:14.913Z",
+      "userId": 2,
+      "userName": "CarlosPeguero",
       "userAvatar": "avatar-1524706120060.jpeg"
     }
   ],
@@ -44,6 +66,18 @@
       "postId": 4,
       "created_at": "2018-05-03T18:38:30.542Z",
       "userId": 1
+    },
+    {
+      "id": 3,
+      "postId": 5,
+      "created_at": "2018-05-03T21:39:58.976Z",
+      "userId": 1
+    },
+    {
+      "id": 4,
+      "postId": 5,
+      "created_at": "2018-05-03T21:40:07.918Z",
+      "userId": 2
     }
   ],
   "notifications": [],
@@ -176,6 +210,24 @@
       "type": "like",
       "userId": 1,
       "postId": 4
+    },
+    {
+      "id": 18,
+      "type": "like",
+      "userId": 1,
+      "postId": 5
+    },
+    {
+      "id": 19,
+      "type": "like",
+      "userId": 2,
+      "postId": 5
+    },
+    {
+      "id": 20,
+      "type": "comment",
+      "userId": 2,
+      "postId": 5
     }
   ]
 }

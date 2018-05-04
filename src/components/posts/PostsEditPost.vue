@@ -258,12 +258,18 @@ export default {
         }
       }).then((success) => {
         if(success){
-          axios.delete(`${that.axiosURL}/posts/${postId}`)
-               .then((response) => {
-                that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
+          axios.patch(`${that.axiosURL}/posts/${postId}`, { is_deleted: true })
+               .then(response => {
+                 swal("Post deleted succesfully", "", "success")
+                  .then(success => {
+                    if(success){
+                      this.$router.push('/');
+                    }
+                  });
+                // that.dynamicToastr({title: "Post deleted succesfully", msg:"", type: "success"});
                })
-               .catch((error) =>{
-                 that.dynamicToastr({title: `Error in deleting file proccess`, msg:`${error.response.status}`, type: `error`});
+               .catch(error =>{
+                 that.dynamicToastr({title: `Error in deleting post proccess`, msg:`${error.response.status}`, type: `error`});
                })
         }
       })
