@@ -37,47 +37,98 @@
   "comments": [
     {
       "id": 1,
-      "content": "Excelente tu propuesta hermano!",
-      "postId": 4,
-      "created_at": "2018-05-03T17:59:55.020Z",
-      "userId": 1,
-      "userName": "CarlosPolanco",
-      "userAvatar": "avatar-1524706120060.jpeg"
+      "content": "Excelente tus comentarios",
+      "postId": 5,
+      "created_at": "2018-05-04T18:49:47.236Z",
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     },
     {
       "id": 2,
-      "content": "<p>Klk chapi chapi ya</p>",
+      "content": "Fue fenomenal tu forma de expresarte",
+      "postId": 4,
+      "created_at": "2018-05-04T18:50:06.434Z",
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
+    },
+    {
+      "id": 3,
+      "content": "<p>Prueba 2</p>",
       "postId": 5,
-      "created_at": "2018-05-03T21:40:14.913Z",
-      "userId": 2,
-      "userName": "CarlosPeguero",
-      "userAvatar": "avatar-1524706120060.jpeg"
+      "created_at": "2018-05-04T19:27:47.365Z",
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     }
   ],
   "likes": [
     {
       "id": 1,
       "postId": 4,
-      "created_at": "2018-05-03T18:38:21.765Z",
-      "userId": 2
+      "created_at": "2018-05-04T18:52:35.987Z",
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     },
     {
       "id": 2,
-      "postId": 4,
-      "created_at": "2018-05-03T18:38:30.542Z",
-      "userId": 1
-    },
-    {
-      "id": 3,
       "postId": 5,
-      "created_at": "2018-05-03T21:39:58.976Z",
-      "userId": 1
-    },
-    {
-      "id": 4,
-      "postId": 5,
-      "created_at": "2018-05-03T21:40:07.918Z",
-      "userId": 2
+      "created_at": "2018-05-04T18:52:43.645Z",
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     }
   ],
   "notifications": [],
@@ -92,7 +143,7 @@
       "firstName": "Carlos Daniel",
       "lastName": "Polanco Ortega",
       "description": "Hi! I'm Carlos a funny guy",
-      "avatar": "avatar-1524706120060.jpeg",
+      "avatar": "avatar-1525449081140.jpeg",
       "isPublic": "false"
     },
     {
@@ -105,129 +156,119 @@
       "firstName": "Carlos Aurelio",
       "lastName": "Peguero Graciano",
       "description": "Hi! I'm a cute guy",
-      "avatar": "avatar-1524706120060.jpeg"
+      "avatar": "defaultAvatar.png",
+      "isPublic": "false"
     }
   ],
   "activity": [
     {
-      "id": 1,
-      "type": "comment",
-      "userId": 1,
-      "postId": 4
-    },
-    {
       "id": 2,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 3,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
+      "type": "comment",
+      "postId": 5,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     },
     {
       "id": 4,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 5,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 6,
-      "type": "like",
-      "userId": 2,
-      "postId": 4
-    },
-    {
-      "id": 7,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
+      "type": "comment",
+      "postId": 4,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     },
     {
       "id": 8,
       "type": "like",
-      "userId": 1,
-      "postId": 4
+      "postId": 4,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     },
     {
       "id": 9,
       "type": "like",
-      "userId": 1,
-      "postId": 4
+      "postId": 4,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     },
     {
       "id": 10,
       "type": "like",
-      "userId": 1,
-      "postId": 4
+      "postId": 5,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     },
     {
       "id": 11,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 12,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 13,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 14,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 15,
-      "type": "like",
-      "userId": 2,
-      "postId": 4
-    },
-    {
-      "id": 16,
-      "type": "like",
-      "userId": 2,
-      "postId": 4
-    },
-    {
-      "id": 17,
-      "type": "like",
-      "userId": 1,
-      "postId": 4
-    },
-    {
-      "id": 18,
-      "type": "like",
-      "userId": 1,
-      "postId": 5
-    },
-    {
-      "id": 19,
-      "type": "like",
-      "userId": 2,
-      "postId": 5
-    },
-    {
-      "id": 20,
       "type": "comment",
-      "userId": 2,
-      "postId": 5
+      "created_at": "2018-05-04T19:27:47.365Z",
+      "postId": 5,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
     }
   ]
 }

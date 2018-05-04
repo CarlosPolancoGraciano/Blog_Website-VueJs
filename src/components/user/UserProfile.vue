@@ -10,7 +10,7 @@
                           <a href="" data-target="#profile" data-toggle="tab" class="nav-link active text-primary">Profile</a>
                       </li>
                       <li class="nav-item" v-if="isPublic">
-                          <a href="" data-target="#posts" data-toggle="tab" class="nav-link text-primary">Posts</a>
+                          <a href="" data-target="#activity" data-toggle="tab" class="nav-link text-primary" @click="getActivityInfo()">Activity</a>
                       </li>
                   </ul>
                   <div class="tab-content py-4" v-if="isPublic">
@@ -65,39 +65,105 @@
                             </div>
                           <!--/row-->
                       </div>
-                      <div class="tab-pane" id="posts">
-                            <div class="alert alert-info alert-dismissable">
-                                <a class="panel-close close" data-dismiss="alert">×</a> This is an <strong>.alert</strong>. Use this to show important messages to the user.
+                      <div class="tab-pane" id="activity">
+                        <ul class="nav nav-pills nav-fill">
+                          <li class="nav-item">
+                            <a class="nav-link active" data-target="#postsActivity" data-toggle="tab" href="#" @click="getActivityInfo('post')">Posts activity</a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link" data-target="#likesActivity" data-toggle="tab" href="#" @click="getActivityInfo('like')">Likes activity</a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link" data-target="#commentsActivity" data-toggle="tab" href="#" @click="getActivityInfo('comment')">Comments activity</a>
+                          </li>
+                        </ul>
+                        <div class="tab-content py-4">
+                          <div class="tab-pane active" id="postsActivity">
+                            <div v-if="activityInfo.length > 0 && activityType == 'post'">
+                              <paginate name="activity"
+                                        :list="activityInfo"
+                                        :per="5">
+                                <div class="alert alert-success alert-dismissable" v-for="(info, index) in paginated('activity')" :key="index">
+                                    <router-link :to="'/post/' + info.postId" class="panel-close">
+                                      <AppIcon iconName="share-square-o" />
+                                    </router-link> You <strong>published</strong> a post, click on the icon to see it.
+                                    <div class="text-right text-muted">{{ info.created_at | formatCreatedAt }}</div>
+                                </div>
+                              </paginate>
+                              <paginate-links for="activity"
+                                              :async="true"
+                                              :limit="2"
+                                              :show-step-links="true"
+                                              :step-links="stepLinks"
+                                              :classes="paginateLinksCSS">
+                              </paginate-links>
                             </div>
-                            <table class="table table-hover table-striped">
-                                <tbody>                                    
-                                    <tr>
-                                        <td>
-                                          <span class="float-right font-weight-bold">3 hrs ago</span> Here is your a link to the latest summary report from the..
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                          <span class="float-right font-weight-bold">Yesterday</span> There has been a request on your account since that was..
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                          <span class="float-right font-weight-bold">9/10</span> Porttitor vitae ultrices quis, dapibus id dolor. Morbi venenatis lacinia rhoncus. 
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                          <span class="float-right font-weight-bold">9/4</span> Vestibulum tincidunt ullamcorper eros eget luctus. 
-                                        </td>
-                                    </tr>
-                                    <tr>
-                                        <td>
-                                          <span class="float-right font-weight-bold">9/4</span> Maxamillion ais the fix for tibulum tincidunt ullamcorper eros. 
-                                        </td>
-                                    </tr>
-                                </tbody> 
-                            </table>
+                            <div v-else>
+                              <div class="jumbotron jumbotron-fluid">
+                                <div class="container text-center">
+                                  <span class="h2">No se han encontrado actividad de publicaciones</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="tab-pane" id="likesActivity">
+                            <div v-if="activityInfo.length > 0 && activityType == 'like'">
+                              <paginate name="activity"
+                                        :list="activityInfo"
+                                        :per="5">
+                              </paginate>
+                                <div class="alert alert-danger alert-dismissable" v-for="(info, index) in paginated('activity')" :key="index">
+                                    <router-link :to="'/post/' + info.postId" class="panel-close">
+                                      <AppIcon iconName="share-square-o" />
+                                    </router-link> You <strong>liked</strong> a post, click on the icon to see it.
+                                    <div class="text-right text-muted">{{ info.created_at | formatCreatedAt }}</div>
+                                </div>
+                              <paginate-links for="activity"
+                                              :async="true"
+                                              :limit="2"
+                                              :show-step-links="true"
+                                              :step-links="stepLinks"
+                                              :classes="paginateLinksCSS">
+                              </paginate-links>
+                            </div>
+                            <div v-else>
+                              <div class="jumbotron jumbotron-fluid">
+                                <div class="container text-center">
+                                  <span class="h2">No se han encontrado actividad de likes</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          <div class="tab-pane" id="commentsActivity">
+                            <div v-if="activityInfo.length > 0 && activityType == 'comment'">
+                              <paginate name="activity"
+                                        :list="activityInfo"
+                                        :per="5">
+                                <div class="alert alert-primary alert-dismissable" v-for="(info, index) in paginated('activity')" :key="index">
+                                  <router-link :to="'/post/' + info.postId" class="panel-close">
+                                    <AppIcon iconName="share-square-o" />
+                                  </router-link> You <strong>commented</strong> a post, click on the icon to see it.
+                                  <div class="text-right text-muted">{{ info.created_at | formatCreatedAt }}</div>
+                                </div>
+                              </paginate>
+                              
+                              <paginate-links for="activity"
+                                              :async="true"
+                                              :limit="2"
+                                              :show-step-links="true"
+                                              :step-links="stepLinks"
+                                              :classes="paginateLinksCSS">
+                              </paginate-links>
+                            </div>
+                            <div v-else>
+                              <div class="jumbotron jumbotron-fluid">
+                                <div class="container text-center">
+                                  <span class="h2">No se han encontrado actividad de comentarios</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                   </div>
                   <div class="tab-content py-4" v-else>
@@ -117,9 +183,11 @@
                   </div>
               </div>
               <div class="col-lg-4 order-lg-1 text-center">
-                  <!-- <img src="//placehold.it/150" class="mx-auto img-fluid rounded-circle" alt="avatar"> -->
-                  <!-- <img src="../../../public/images/" class="mx-auto img-fluid rounded-circle" alt="avatar"> -->
-                  <img :src="'../assets/images/' + user.avatar" class="mx-auto img-fluid rounded-circle" :alt="user.username + ' profile image'">
+                  <img class="img-fluid img-thumbnail mx-auto d-block" 
+                        :src="expressNodeURL + '/' + user.avatar"
+                        :alt="user.username + ' profile image'"
+                        width="160"
+                        height="120">
                   <h6 class="mt-2 font-weight-bold">@{{ user.username }}</h6>
               </div>
           </div>
@@ -136,12 +204,32 @@ export default {
   components:{
     AppIcon
   },
+  filters:{
+    formatCreatedAt(date){
+      return moment(date).format('MMMM Do YYYY');
+    }
+  },
   data(){
     return{
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
+      expressNodeURL: this.expressURL(),
       user: {},
-      isPublic: null
+      activityInfo: [],
+      isPublic: null,
+      activityType: '',
+      paginate: ['activity'],
+      stepLinks: {
+        next: 'Next',
+        prev: 'Previous'
+      },
+      paginateLinksCSS: {
+        'ul': ['pagination', 'justify-content-center'],
+        'ul > li': 'page-item',
+        'li > a': 'page-link',
+        '.next > a': 'page-link',
+        '.prev > a': 'page-link'
+      }
     }
   },
   computed: {
@@ -151,31 +239,40 @@ export default {
     if(this.$route.params.username === undefined){
       this.$router.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
     }
-    axios.all([this.loadUser()])
-    .then(axios.spread(function (loadUser) {
-      // Both requests are now complete
-    }));
+    
+    this.loadUser();
   },
   methods: {
+    getActivityInfo(typeName = 'post'){
+      let that = this;
+
+      this.activityType = typeName;
+
+      axios.get(`${this.axiosURL}/activity?type=${typeName}`)
+           .then(response => {
+             that.activityInfo = response.data.length > 0 ? response.data : [];
+           });
+    },
     loadUser(){
       let that = this;
-      // this.currentUser = this.$store.getters.getCurrentUser;
-      return axios.get(`${that.axiosURL}/users?username=${that.$route.params.username}`)
+
+      axios.get(`${that.axiosURL}/users?username=${that.$route.params.username}`)
            .then((response) => {
+              // Current user from Vuex
               let currentUser = that.getCurrentUser;
+              // Request profile user
               that.user = response.data[0];
 
-              if(Object.keys(that.user).length == 0){
-                that.$route.push('/', () => { swal("Ooops!", "You don't have access!", "error") })
-              }
-              else if(Object.keys(currentUser).length > 0){
+              if(Object.keys(currentUser).length > 0){
+                // If current user is logged in and he's watching his profile
+                // Show it even if profile is private
                 if(that.user.id === currentUser.id){
                   that.isPublic = true;
                 }
               }else{
+                // Other wise, if user is not logged show the profile user is public
                 that.isPublic = (that.user.isPublic == 'true');
               }
-            
            });
     }
   }

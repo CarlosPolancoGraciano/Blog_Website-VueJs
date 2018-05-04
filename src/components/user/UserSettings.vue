@@ -3,6 +3,9 @@
     <div class="container-fluid">
       <div class="row m-3 p-5">
         <div class="col-md-4 border-right">
+          <div class="text-center">
+            <h4>User settings</h4>
+          </div>
           <div class="list-group">
             <b-btn  class="list-group-item list-group-item-action"
                     :class=" isGeneral ? 'active' : null"
@@ -165,7 +168,7 @@
                                           class="font-weight-bold"
                                           label-for="uploadImageInput"
                                           description="Required">
-                              <b-form-file id="uploadImageInput" v-model="file" :state="Boolean(file)" placeholder="Upload your profile picture..."></b-form-file>
+                              <b-form-file id="uploadImageInput" v-model="file" placeholder="Upload your profile picture..."></b-form-file>
                             </b-form-group>
                           </div>
                         </div>
@@ -220,6 +223,7 @@ export default {
     return{
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
+      expressNodeURL: this.expressURL(),
       currentUser: {},
       isGeneral: true,
       file: null,
@@ -286,21 +290,59 @@ export default {
       let that = this;
 
       if(that.validateInput()){
-        axios.patch(`${that.axiosURL}/users/${that.currentUser.id}`, that.profile)
-            .then((response) => {
-              swal("Profile updated!", "Your profile was updated successfully!", "success")
-              .then((success) => {
-                if(success){
+        if(this.file != null){
+          let avatar = new FormData();
+          avatar.append('avatar', this.file);
+          axios.post(`${that.expressNodeURL}/upload`, avatar)
+          .then(response => {
+            // Save the avatar url
+            that.profile.avatar = response.data.filename;
 
-                  //Clear data in WebStorage
-                  that.removeCurrentUser();
-                  //Send new user data to WebStorage
-                  that.saveCurrentUser(response.data, true);
+            // Save all new data to db
+            axios.patch(`${that.axiosURL}/users/${that.currentUser.id}`, that.profile)
+              .then((response) => {
+                swal("Profile updated!", "Your profile was updated successfully!", "success")
+                .then((success) => {
+                  if(success){
 
-                  location.reload();
-                }
-              })
-            });
+                    //Clear data in WebStorage
+                    that.removeWebStorageCurrentUser();
+                    //Send new user data to WebStorage
+                    that.saveWebStorageCurrentUser(response.data, true);
+
+                    //Remove currentUser in Vuex
+                    that.removeAuthCurrentUser();
+                    //Save new currentUser in Vuex
+                    that.setAuthCurrentUser(response.data);
+
+                    that.dynamicToastr({ title: 'Perfil actualizado!', msg: '', type: 'success' });
+                  }
+                })
+              });
+          })
+        }else{
+          // Save all new data to db
+          axios.patch(`${that.axiosURL}/users/${that.currentUser.id}`, that.profile)
+              .then((response) => {
+                swal("Profile updated!", "Your profile was updated successfully!", "success")
+                .then((success) => {
+                  if(success){
+
+                    //Clear data in WebStorage
+                    that.removeWebStorageCurrentUser();
+                    //Send new user data to WebStorage
+                    that.saveWebStorageCurrentUser(response.data, true);
+
+                    //Remove currentUser in Vuex
+                    that.removeAuthCurrentUser();
+                    //Save new currentUser in Vuex
+                    that.setAuthCurrentUser(response.data);
+
+                    that.dynamicToastr({ title: 'Perfil actualizado!', msg: '', type: 'success' });
+                  }
+                })
+              });
+        }
       }
     },
     validateGInputs(){

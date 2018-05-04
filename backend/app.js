@@ -4,6 +4,7 @@ let fs = require('fs');
 let cors = require('cors');
 let app = express();
 app.use(cors());
+app.use(express.static('../images'));
 
 routes(app);
 

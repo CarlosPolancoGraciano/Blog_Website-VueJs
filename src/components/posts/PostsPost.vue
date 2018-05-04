@@ -6,7 +6,7 @@
           <div class="col-12">
             <div class="row">
               <div class="col-md-4 text-left">
-                <router-link to="/" class="btn btn-secondary">&larr; Volver al listado</router-link>
+                <a href="#" @click="goBack" class="btn btn-secondary text-white">&larr; Go back</a>
                 <!-- <router-link class="btn btn-secondary">&larr; Volver a la busqueda</router-link> -->
               </div>
               <div class="col-md-4 offset-md-4 text-right">
@@ -106,71 +106,93 @@
                     </div>
                 </div>
                 <!-- Single Comment -->
-                  <div class="row" v-if="comments.length > 0 && postEnableComments(post.enableComments) === true">
-                    <div class="col-md-12" v-for="(comment, index) in comments" :key="index">
-                      <div class="card">
-                        <div class="card-body text-left">
-                          <div class="media mb-4">
-                            <img class="mr-3 rounded-circle" src="http://placehold.it/50x50" alt="User picture">
+                  <div v-if="comments.length > 0 && postEnableComments(post.enableComments) === true">
+                    <div class="text-right">
+                      <span class="text-muted">Sort order</span>
+                      <button class="btn btn-light text-primary pb-1" @click="sortOrder = !sortOrder">
+                        <AppIcon :iconName="sortOrder ? 'arrow-up' : 'arrow-down'" />
+                      </button>
+                    </div>
+                    <paginate name="comments"
+                              :list="comments"
+                              :per="5" 
+                              class="row">
+                      <div class="col-md-12" v-for="(comment, index) in paginated('comments')" :key="index">
+                        <div class="card">
+                          <div class="card-body text-left">
+                            <div class="media mb-4">
+                              <img class="img-fluid rounded-circle mx-auto d-block" 
+                                    :src="expressNodeURL + '/' + comment.user.avatar" 
+                                    :alt="comment.user.firstName" 
+                                    width="50" 
+                                    height="50">
 
-                            <!-- No edit mode -->
-                            <div class="media-body" v-if="!comment.editing">
-                              <div class="row">
-                                <div class="col-md-6 text-left">
-                                  <h5 class="mt-0">{{ comment.userName }}</h5>
+                              <!-- No edit mode -->
+                              <div class="media-body" v-if="!comment.editing">
+                                <div class="row">
+                                  <div class="col-md-6 text-left">
+                                    <h5 class="mt-0">{{ comment.user.username }}</h5>
+                                  </div>
+                                  <div class="col-md-6 text-right" v-if="comment.user.id == currentUser.id">
+                                    <!-- Edit comment button -->
+                                    <button class="btn btn-link" @click="editCommentMode(comment.id, comment.content)">
+                                      <AppIcon iconName="pencil" class="fa-lg text-primary" />
+                                    </button>
+                                    <!-- Delete comment button -->
+                                    <button class="btn btn-link" @click="deleteComment(comment.id)">
+                                      <AppIcon iconName="times" class="fa-lg text-danger" />
+                                    </button>
+                                  </div>
                                 </div>
-                                <div class="col-md-6 text-right" v-if="comment.userId == currentUser.id">
-                                  <!-- Edit comment button -->
-                                  <button class="btn btn-link" @click="editCommentMode(comment.id, comment.content)">
-                                    <AppIcon iconName="pencil" class="fa-lg text-primary" />
-                                  </button>
-                                  <!-- Delete comment button -->
-                                  <button class="btn btn-link" @click="deleteComment(comment.id)">
-                                    <AppIcon iconName="times" class="fa-lg text-danger" />
-                                  </button>
-                                </div>
+                                <div v-html="comment.content"></div>
+                                <p class="mb-0 mt-2 text-primary">{{ comment.created_at | formatCommentDateFromNow }}</p>
                               </div>
-                              <div v-html="comment.content"></div>
-                              <p class="mb-0 mt-2 text-primary">{{ comment.created_at | formatCommentDateFromNow }}</p>
-                            </div>
 
-                            <!-- Edit mode -->
-                            <div class="media-body" v-if="comment.editing">
-                              <div class="row">
-                                <div class="col-md-6 text-left">
-                                  <h5 class="mt-0">{{ comment.userName }}</h5>
+                              <!-- Edit mode -->
+                              <div class="media-body" v-if="comment.editing">
+                                <div class="row">
+                                  <div class="col-md-6 text-left">
+                                    <h5 class="mt-0">{{ comment.user.username }}</h5>
+                                  </div>
+                                  <div class="col-md-6 text-right">
+                                    <!-- Delete comment button -->
+                                    <button class="btn btn-link" @click="deleteComment(comment.id)">
+                                      <AppIcon iconName="times" class="fa-lg text-danger" />
+                                    </button>
+                                  </div>
                                 </div>
-                                <div class="col-md-6 text-right">
-                                  <!-- Delete comment button -->
-                                  <button class="btn btn-link" @click="deleteComment(comment.id)">
-                                    <AppIcon iconName="times" class="fa-lg text-danger" />
-                                  </button>
-                                </div>
+                                <b-form @submit.prevent="editComment(comment.id)">
+                                  <div class="form-group text-left">
+                                    <at :members="users" v-model="vueAtContent">
+                                      <froala :tag="'textarea'" :config="config" v-model="comment.content" contenteditable></froala>
+                                    </at>
+                                  </div>
+                                  <b-button variant="primary"
+                                            type="submit">
+                                    <AppIcon iconName="floppy-o" />
+                                    Save comment
+                                  </b-button>
+                                  &nbsp;
+                                  <b-button variant="danger" @click="cancelEditComment(comment.id)">
+                                    <AppIcon iconName="ban" />
+                                    Cancel
+                                  </b-button>
+                                </b-form>
                               </div>
-                              <b-form @submit.prevent="editComment(comment.id)">
-                                <div class="form-group text-left">
-                                  <at :members="users" v-model="vueAtContent">
-                                    <froala :tag="'textarea'" :config="config" v-model="comment.content" contenteditable></froala>
-                                  </at>
-                                </div>
-                                <b-button variant="primary"
-                                          type="submit">
-                                  <AppIcon iconName="floppy-o" />
-                                  Save comment
-                                </b-button>
-                                &nbsp;
-                                <b-button variant="danger" @click="cancelEditComment(comment.id)">
-                                  <AppIcon iconName="ban" />
-                                  Cancel
-                                </b-button>
-                              </b-form>
-                            </div>
-                            <!-- End edit mode -->
+                              <!-- End edit mode -->
 
+                            </div>
                           </div>
                         </div>
                       </div>
-                    </div>
+                    </paginate>
+                    <paginate-links for="comments"
+                      :async="true"
+                      :limit="2"
+                      :show-step-links="true"
+                      :step-links="stepLinks"
+                      :classes="paginateLinksCSS">
+                    </paginate-links>
                   </div>
                   <div v-if="comments.length == 0 && postEnableComments(post.enableComments) === true">
                     <div class="jumbotron jumbotron-fluid">
@@ -196,7 +218,6 @@
 </template>
 <script>
 import AppIcon from '@/components/app/AppIcon.vue';
-import VueFroala from 'vue-froala-wysiwyg';
 import At from 'vue-at';
 
 export default {
@@ -216,10 +237,11 @@ export default {
   },
   data(){
     return{
-      notificationsURL: this.pusherURL(),
+      expressNodeURL: this.expressURL(),
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
       userLogged: false,
+      sortOrder: false,
       editCommentContent: '',
       likes: 0,
       userPostLike: {},
@@ -236,6 +258,18 @@ export default {
           }
         }
       },
+      paginate: ['comments'],
+      stepLinks: {
+        next: 'Next',
+        prev: 'Previous'
+      },
+      paginateLinksCSS: {
+        'ul': ['pagination', 'justify-content-center', 'pagination-lg'],
+        'ul > li': 'page-item',
+        'li > a': 'page-link',
+        '.next > a': 'page-link',
+        '.prev > a': 'page-link'
+      }
     }
   },
   watch:{
@@ -244,6 +278,9 @@ export default {
     },
     getCurrentUser(newVal, oldVal){
       this.currentUser = this.getCurrentUser;
+    },
+    sortOrder(newVal, oldVal){
+      newVal ? this.comments.reverse() : this.comments.reverse();
     }
   },
   mounted(){
@@ -285,7 +322,7 @@ export default {
       /* Request Comment Data */
       return axios.get(`${this.axiosURL}/comments?postId=${this.$route.params.id}`)
             .then((response) => { 
-              
+
               if(response.data != undefined && response.data.length > 0){
                 let commentsEdited = response.data.map((obj, index, arr) => {
                   obj.editing = false;
@@ -309,7 +346,8 @@ export default {
                     if(this.likes > 0 && this.userLogged){
                       // Save my like of this post if it exist [It's an object]
                       let currentUserLike = response.data.reduce((acc, val, index) => {
-                        if(val.userId === this.currentUser.id){
+                        console.log(val);
+                        if(val.user.id === this.currentUser.id){
                           return val;
                         }
                       }, {});
@@ -384,16 +422,17 @@ export default {
     },
     likePost(){
       let like = {
-          id: this.getLatestTableId('comments') + 1,
-          postId: Number(this.$route.params.id),
-          created_at: new Date(),
-          userId: this.currentUser.id,
+        id: this.getLatestTableId('comments') + 1,
+        postId: Number(this.$route.params.id),
+        created_at: new Date(),
+        user: this.currentUser,
       };
       let likeActivity = { 
         id: this.getLatestTableId('activity') + 1, 
-        type: 'like', 
-        userId: this.currentUser.id, 
-        postId: Number(this.$route.params.id) 
+        type: 'like',
+        created_at: new Date(),
+        postId: Number(this.$route.params.id),
+        user: this.currentUser,
       };
       axios.all([this.saveLikeInDB(like), this.setUserActivity(likeActivity)])
             .then(axios.spread(function (likes) {
@@ -427,26 +466,25 @@ export default {
     createComment(){
       let that = this;
       
-      if(Object.keys(that.currentUser).length > 0 && this.userLogged){
-        if(that.newComment.content !== ''){
+      if(Object.keys(this.currentUser).length > 0 && this.userLogged){
+        if(this.newComment.content !== ''){
 
         let comment = {
           id: that.getLatestTableId('comments') + 1,
-          content: that.newComment.content,
-          postId: Number(that.$route.params.id),
+          content: this.newComment.content,
+          postId: Number(this.$route.params.id),
           created_at: new Date(),
-          userId: that.currentUser.id,
-          userName: that.currentUser.username,
-          userAvatar: that.currentUser.avatar
+          user: this.currentUser,
         };
         let commentActivity = { 
           id: this.getLatestTableId('activity') + 1, 
-          type: 'comment', 
-          userId: this.currentUser.id, 
-          postId: Number(this.$route.params.id) 
+          type: 'comment',
+          created_at: new Date(),
+          postId: Number(this.$route.params.id),
+          user: this.currentUser
         };
 
-        axios.all([that.saveCommentInDB(comment), this.setUserActivity(commentActivity)])
+        axios.all([that.saveCommentInDB(comment), that.setUserActivity(commentActivity)])
               .then(axios.spread(function (comment, activity) {
                 // Both requests are now complete
               }));
@@ -603,6 +641,9 @@ export default {
         .catch((error) => {
           console.log(error);
         });
+    },
+    goBack(){
+      this.$router.go(-1);
     }
   }
 }

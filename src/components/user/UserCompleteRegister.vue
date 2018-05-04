@@ -74,6 +74,7 @@ export default {
       },
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
+      expressNodeURL: this.expressURL(),
       isLocal: "true"
     }
   },
@@ -105,9 +106,6 @@ export default {
       let that = this;
       const userId = that.user[0].id;
 
-      let avatar = new FormData();
-      avatar.append('avatar', this.userCompletedData.avatar);
-
       // Profile remaining data and existing user data
       const completeUserData = {
         hash: "",
@@ -115,28 +113,61 @@ export default {
         username: that.userCompletedData.username,
         firstName: that.userCompletedData.firstName,
         lastName: that.userCompletedData.lastName,
-        description: that.userCompletedData.description,
-        avatar: ""
+        description: that.userCompletedData.description
       }
 
-      // Upload user image
-      axios.post('http://localhost:15536/upload', avatar, {
-        headers: {
-          'Content-Type': 'multipart/form-data'
-        }
-      }).then((response) => {
-        let requestResponse = response.data;
+      let avatar = null;
+      
+      if(this.userCompletedData.avatar == null){
+        avatar = new FormData();
+        avatar.append('avatar', this.userCompletedData.avatar);
 
-        // Complete user data
-        completeUserData.avatar = requestResponse.url;        
+        // Upload user image
+        axios.post(`${this.expressNodeURL}/upload`, avatar)
+            .then((response) => {
+              
+              // Complete user data
+              completeUserData.avatar = response.data.filename;        
 
-        if(completeUserData.avatar != ''){
-            axios.patch(`${that.axiosURL}/users/${userId}`, completeUserData)
-              .then((success) => {
+              if(completeUserData.avatar != ''){
+                  axios.patch(`${that.axiosURL}/users/${userId}`, completeUserData)
+                    .then((response) => {
+                      //If request was successful
+
+                      //Send new user data to WebStorage
+                      this.saveWebStorageCurrentUser(response.data, that.isLocal);
+
+                      //Save new currentUser in Vuex
+                      this.setAuthCurrentUser(response.data);
+
+                      //Send user to create new post and show a swal after
+                      that.$router.push('/newpost', () => { 
+                        swal("Registration completed!", "You're logged into your account and you were redirected to create your first post", "success") 
+                      });
+                    })
+                    .catch((error) => {
+
+                      //If request was failed
+                      that.dynamicToastr({title: `Ooops!`, 
+                                    msg: `Http error: ${error.response.status} ocurred trying to save your information`, 
+                                    type: `error`});
+                    });
+              }else{
+                that.dynamicToastr({ title: 'Ooops!', msg: 'An error occurred while uploading your profile picture', type: 'error' });
+              }
+            });
+      }else{
+        completeUserData.avatar = `${this.expressNodeURL}/defaultAvatar.png`;
+        
+        axios.patch(`${that.axiosURL}/users/${userId}`, completeUserData)
+              .then((response) => {
                 //If request was successful
 
-                // Log in the user
-                this.saveCurrentUser(completeUserData, that.isLocal);
+                //Send new user data to WebStorage
+                this.saveWebStorageCurrentUser(response.data, that.isLocal);
+
+                //Save new currentUser in Vuex
+                this.setAuthCurrentUser(response.data);
 
                 //Send user to create new post and show a swal after
                 that.$router.push('/newpost', () => { 
@@ -147,11 +178,10 @@ export default {
 
                 //If request was failed
                 that.dynamicToastr({title: `Ooops!`, 
-                              msg: `Http error: ${error.response.status} ocurred trying to save your information`, 
-                              type: `error`});
+                                    msg: `Http error: ${error.response.status} ocurred trying to save your information`, 
+                                    type: `error`});
               });
-         }
-      });
+      }
 
     }
   }

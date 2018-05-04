@@ -1,99 +1,153 @@
 <template>
   <div class="container">
-    <!-- If there is post show this -->
-    <div v-if="posts.length > 0">
-      <!-- Blog Post -->
-      <div class="card mb-4" v-for="(post, index) in paginatedPosts" v-bind:key="index">
-        <div class="card-body">
-          <div class="row">
-            <div class="col-4 offset-md-4">
-              <!-- User Image -->
-              <router-link :to="'/profile/' + post.userId">
-                <img class="rounded-circle mx-auto d-block" src="../../assets/UserAvatar.jpeg" alt="Card image cap">
-              </router-link>
-            </div>
-            <div class="col-4" v-if="currentUser.id === post.userId && userLogged">
-              <div class="text-right">
-                <!-- Delete post button -->
-                <button class="btn btn-link" @click="deletePost(post.id)">
-                  <AppIcon iconName="times" class="fa-lg text-danger" />
-                </button>
+    <!-- Filter -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <div class="row">
+          <div class="col-md-7">
+            <!-- Conditionally render the date picker -->
+            <div v-if="filter.selectedFilter == 'Date'">
+              <div class="form-row">
+                <div class="col">
+                  <label for="dateRangeOne">From</label>
+                  <input id="dateRangeOne" type="date" v-model="filter.dateRangeOne" class="form-control">
+                </div>
+                <div class="col">
+                  <label for="dateRangeTwo">To</label>
+                  <input id="dateRangeTwo" type="date" v-model="filter.dateRangeTwo" class="form-control">
+                </div>
               </div>
             </div>
-          </div>
-
-          <!-- Post Title -->
-          <router-link :to="'/post/' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>
-
-          <!-- Post Content (Limit to 200 characters) -->
-          <p class="card-text">
-            <span v-html="returnPostParcialContent(post.content)"></span>
-          </p>
-
-          <!-- Post Button Actions -->
-          <div class="btn-group" role="group" aria-label="Post owner button" v-if="currentUser.id === post.userId && userLogged">
-            <!-- See more Post Content if post owner is logged in -->
-            <router-link :to="'/post/' + post.id" class="btn btn-primary">
-              Read More 
-              <AppIcon iconName="eye" />
-            </router-link>
-            <!-- Edit Post Content -->
-            <router-link :to="'/editpost/' + post.id" class="btn btn-warning">
-              <AppIcon iconName="pencil-square-o" /> 
-              Edit post
-            </router-link>
-          </div>
-          <div v-else>
-            <!-- See more Post Content -->
-            <router-link :to="'/post/' + post.id" class="btn btn-primary">
-              Read More 
-              <AppIcon iconName="eye" />
-            </router-link>
-          </div>
-        </div>
-
-        <!-- Post footer content -->
-        <div class="card-footer text-muted">
-          <div class="row">
-            <div class="col-6">
-              <!-- More information of the post -->
-              Posted on <router-link :to="'/post/' + post.id">
-                          <span>{{ post.date | transformPostDates }}</span>
-                        </router-link> 
-              by
-              <!-- Redirect to Post Owner Profile  -->
-              <router-link :to="'/profile/' + post.userId" class="text-muted">
-              <!-- Post Owner Username  -->
-                {{ post.username }}
-              </router-link> - <span>{{ post.edited | returnEditedMode }}</span>
+            <!-- If not render the text box -->
+            <div v-else>
+              <label for="filterInput">Filter</label>
+              <input type="text" v-model="filter.filterTxt" id="filterInput" class="form-control" placeholder="Filter here">
             </div>
-            <div class="col-2"></div>
-            <div class="col-4">
-              <div class="row">
-                <div class="col-2"></div>
-                <div class="col-8">
-                  <!-- Total Likes -->
-                  <span><i class="fa fa-heart"></i>&nbsp;{{ returnLikesAmount(post.id) }}</span>
-                  &nbsp;
-                  <!-- Redirect to the post -->
-                  <router-link :to="'/post/' + post.id" class="text-muted">
-                    <span>
-                      <i class="fa fa-comments"></i>
-                      <!-- Total Comments -->
-                      &nbsp;{{ returnCommentsAmount(post.id) }}
-                    </span>
-                  </router-link>
-                </div>
+          </div>
+          <div class="col-md-5">
+            <div class="input-group">
+              <!-- Select label -->
+              <label for="filterSelect">Choose filter type</label>
+              <!-- Select field | use to select type of filter -->
+              <select class="custom-select" id="filterSelect" v-model="filter.selectedFilter">
+                <option selected v-for="(option, index) in filterOptions" :key="index">{{ option }}</option>
+              </select>
+              <!-- Button paste to select -->
+              <div class="input-group-append">
+                <button class="btn btn-primary">
+                  Search
+                  <AppIcon iconName="search" />
+                </button>
               </div>
             </div>
           </div>
         </div>
       </div>
+    </div>
+    <!-- If there is post show this -->
+    <div v-if="posts.length > 0">
+      <!-- Blog Post -->
+      <paginate name="blogs"
+                :list="posts"
+                :per="5">
+        <div class="card mb-4" v-for=" (post, index) in paginated('blogs')" v-bind:key="index">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-4 offset-md-4">
+                <!-- User Image -->
+                <router-link :to="'/profile/' + post.username">
+                  <img class="img-fluid rounded-circle mx-auto d-block" 
+                        :src="expressNodeURL + '/' + post.avatar" 
+                        :alt="post.username + ' Profile picture'"
+                        width="80"
+                        height="80">
+                </router-link>
+              </div>
+              <div class="col-4" v-if="currentUser.id === post.userId && userLogged">
+                <div class="text-right">
+                  <!-- Delete post button -->
+                  <button class="btn btn-link" @click="deletePost(post.id)">
+                    <AppIcon iconName="times" class="fa-lg text-danger" />
+                  </button>
+                </div>
+              </div>
+            </div>
 
-      <!-- Pagination -->
-      <!-- Bootstrap vue pagination -->
-      <b-pagination size="md" :total-rows="posts.length" v-model="currentPage" :per-page="perPage">
-      </b-pagination>
+            <!-- Post Title -->
+            <router-link :to="'/post/' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>
+
+            <!-- Post Content (Limit to 200 characters) -->
+            <p class="card-text">
+              <span v-html="returnPostParcialContent(post.content)"></span>
+            </p>
+
+            <!-- Post Button Actions -->
+            <div class="btn-group" role="group" aria-label="Post owner button" v-if="currentUser.id === post.userId && userLogged">
+              <!-- See more Post Content if post owner is logged in -->
+              <router-link :to="'/post/' + post.id" class="btn btn-primary">
+                Read More 
+                <AppIcon iconName="eye" />
+              </router-link>
+              <!-- Edit Post Content -->
+              <router-link :to="'/editpost/' + post.id" class="btn btn-warning">
+                <AppIcon iconName="pencil-square-o" /> 
+                Edit post
+              </router-link>
+            </div>
+            <div v-else>
+              <!-- See more Post Content -->
+              <router-link :to="'/post/' + post.id" class="btn btn-primary">
+                Read More 
+                <AppIcon iconName="eye" />
+              </router-link>
+            </div>
+          </div>
+
+          <!-- Post footer content -->
+          <div class="card-footer text-muted">
+            <div class="row">
+              <div class="col-6">
+                <!-- More information of the post -->
+                Posted on <router-link :to="'/post/' + post.id">
+                            <span>{{ post.date | transformPostDates }}</span>
+                          </router-link> 
+                by
+                <!-- Redirect to Post Owner Profile  -->
+                <router-link :to="'/profile/' + post.username" class="text-muted">
+                <!-- Post Owner Username  -->
+                  {{ post.username }}
+                </router-link> - <span>{{ post.edited | returnEditedMode }}</span>
+              </div>
+              <div class="col-2"></div>
+              <div class="col-4">
+                <div class="row">
+                  <div class="col-2"></div>
+                  <div class="col-8">
+                    <!-- Total Likes -->
+                    <span><i class="fa fa-heart"></i>&nbsp;{{ returnLikesAmount(post.id) }}</span>
+                    &nbsp;
+                    <!-- Redirect to the post -->
+                    <router-link :to="'/post/' + post.id" class="text-muted">
+                      <span>
+                        <i class="fa fa-comments"></i>
+                        <!-- Total Comments -->
+                        &nbsp;{{ returnCommentsAmount(post.id) }}
+                      </span>
+                    </router-link>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </paginate>
+      <paginate-links for="blogs"
+                      :limit="2"
+                      :async="true"
+                      :show-step-links="true"
+                      :step-links="stepLinks"
+                      :classes="paginateLinksCSS">
+      </paginate-links>
     </div>
     <!-- If not show this -->
     <div v-else>
@@ -106,7 +160,6 @@
   </div>
 </template>
 <script>
-import VueFroala from 'vue-froala-wysiwyg';
 import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
@@ -130,13 +183,33 @@ export default {
     return{
       perPage: 1,
       currentPage: 1,
-      paginatedPosts: [],
       posts: [],
+      paginate: ['blogs'],
       postOwner: {},
       currentUser: {},
       userLogged: false,
       siteURL: this.websiteURL(),
-      axiosURL: this.requestURL()
+      axiosURL: this.requestURL(),
+      expressNodeURL: this.expressURL(),
+      stepLinks: {
+        next: 'Next',
+        prev: 'Previous'
+      },
+      paginateLinksCSS: {
+        'ul': ['pagination', 'justify-content-center', 'pagination-lg'],
+        'ul > li': 'page-item',
+        'li > a': 'page-link',
+        '.next > a': 'page-link',
+        '.prev > a': 'page-link'
+      },
+      filter:{
+        filterTxt: '',
+        selectedFilter: '',
+        dateRangeOne: '',
+        dateRangeTwo: ''
+      },
+      filterOptions: ['All options', 'Author', 'Title', 'Content', 'Date'],
+      
     }
   },
   watch:{
@@ -158,9 +231,6 @@ export default {
 
       this.paginatedPosts = this.posts.slice(min, max);
     },
-    setPage(page) {
-      this.page = page;
-    },
     checkUserLoggedInfo(){
       this.userLogged = this.getUserLogged;
       this.currentUser = this.getCurrentUser;
@@ -174,13 +244,20 @@ export default {
             //Request for user info
             axios.get(`${this.axiosURL}/users/${postArray[0].userId}`)
             .then((response) => {
-              let username = response.data.username;
+              let postOwnerInfo = response.data;
 
-              //Setting username
-              postArray[0].username = username;
+              //Setting values
+              let resultArray = postArray.map((obj, index, arr) =>{
+                //Setting username
+                obj.username = postOwnerInfo.username;
+                //Setting avatar
+                obj.avatar = postOwnerInfo.avatar;
+
+                return obj;
+              });
 
               //Newer to older
-              this.posts = postArray.reverse();
+              this.posts = resultArray.reverse();
             });
             
           });
@@ -243,18 +320,7 @@ export default {
     returnCommentsAmount(postId){
       let comments = axios.get(`${this.axiosURL}/comments?postId=${postId}`)
         .then(response => { 
-          console.log(response.data.length);
           return response.data.length;
-        });
-      console.log(comments);
-    },
-    axiosPostRequest(url, postObj){
-      axios.post(url, postObj)
-        .then((response) => {
-          console.log(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
         });
     }
   }

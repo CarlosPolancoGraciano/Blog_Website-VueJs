@@ -89,7 +89,7 @@ export default {
   },
   data(){
     return{
-      notificationURL: this.pusherURL(),
+      notificationURL: this.expressURL(),
       axiosURL: this.requestURL(),
       counterNewNotifications: 0,
       commentNotifications: [],

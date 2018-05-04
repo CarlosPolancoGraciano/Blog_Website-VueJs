@@ -136,7 +136,6 @@
   </div>
 </template>
 <script>
-import VueFroala from 'vue-froala-wysiwyg';
 import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {

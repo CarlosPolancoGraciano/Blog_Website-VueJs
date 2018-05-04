@@ -26,7 +26,7 @@ let appRouter = function (app) {
   // multer config
   let storage = multer.diskStorage({
     destination: (req, file, cb) => {
-      cb(null, '../public/images')
+      cb(null, '../images')
     },
     filename: (req, file, cb) => {
       console.dir(file.fieldname);
@@ -40,7 +40,7 @@ let appRouter = function (app) {
 
   // Save images locally
   app.post('/upload', upload.single('avatar'), function(req, res){
-    return res.json({ message: 'Post Arrived',  url: req.file.filename});
+    return res.json({ message: 'Post Arrived',  filename: req.file.filename});
   });
  
   // Send notifications

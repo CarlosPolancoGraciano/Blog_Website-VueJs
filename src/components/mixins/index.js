@@ -3,9 +3,9 @@ import { mapGetters } from 'vuex';
 const GLOBAL = {
     methods: {
         /* Static URLs Methods */
-        pusherURL(){
-            const pusherURL = "http://localhost:15536";
-            return pusherURL;
+        expressURL(){
+            const expressURL = "http://localhost:15536";
+            return expressURL;
         },
         websiteURL(){
             const websiteURL = "http://localhost:8080";
@@ -89,9 +89,7 @@ const USER_LOGGED = {
         }
     },
     methods: {
-        currentUserLoggedState(){
-
-        },
+        currentUserLoggedState(newVal){},
         setUserLogged(){
             this.$store.dispatch('setUserLogged', true);
         },
@@ -110,10 +108,11 @@ const USER_AUTH = {
     },
     watch:{
         getCurrentUser(newVal, oldVal){
-            this.currentUserInfo
+            this.currentUserInfo(newVal);
         }
     },
     methods:{
+        currentUserInfo(newVal){},
         setAuthCurrentUser(user){
             if(user.length > 0){
                 // Recieve an array with current user object

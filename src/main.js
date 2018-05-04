@@ -8,8 +8,8 @@ import VueFroala from 'vue-froala-wysiwyg';
 import 'bootstrap/dist/css/bootstrap.css';
 import 'bootstrap-vue/dist/bootstrap-vue.css';
 import '@deveodk/vue-toastr/dist/@deveodk/vue-toastr.css';
+import VuePaginate from 'vue-paginate';
 import VueToastr from '@deveodk/vue-toastr';
-import {Pagination} from 'vue-pagination-2';
 import App from './App.vue';
 import router from './router/router';
 import store from './store/store';
@@ -36,13 +36,13 @@ Vue.use(BootstrapVue);
 /* Setting vue-toastr Component */
 Vue.use(VueToastr,{ defaultPosition: 'toast-bottom-left' });
 
+/* Setting Vue-Paginate */
+Vue.use(VuePaginate);
+
 // Add All App Mixins Globally
 Vue.mixin({ ...USER_LOGGED });
 Vue.mixin({ ...GLOBAL });
 Vue.mixin({ ...USER_AUTH });
-
-// Add Global Components
-Vue.component("Pagination", Pagination);
 
 Vue.config.productionTip = false;
 

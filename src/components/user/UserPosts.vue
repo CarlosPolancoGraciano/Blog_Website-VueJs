@@ -5,7 +5,7 @@
         <!-- Posts options -->
         <div class="col-md-4 border-right">
           <div class="text-center">
-            <h4>Categorias de tus posts</h4>
+            <h4>Posts categories</h4>
           </div>
           <div class="list-group">
             <button class="list-group-item list-group-item-action"
@@ -26,26 +26,26 @@
                   :sort-by.sync="sortBy"
                   :sort-desc.sync="sortDesc"
                   :current-page="currentPage" 
-                  :per-page="25"
+                  :per-page="perPage"
                   :fields="postsfields" 
                   :items="posts">
-             <!-- <template slot="id" scope="data">
+             <template slot="id" slot-scope="data">
                 {{data.item.id}}
               </template>
-              <template slot="title" scope="data">
+              <template slot="title" slot-scope="data">
                 {{data.item.title}}
               </template>
-              <template slot="comments" scope="data">
+              <template slot="comments" slot-scope="data">
                 {{data.item.comments}}
               </template>
-              <template slot="likes" scope="data">
+              <template slot="likes" slot-scope="data">
                 {{data.item.likes}} 
               </template>
-              <template slot="created_at" scope="data">
+              <template slot="created_at" slot-scope="data">
                {{data.item.created_at}}
-              </template> -->
+              </template>
           </b-table>
-          <b-pagination size="md" :total-rows="posts.length" v-model="currentPage" :per-page="25">
+          <b-pagination size="md" :total-rows="posts.length" v-model="currentPage" :per-page="perPage">
           </b-pagination>
         </div>
       </div>
@@ -67,6 +67,7 @@ export default {
       publishIsActive: false,
       draftedIsActive: false,
       deletedIsActive: false,
+      perPage: 25,
       sortDesc: false,
       sortBy: 'title',
       currentPage: 0,
