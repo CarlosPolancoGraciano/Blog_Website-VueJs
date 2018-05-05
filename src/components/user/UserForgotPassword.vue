@@ -51,12 +51,18 @@ export default {
   methods:{
     sendForgotPasswordEmail(){
       let that = this;
+      // Loading component
+      this.setIsLoading();
+
       axios.get(`${this.axiosURL}/users?email=${this.email}`)
            .then((response) => {
              let user = response.data;
+
              if(user !== null){
                that.saveNewHashInUsers(hash(that.email.trim().toLowerCase(), {algorithm: 'sha1'}), user[0].id, that.email);
+               that.removeIsLoading();
              }else{
+              that.removeIsLoading();
                // Email currently used
               that.dynamicToastr({title: `Ooops!`, 
                                   msg: `Email is not registered!`, 

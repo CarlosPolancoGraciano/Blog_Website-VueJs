@@ -83,6 +83,8 @@ export default {
     loginUser() {
       let that = this;
       let isLocal = (this.login.rememberMe == "true");
+      // Show loading component
+      this.setIsLoading();
         
       axios.get(`${this.axiosURL}/users?email=${this.login.email}&password=${this.login.password}`)
         .then(response => {
@@ -103,7 +105,7 @@ export default {
               this.setUserLogged();
 
               if(saveResult){
-                this.$router.push("/");
+                this.$router.push("/", () => { this.removeIsLoading(); });
               }
             }else{
               //sessionStorage
@@ -119,7 +121,7 @@ export default {
               this.setUserLogged();
 
               if(saveResult){
-                this.$router.push("/");
+                this.$router.push("/", () => { this.removeIsLoading(); });
               }
             }
           }else{

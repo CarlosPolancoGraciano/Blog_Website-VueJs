@@ -292,10 +292,12 @@ export default {
   methods:{
     getAllInitialData(){
       let that = this;
+      this.setIsLoading();
 
       axios.all([that.getPostData(), that.getCommentData(), that.getLikesData(), that.getUsersData()])
       .then(axios.spread(function (post, comment, likes, users) {
         // Both requests are now complete
+        that.removeIsLoading();
       }));
 
        // Seek in Vuex

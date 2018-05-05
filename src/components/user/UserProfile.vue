@@ -242,18 +242,33 @@ export default {
     getActivityInfo(typeName = 'post'){
       let that = this;
 
+      // Show loading component
+      this.setIsLoading();
+
       this.activityType = typeName;
 
       axios.get(`${this.axiosURL}/activity?type=${typeName}`)
            .then(response => {
-             that.activityInfo = response.data.length > 0 ? response.data : [];
+            that.activityInfo = response.data.length > 0 ? response.data : [];
+
+            // Remove loading component
+             this.removeIsLoading();
+           })
+           .catch(error => {
+             // Remove loading component
+             this.removeIsLoading();
+             console.error("ERROR", error);
            });
     },
     loadUser(){
       let that = this;
+      
+      // Show loading component
+      this.setIsLoading();
 
       axios.get(`${that.axiosURL}/users?username=${that.$route.params.username}`)
            .then((response) => {
+
               // Current user from Vuex
               let currentUser = that.getCurrentUser;
               // Request profile user
@@ -269,6 +284,14 @@ export default {
                 // Other wise, if user is not logged show the profile user is public
                 that.isPublic = (that.user.isPublic == 'true');
               }
+
+              // Remove loading component
+              this.removeIsLoading();
+           })
+           .catch(error => {
+             // Remove loading component
+             this.removeIsLoading();
+             console.error("Error", error);
            });
     }
   }

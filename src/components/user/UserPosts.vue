@@ -159,10 +159,16 @@ export default {
   methods:{
     getInitialData(){
       let that = this;
+      // Show loading component
+      this.setIsLoading();
+
       this.currentUser = this.getCurrentUser;
 
       axios.all([this.getLikesData(), this.getCommentsData()])
       .then(axios.spread(function (likesResp, commentResp) {
+        // Remove loading component
+        that.removeIsLoading();
+
         // All requests are now complete
 
         // Likes request successful
@@ -185,6 +191,9 @@ export default {
       return axios.get(`${this.axiosURL}/comments`);
     },
     showUsersPosts(type = 'published'){
+      // Show loading component
+      this.setIsLoading();
+
       let query = '';
       switch(type){
         case 'published':
@@ -233,6 +242,8 @@ export default {
                 }
               });
             }
+            // Remove is loading component
+            this.removeIsLoading();
           })
           .catch(error => {
             console.error("ERROR!", error);
