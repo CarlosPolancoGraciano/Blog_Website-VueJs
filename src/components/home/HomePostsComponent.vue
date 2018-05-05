@@ -160,13 +160,9 @@
   </div>
 </template>
 <script>
-import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'HomePostsComponent',
-  components:{
-    AppIcon
-  },
   filters:{
      transformPostDates(date){
       return moment(date).format('MMMM Do YYYY');
@@ -225,12 +221,6 @@ export default {
     this.checkUserLoggedInfo();
   },
   methods:{
-    paginatePosts(){
-      let min = ((this.currentPage * this.perPage) + 1);
-      let max = min + this.perPage < this.posts.length ? min + this.perPage : this.posts.length;
-
-      this.paginatedPosts = this.posts.slice(min, max);
-    },
     checkUserLoggedInfo(){
       this.userLogged = this.getUserLogged;
       this.currentUser = this.getCurrentUser;

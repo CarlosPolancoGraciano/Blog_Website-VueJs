@@ -38,13 +38,9 @@
 </template>
 <script>
 import hash from 'object-hash';
-import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'ForgotPassword',
-  components:{
-    AppIcon
-  },
   data(){
     return{
       email: "",

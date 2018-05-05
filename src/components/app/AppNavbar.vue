@@ -79,14 +79,10 @@
 </template>
 <script>
 import { mapGetters } from 'vuex';
-import AppIcon from '@/components/app/AppIcon.vue';
 import Pusher from 'pusher-js';
 
 export default {
   name: 'NavbarComponent',
-  components:{
-    AppIcon
-  },
   data(){
     return{
       notificationURL: this.expressURL(),

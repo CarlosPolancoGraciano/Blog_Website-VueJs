@@ -197,13 +197,9 @@
   </div>
 </template>
 <script>
-import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'Profile',
-  components:{
-    AppIcon
-  },
   filters:{
     formatCreatedAt(date){
       return moment(date).format('MMMM Do YYYY');

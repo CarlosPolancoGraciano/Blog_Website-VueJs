@@ -136,13 +136,9 @@
   </div>
 </template>
 <script>
-import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'NewPost',
-  components:{
-    AppIcon
-  },
   data(){
     return{
       currentUser: {},

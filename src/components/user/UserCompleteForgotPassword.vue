@@ -47,13 +47,9 @@
   </div>
 </template>
 <script>
-import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'CompleteForgotPassword',
-  components:{
-    AppIcon
-  },
   data(){
     return {
       siteURL: this.websiteURL(),

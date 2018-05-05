@@ -128,4 +128,26 @@ const USER_AUTH = {
     }
 };
 
-export { GLOBAL, USER_LOGGED, USER_AUTH };
+const LOADING_OVERLAY = {
+    computed: {
+        ...mapGetters([
+            'getIsLoading'
+        ])
+    },
+    watch:{
+        getIsLoading(newVal, oldVal){
+            this.returnIsLoading(newVal);
+        }
+    },
+    methods: {
+        returnIsLoading(newVal){},
+        setIsLoading(){
+            this.$store.dispatch('setIsLoading', true);
+        },
+        removeIsLoading(){
+            this.$store.dispatch('setIsLoading', false);
+        }
+    }
+}
+
+export { GLOBAL, USER_LOGGED, USER_AUTH, LOADING_OVERLAY };

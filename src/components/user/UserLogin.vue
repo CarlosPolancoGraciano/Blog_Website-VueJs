@@ -64,13 +64,9 @@
 </template>
 <script>
 import hash from "object-hash";
-import AppIcon from "@/components/app/AppIcon.vue";
 
 export default {
   name: "Login",
-  components: {
-    AppIcon
-  },
   data() {
     return {
       siteURL: this.websiteURL(),

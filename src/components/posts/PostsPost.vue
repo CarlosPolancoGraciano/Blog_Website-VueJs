@@ -217,13 +217,11 @@
   </div>
 </template>
 <script>
-import AppIcon from '@/components/app/AppIcon.vue';
 import At from 'vue-at';
 
 export default {
   name: 'post',
   components: {
-    AppIcon,
     At
   },
   filters:{
@@ -619,19 +617,11 @@ export default {
     setUserActivity(activityObj){
         axios.post(`${this.axiosURL}/activity`, activityObj)
           .then(response => {
-            // console.log("Activity response", response.data);
+            console.log('Success')
           })
           .catch(error => {
             console.log("Error on activity request", error);
           })
-            // switch(activityObj.type){
-            //     case 'like':
-            //         break;
-            //     case 'comment':
-            //         break;
-            //     case 'post':
-            //         break;
-            // }
     },
     axiosPostRequest(url, postObj){
       axios.post(url, postObj)

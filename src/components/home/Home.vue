@@ -32,13 +32,11 @@
 <script>
 // @ is an alias to /src
 import HomePostsComponent from '@/components/home/HomePostsComponent.vue';
-import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'home',
   components: {
-    HomePostsComponent,
-    AppIcon
+    HomePostsComponent
   },
   data(){
     return{
@@ -62,7 +60,7 @@ export default {
     checkUserLogged(){
       this.userLogged = this.getUserLogged;
       this.currentUser = this.getCurrentUser;
-    }
+    },
   }
 }
 </script>

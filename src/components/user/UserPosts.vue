@@ -85,73 +85,73 @@ export default {
     }
   },
   computed:{
-    getUserPublishedPosts(){
-      let postArray = null;
+    // getUserPublishedPosts(){
+    //   let postArray = null;
 
-      // Setting active class binding
-      this.setPostsFields();
+    //   // Setting active class binding
+    //   this.setPostsFields();
 
-      let resultArray = this.requestPosts.filter((val, index , arr) => {
-        return val.draft == false && val.is_deleted == false;
-      });
+    //   let resultArray = this.requestPosts.filter((val, index , arr) => {
+    //     return val.draft == false && val.is_deleted == false;
+    //   });
 
-      postArray = resultArray.map((val, index , arr) => {
-        return {
-          id: val.id,
-          title: val.title,
-          comments: this.returnCommentsAmount(val.id),
-          likes: this.returnLikesAmount(val.id),
-          created_at: moment(val.date).format('MMMM Do YYYY')
-        }
-      });
+    //   postArray = resultArray.map((val, index , arr) => {
+    //     return {
+    //       id: val.id,
+    //       title: val.title,
+    //       comments: this.returnCommentsAmount(val.id),
+    //       likes: this.returnLikesAmount(val.id),
+    //       created_at: moment(val.date).format('MMMM Do YYYY')
+    //     }
+    //   });
 
-      return postArray;
-    },
-    getUserDraftedPosts(){
-      let postArray = null;
+    //   return postArray;
+    // },
+    // getUserDraftedPosts(){
+    //   let postArray = null;
 
-      // Setting active class binding
-      this.setPostsFields();
+    //   // Setting active class binding
+    //   this.setPostsFields();
 
-      let resultArray = this.requestPosts.filter((val, index , arr) => {
-        return val.draft == true && val.is_deleted == false;
-      });
+    //   let resultArray = this.requestPosts.filter((val, index , arr) => {
+    //     return val.draft == true && val.is_deleted == false;
+    //   });
 
-      postArray = resultArray.map((val, index , arr) => {
-        return {
-          id: val.id,
-          title: val.title,
-          comments: this.returnCommentsAmount(val.id),
-          likes: this.returnLikesAmount(val.id),
-          created_at: moment(val.date).format('MMMM Do YYYY')
-        }
-      });
+    //   postArray = resultArray.map((val, index , arr) => {
+    //     return {
+    //       id: val.id,
+    //       title: val.title,
+    //       comments: this.returnCommentsAmount(val.id),
+    //       likes: this.returnLikesAmount(val.id),
+    //       created_at: moment(val.date).format('MMMM Do YYYY')
+    //     }
+    //   });
 
-      return postArray;
-    },
-    getUserDeletedPosts(){
-      let postArray = null;
+    //   return postArray;
+    // },
+    // getUserDeletedPosts(){
+    //   let postArray = null;
 
-      // Setting active class binding
-      this.setPostsFields(true);
+    //   // Setting active class binding
+    //   this.setPostsFields(true);
 
-      let resultArray = this.requestPosts.filter((val, index , arr) => {
-        return val.is_deleted == true;
-      });
+    //   let resultArray = this.requestPosts.filter((val, index , arr) => {
+    //     return val.is_deleted == true;
+    //   });
 
-      postArray = resultArray.map((val, index , arr) => {
-        return {
-          id: val.id,
-          title: val.title,
-          comments: this.returnCommentsAmount(val.id),
-          likes: this.returnLikesAmount(val.id),
-          created_at: moment(val.date).format('MMMM Do YYYY'),
-          published_at: moment(val.date).format('MMMM Do YYYY')
-        }
-      });
+    //   postArray = resultArray.map((val, index , arr) => {
+    //     return {
+    //       id: val.id,
+    //       title: val.title,
+    //       comments: this.returnCommentsAmount(val.id),
+    //       likes: this.returnLikesAmount(val.id),
+    //       created_at: moment(val.date).format('MMMM Do YYYY'),
+    //       published_at: moment(val.date).format('MMMM Do YYYY')
+    //     }
+    //   });
 
-      return postArray;
-    }
+    //   return postArray;
+    // }
   },
   mounted(){
     this.getInitialData();
@@ -161,8 +161,8 @@ export default {
       let that = this;
       this.currentUser = this.getCurrentUser;
 
-      axios.all([this.getLikesData(), this.getCommentsData(), this.getAllPosts()])
-      .then(axios.spread(function (likesResp, commentResp, postsResp) {
+      axios.all([this.getLikesData(), this.getCommentsData()])
+      .then(axios.spread(function (likesResp, commentResp) {
         // All requests are now complete
 
         // Likes request successful
@@ -171,15 +171,10 @@ export default {
         // Comments request successful
         that.comments = commentResp.data.length > 0 ? commentResp.data : [];
 
-        // Post request successful
-        that.requestPosts = postsResp.data.length > 0 ? postsResp.data : [];
-
+        // Published first posts request as default
         that.showUsersPosts();
+
       }));
-    },
-    getAllPosts(){
-      /* Request all posts */
-      return axios.get(`${this.axiosURL}/posts?userId=${this.currentUser.id}`);
     },
     getLikesData(){
       /* Request All Likes */
@@ -190,26 +185,58 @@ export default {
       return axios.get(`${this.axiosURL}/comments`);
     },
     showUsersPosts(type = 'published'){
+      let query = '';
       switch(type){
         case 'published':
           this.publishIsActive = true;
           this.draftedIsActive = false;
           this.deletedIsActive = false;
-          this.posts = this.getUserPublishedPosts;
+          query = 'draft=false&is_deleted=false';
           break;
         case 'drafted':
           this.publishIsActive = false;
           this.draftedIsActive = true;
           this.deletedIsActive = false;
-          this.posts = this.getUserDraftedPosts;
+          query = 'draft=true&is_deleted=false';
           break;
         case 'deleted':
           this.publishIsActive = false;
           this.draftedIsActive = false;
           this.deletedIsActive = true;
-          this.posts = this.getUserDeletedPosts;
+          query = 'is_deleted=true';
           break;
       }
+
+      axios.get(`${this.axiosURL}/posts?${query}`)
+          .then(response => {
+            if(type === 'deleted'){
+              this.setPostsFields(true);
+              this.posts = response.data.map((val, index , arr) => {
+                return {
+                  id: val.id,
+                  title: val.title,
+                  comments: this.returnCommentsAmount(val.id),
+                  likes: this.returnLikesAmount(val.id),
+                  created_at: moment(val.date).format('MMMM Do YYYY'),
+                  published_at: type === 'deleted' ? moment(val.date).format('MMMM Do YYYY') : ''
+                }
+              });
+            }else{
+              this.setPostsFields();
+              this.posts = response.data.map((val, index , arr) => {
+                return {
+                  id: val.id,
+                  title: val.title,
+                  comments: this.returnCommentsAmount(val.id),
+                  likes: this.returnLikesAmount(val.id),
+                  created_at: moment(val.date).format('MMMM Do YYYY')
+                }
+              });
+            }
+          })
+          .catch(error => {
+            console.error("ERROR!", error);
+          });
     },
     setPostsFields(isDeleted = false){
       let fields = null;

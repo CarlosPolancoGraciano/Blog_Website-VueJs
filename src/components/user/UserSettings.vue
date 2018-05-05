@@ -212,13 +212,9 @@
   </div>
 </template>
 <script>
-import AppIcon from '@/components/app/AppIcon.vue';
 
 export default {
   name: 'Settings',
-  components:{
-    AppIcon
-  },
   data(){
     return{
       siteURL: this.websiteURL(),

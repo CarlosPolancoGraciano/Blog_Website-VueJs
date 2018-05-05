@@ -19,6 +19,7 @@
     "vue": "^2.5.13",
     "vue-at": "^2.3.2",
     "vue-froala-wysiwyg": "^2.8.0",
+    "vue-loading-overlay": "^2.0.4",
     "vue-paginate": "^3.6.0",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"

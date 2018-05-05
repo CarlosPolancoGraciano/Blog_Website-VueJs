@@ -3,6 +3,7 @@
     <NavbarComponent />
     <router-view />
     <FooterComponent />
+    <loading :active.sync="isLoading"></loading>
   </div>
 </template>
 <script>
@@ -17,6 +18,16 @@ export default {
   components: {
     NavbarComponent,
     FooterComponent
+  },
+  data(){
+    return {
+      isLoading: false
+    }
+  },
+  methods:{
+    returnIsLoading(newVal){
+      this.isLoading = newVal;
+    }
   }
 }
 </script>
