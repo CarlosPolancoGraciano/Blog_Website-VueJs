@@ -3,7 +3,14 @@
     <!-- Filter -->
     <div class="card mb-4">
       <div class="card-body">
-        <div class="row">
+        <div class="row p-3">
+          <div class="col-md-3">
+            <label for="filterSelect">Type of filter</label>
+            <!-- Select field | use to select type of filter -->
+            <select class="form-control" id="filterSelect" v-model="filter.selectedFilter">
+              <option selected v-for="(option, index) in filterOptions" :key="index">{{ option }}</option>
+            </select>
+          </div>
           <div class="col-md-7">
             <!-- Conditionally render the date picker -->
             <div v-if="filter.selectedFilter == 'Date'">
@@ -21,25 +28,14 @@
             <!-- If not render the text box -->
             <div v-else>
               <label for="filterInput">Filter</label>
-              <input type="text" v-model="filter.filterTxt" id="filterInput" class="form-control" placeholder="Filter here">
+              <input type="text" v-model="filter.filterTxt" id="filterInput" class="form-control" placeholder="Type according to your search">
             </div>
           </div>
-          <div class="col-md-5">
-            <div class="input-group">
-              <!-- Select label -->
-              <label for="filterSelect">Choose filter type</label>
-              <!-- Select field | use to select type of filter -->
-              <select class="custom-select" id="filterSelect" v-model="filter.selectedFilter">
-                <option selected v-for="(option, index) in filterOptions" :key="index">{{ option }}</option>
-              </select>
-              <!-- Button paste to select -->
-              <div class="input-group-append">
-                <button class="btn btn-primary">
-                  Search
-                  <AppIcon iconName="search" />
-                </button>
-              </div>
-            </div>
+          <div class="col-md-2 mt-5">
+            <button class="btn btn-primary">
+              Search
+              <AppIcon iconName="search" />
+            </button>
           </div>
         </div>
       </div>
