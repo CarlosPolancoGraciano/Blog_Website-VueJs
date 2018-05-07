@@ -3,7 +3,7 @@
     <!-- Filter -->
     <div class="card mb-4">
       <div class="card-body">
-        <div class="row p-3">
+        <div class="row">
           <div class="col-md-5">
             <label class="text-muted" for="filterSelect">Type of filter</label>
             <!-- Select field | use to select type of filter -->
@@ -17,11 +17,19 @@
               <div class="form-row">
                 <div class="col">
                   <label class="text-muted" for="dateRangeOne">From</label>
-                  <input id="dateRangeOne" type="date" v-model="filter.dateRangeOne" class="form-control">
+                  <input  id="dateRangeOne" 
+                          type="date" 
+                          @input="getFilterPosts" 
+                          v-model="filter.dateRangeOne" 
+                          class="form-control">
                 </div>
                 <div class="col">
                   <label class="text-muted" for="dateRangeTwo">To</label>
-                  <input id="dateRangeTwo" type="date" v-model="filter.dateRangeTwo" class="form-control">
+                  <input  id="dateRangeTwo" 
+                          type="date"
+                          @input="getFilterPosts" 
+                          v-model="filter.dateRangeTwo" 
+                          class="form-control">
                 </div>
               </div>
             </div>
@@ -34,14 +42,8 @@
                      id="filterInput"
                      class="form-control" 
                      placeholder="Type according to your search"
-                     @keyup="filterPosts">
+                     @keyup="getFilterPosts">
             </div>
-          </div>
-          <div class="col-md-2 mt-4" v-show="false">
-            <button class="btn btn-primary" v-if="false">
-              Search
-              <AppIcon iconName="search" />
-            </button>
           </div>
         </div>
       </div>
@@ -50,9 +52,10 @@
     <div v-if="posts.length > 0">
       <!-- Blog Post -->
       <paginate name="blogs"
-                :list="posts"
+                :ref="'paginator'"
+                :list="filterPosts"
                 :per="5">
-        <div class="card mb-4" v-for=" (post, index) in paginated('blogs')" v-bind:key="index">
+        <div class="card mb-4" v-for=" (post, index) in paginated('blogs')" :key="index">
           <div class="card-body">
             <div class="row">
               <div class="col-4 offset-md-4">
@@ -179,16 +182,15 @@ export default {
   },
   data(){
     return{
-      perPage: 1,
-      currentPage: 1,
-      posts: [],
-      paginate: ['blogs'],
-      postOwner: {},
-      currentUser: {},
-      userLogged: false,
       siteURL: this.websiteURL(),
       axiosURL: this.requestURL(),
       expressNodeURL: this.expressURL(),
+      currentUser: {},
+      userLogged: false,
+      posts: [],
+      perPage: 1,
+      currentPage: 1,
+      paginate: ['blogs'],
       stepLinks: {
         next: 'Next',
         prev: 'Previous'
@@ -201,10 +203,10 @@ export default {
         '.prev > a': 'page-link'
       },
       filter:{
+        dateRangeOne: null,
+        dateRangeTwo: null,
         filterTxt: '',
         selectedFilter: 'All options',
-        dateRangeOne: '',
-        dateRangeTwo: ''
       },
       filterOptions: ['All options', 'Author', 'Title', 'Content', 'Date'],
       
@@ -213,6 +215,54 @@ export default {
   computed: {
     inputDisabled(){
       return this.filter.selectedFilter === 'All options' ? true : false;
+    },
+    filterPosts(){
+      let posts = this.posts;
+      let queryVal = '';
+
+      // Get current selectedFilter
+      let selectedFilter = this.filter.selectedFilter;
+        
+      switch(selectedFilter){
+        // Set the api equivalent value to the selectedFilter data
+        case 'Author':
+          queryVal = "username";
+          break;
+        case 'Title':
+          queryVal = "title";
+          break;
+        case 'Content':
+          queryVal = "content";
+          break;
+        case 'Date':
+          // Format date to then compare it
+          this.filter.dateRangeOne = this.filter.dateRangeOne === null ? moment(new Date()).format("YYYY-MM-DD") : this.filter.dateRangeOne;
+          this.filter.dateRangeTwo = this.filter.dateRangeTwo === null ? moment(new Date()).format("YYYY-MM-DD") : this.filter.dateRangeTwo;
+
+          queryVal = "date";
+          break;
+      }
+
+      
+      if (this.filter.selectedFilter !== 'All options') {
+        posts = this.posts.filter((post, index, postArr) => {
+          // If posts will be filtered for dates
+          if(queryVal === 'date'){
+            // Moment.js filter - Select date - Filter by range of dates
+
+            // Convert date to a specific 
+            let postDate = moment(post[queryVal], "YYYY-MM-DD");
+
+            return moment(postDate).isBetween(this.filter.dateRangeOne, this.filter.dateRangeTwo, null, '[]');
+          }
+          
+          // Return filter data
+          // return post[queryVal].indexOf(this.filter.filterTxt) !== -1;
+          return post[queryVal].includes(this.filter.filterTxt);
+        });
+      }
+
+      return posts;
     }
   },
   watch:{
@@ -234,13 +284,9 @@ export default {
   },
   mounted(){
     this.getAllPosts();
-    this.checkUserLoggedInfo();
+    this.checkFilterData();
   },
   methods:{
-    checkUserLoggedInfo(){
-      this.userLogged = this.getUserLogged;
-      this.currentUser = this.getCurrentUser;
-    },
     getAllPosts(){
       /* Request All Posts */
       axios.get(`${this.axiosURL}/posts?draft=false&is_deleted=false`)
@@ -264,32 +310,36 @@ export default {
 
               //Newer to older
               this.posts = resultArray.reverse();
+
+              this.checkUserLoggedInfo();
             });
             
           });
     },
-    filterPosts(){
-      // this.setIsLoading();
-      if(this.filter.selectedFilter !== 'All options'){
-        this.debounced(500,  this.getFilterPosts());
-      }else{
-        // this.removeIsLoading();
-        this.getAllPosts();
+    checkUserLoggedInfo(){
+      this.userLogged = this.getUserLogged;
+      this.currentUser = this.getCurrentUser;
+    },
+    checkFilterData(){
+      // Set filter value to vuex saved value
+
+      // Computed comes from mixin
+      let vuexFilter = this.getFilterVals;
+
+      // Check if vuexFilter object is not empty
+      if(Object.keys(vuexFilter).length > 0){
+        // If object is not empty, 
+        // save in component the vuex filter value
+        this.filter = vuexFilter;
       }
     },
     getFilterPosts(){
-      if(this.filter.filterTxt !== ''){
-        let url = `q=${this.filter.filterTxt}&draft=false&is_deleted=false`;
-        axios.get(`${this.axiosURL}/posts?${url}`)
-          .then(response => {
-            // this.removeIsLoading();
-            console.log(response.data);
-            this.posts = response.data.reverse();
-          })
-          .catch(error => {
-            // this.removeIsLoading();
-            console.error("ERROR", error);
-          })
+      if(this.filter.selectedFilter !== 'All options'){
+         if(this.filterPosts.length > 0){
+            this.$refs.paginator.goToPage(1);
+          }
+      }else{
+        this.getAllPosts();
       }
     },
     deletePost(postId){

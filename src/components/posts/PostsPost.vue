@@ -313,8 +313,11 @@ export default {
                 // Request for Post Owner Info
                 axios.get(`${this.axiosURL}/users/${response.data.userId}`)
                   .then((response) => {
+
                     post.username = response.data.username;
+
                     this.posts.push(post);
+
                   });
               });
     },
@@ -324,39 +327,50 @@ export default {
             .then((response) => { 
 
               if(response.data != undefined && response.data.length > 0){
+
                 let commentsEdited = response.data.map((obj, index, arr) => {
                   obj.editing = false;
                   return obj;
                 });
+
                 this.comments = commentsEdited.reverse();
+
                 return;
               }
+
               this.comments = response.data;
             })
             .catch((error) => {
+
               if(error.response.status === 404){
                 this.comments = [];
               }
+
             });
     },
     getLikesData(){
       return axios.get(`${this.axiosURL}/likes?postId=${this.$route.params.id}`)
                   .then(response => {
+
                     this.likes = response.data.length > 0 ? response.data.length : 0;
+
                     if(this.likes > 0 && this.userLogged){
+
                       // Save my like of this post if it exist [It's an object]
                       let currentUserLike = response.data.reduce((acc, val, index) => {
-                        console.log(val);
                         if(val.user.id === this.currentUser.id){
                           return val;
                         }
                       }, {});
+
                       // If like was giving set it to true - else set it to false
                       this.userPostLike = {
                         likeId: currentUserLike.id,
                         isLiked: Object.keys(currentUserLike).length > 0 ? true : false
                       }
+
                     }
+
                   });
     },
     getUsersData(){
@@ -364,13 +378,17 @@ export default {
       let that = this;
 
       return axios.get(`${that.axiosURL}/users`).then(response =>{
+
         // Complete users load
         if(response.data != undefined || response.data.length > 0){
+
           // Return all users username
           let returnedUsers = response.data.map((val, index, arr) => {
             return val.username
           });
+
           that.users = returnedUsers;
+
         }
       });
     },
@@ -443,21 +461,31 @@ export default {
     saveLikeInDB(like){
       return axios.post(`${this.axiosURL}/likes`, like)
                   .then(response => {
+
                     this.getLikesData();
+
                     this.userPostLike = true;
+
                     this.dynamicToastr({title: 'You liked this post!', msg: '', type: 'success' });
                   })
                   .catch(error => {
+
                     this.dynamicToastr({title: 'Oops!', msg: 'Error while liking this post', type: 'error' });
+
                     console.error("Error while liking this post", error);
+
                   });
     },
     unlikePost(){
       axios.delete(`${this.axiosURL}/likes/${this.userPostLike.likeId}`)  
           .then(response => {
+
             this.userPostLike = false;
+
             this.getLikesData();
+
             this.dynamicToastr({title: 'Post unliked!', msg: '', type: 'success' });
+
           })
           .catch(error => {
             console.error("Error while unliking a post", error);
@@ -504,58 +532,81 @@ export default {
     saveCommentInDB(comment){
       return axios.post(`${this.axiosURL}/comments`, comment)
         .then((response) => {
+
           this.newComment.content = '';
+
           this.getCommentData();
+
           this.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
+
       });
     },
     editCommentMode(commentId, content){
       this.editCommentContent = content;
+
       this.comments.map((obj, index, arr) => {
         if(obj.id == commentId){
           obj.editing = true;
         }
       });
+
     },
     editComment(commentId){
       let that = this;
       // Obtaing edited comment in array
       let editedComment = this.comments.reduce((acc, obj) => {
+
         if(obj.id == commentId){
+
           delete obj.editing;
           return obj;
+
         }
+
       }, {});
 
       // Request to edit the comment
       axios.patch(`${this.axiosURL}/comments/${commentId}`, editedComment)
            .then(response => {
+
             swal("Comment updated succesfully", "", "success")
             .then(success => {
+
               if(success){
                 that.editCommentContent = '';
+
                 this.getCommentData();
               }
+
             });
+
           }).catch(error => {
-            console.log("Error", error);
-            console.log("Error http status", error.response.status);
+            console.error("Error", error);
+            console.error("Error http status", error.response.status);
           });
     },
     cancelEditComment(commentId){
       let that = this;
+
       this.comments.map((obj, index, arr) => {
+
         if(obj.id == commentId){
+
           obj.content = that.editCommentContent;
           obj.editing = false;
+
         }
+
       });
+
       that.editCommentContent = '';
     },
     sendCommentNotifications(username){
       
       return axios.get(`${this.axiosURL}/users?username=${username}`).then(response => {
+
               if(Object.keys(response.data).length > 0){
+
                 let commentUser = response.data;
 
                 let commentNotification = {
@@ -571,7 +622,9 @@ export default {
                     this.$store.dispatch('setNewNotification', true);
                     this.dynamicToastr({title: "Notification send", msg: '', type: 'success' });
                 });
+
               }
+
             });
     },
     deleteComment(commentId){
@@ -597,42 +650,32 @@ export default {
           }
         }
       }).then((success) => {
+
         if(success){
+
           axios.delete(`${that.axiosURL}/comments/${commentId}`)
                .then((response) => {
-                //  swal({
-                //    title: "Cooment deleted succesfully!",
-                //    icon: "success"
-                //  }).then((success) => {
-                //    that.getCommentData();
-                //  });
-                that.dynamicToastr({title: "Comment deleted succesfully", msg:"", type: "success"});
-                that.getCommentData();
                 
+                that.dynamicToastr({title: "Comment deleted succesfully", msg:"", type: "success"});
+
+                that.getCommentData();
                })
                .catch((error) =>{
                  that.dynamicToastr({title: `Error in deleting comment proccess`, msg:`${error.response.status}`, type: `error`});
                })
+
         }
+
       })
     },
     setUserActivity(activityObj){
         axios.post(`${this.axiosURL}/activity`, activityObj)
           .then(response => {
-            console.log('Success')
+            // console.log('Success')
           })
           .catch(error => {
-            console.log("Error on activity request", error);
+            console.error("Error on activity request", error);
           })
-    },
-    axiosPostRequest(url, postObj){
-      axios.post(url, postObj)
-        .then((response) => {
-          // console.log(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
     },
     goBack(){
       this.$router.go(-1);

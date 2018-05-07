@@ -143,6 +143,20 @@ const USER_AUTH = {
     }
 };
 
+const FILTER = {
+    computed: {
+        ...mapGetters([
+            'getFilterVals'
+        ])
+    },
+    methods: {
+        // Save filter in Vuex
+        setFilterInVuex(filterVal){
+            this.$store.dispatch('setFilterVal', filterVal);
+        }
+    }
+}
+
 const LOADING_OVERLAY = {
     computed: {
         ...mapGetters([
@@ -163,6 +177,6 @@ const LOADING_OVERLAY = {
             this.$store.dispatch('setIsLoading', false);
         }
     }
-}
+};
 
-export { GLOBAL, USER_LOGGED, USER_AUTH, LOADING_OVERLAY };
+export { GLOBAL, USER_LOGGED, USER_AUTH, FILTER, LOADING_OVERLAY };

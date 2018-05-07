@@ -1,3 +1,3 @@
-import '../settings/appGlobalComponents';
-import '../settings/appMixins';
-import '../settings/appWindow';
+import '../settings/settingsGlobalComponents';
+import '../settings/settingsMixins';
+import '../settings/settingsWindow';
