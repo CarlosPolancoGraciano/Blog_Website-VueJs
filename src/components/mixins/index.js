@@ -54,6 +54,7 @@ const GLOBAL = {
             sessionStorage.removeItem(webStorageKey);
             return true;
         },
+        /* Used to create new register and send to API */
         getLatestTableId(tableName = ''){
             axios.get(`${this.axiosURL}/${tableName}`)
             .then(response => {
@@ -63,6 +64,7 @@ const GLOBAL = {
                 return response.data.length
             })
         },
+        /* Used to display messages of response to API */
         dynamicToastr(toastrObj){
             let that = this;
             that.$toastr( 'add',
@@ -72,6 +74,19 @@ const GLOBAL = {
                               timeout: 10000, 
                               position: 'toast-bottom-right', 
                               type: toastrObj.type });
+        },
+        /* Used to filter information from api */
+        debounced(delay, fn) {
+            let timerId;
+            return function (...args) {
+              if (timerId) {
+                clearTimeout(timerId);
+              }
+              timerId = setTimeout(() => {
+                fn(...args);
+                timerId = null;
+              }, delay);
+            }
         }
     }
 }

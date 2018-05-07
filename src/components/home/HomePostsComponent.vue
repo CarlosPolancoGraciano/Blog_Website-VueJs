@@ -4,11 +4,11 @@
     <div class="card mb-4">
       <div class="card-body">
         <div class="row p-3">
-          <div class="col-md-3">
-            <label for="filterSelect">Type of filter</label>
+          <div class="col-md-5">
+            <label class="text-muted" for="filterSelect">Type of filter</label>
             <!-- Select field | use to select type of filter -->
             <select class="form-control" id="filterSelect" v-model="filter.selectedFilter">
-              <option selected v-for="(option, index) in filterOptions" :key="index">{{ option }}</option>
+              <option v-for="(option, index) in filterOptions" :key="index">{{ option }}</option>
             </select>
           </div>
           <div class="col-md-7">
@@ -16,23 +16,29 @@
             <div v-if="filter.selectedFilter == 'Date'">
               <div class="form-row">
                 <div class="col">
-                  <label for="dateRangeOne">From</label>
+                  <label class="text-muted" for="dateRangeOne">From</label>
                   <input id="dateRangeOne" type="date" v-model="filter.dateRangeOne" class="form-control">
                 </div>
                 <div class="col">
-                  <label for="dateRangeTwo">To</label>
+                  <label class="text-muted" for="dateRangeTwo">To</label>
                   <input id="dateRangeTwo" type="date" v-model="filter.dateRangeTwo" class="form-control">
                 </div>
               </div>
             </div>
             <!-- If not render the text box -->
             <div v-else>
-              <label for="filterInput">Filter</label>
-              <input type="text" v-model="filter.filterTxt" id="filterInput" class="form-control" placeholder="Type according to your search">
+              <label class="text-muted" for="filterInput">Filter</label>
+              <input type="text"
+                     :disabled="inputDisabled" 
+                     v-model="filter.filterTxt" 
+                     id="filterInput"
+                     class="form-control" 
+                     placeholder="Type according to your search"
+                     @keyup="filterPosts">
             </div>
           </div>
-          <div class="col-md-2 mt-5">
-            <button class="btn btn-primary">
+          <div class="col-md-2 mt-4" v-show="false">
+            <button class="btn btn-primary" v-if="false">
               Search
               <AppIcon iconName="search" />
             </button>
@@ -196,12 +202,17 @@ export default {
       },
       filter:{
         filterTxt: '',
-        selectedFilter: '',
+        selectedFilter: 'All options',
         dateRangeOne: '',
         dateRangeTwo: ''
       },
       filterOptions: ['All options', 'Author', 'Title', 'Content', 'Date'],
       
+    }
+  },
+  computed: {
+    inputDisabled(){
+      return this.filter.selectedFilter === 'All options' ? true : false;
     }
   },
   watch:{
@@ -210,6 +221,15 @@ export default {
     },
     getCurrentUser(newVal, oldVal){
       this.currentUser = this.getCurrentUser;
+    },
+    filter: {
+      handler(newVal, oldVal){
+        if(this.filter.selectedFilter === 'All options'){
+          this.getAllPosts();
+          this.filter.filterTxt = '';
+        }
+      },
+      deep: true
     }
   },
   mounted(){
@@ -224,12 +244,12 @@ export default {
     getAllPosts(){
       /* Request All Posts */
       axios.get(`${this.axiosURL}/posts?draft=false&is_deleted=false`)
-         .then((response) => { 
+         .then(response => { 
             let postArray = response.data;
 
             //Request for user info
             axios.get(`${this.axiosURL}/users/${postArray[0].userId}`)
-            .then((response) => {
+            .then(response => {
               let postOwnerInfo = response.data;
 
               //Setting values
@@ -247,6 +267,30 @@ export default {
             });
             
           });
+    },
+    filterPosts(){
+      // this.setIsLoading();
+      if(this.filter.selectedFilter !== 'All options'){
+        this.debounced(500,  this.getFilterPosts());
+      }else{
+        // this.removeIsLoading();
+        this.getAllPosts();
+      }
+    },
+    getFilterPosts(){
+      if(this.filter.filterTxt !== ''){
+        let url = `q=${this.filter.filterTxt}&draft=false&is_deleted=false`;
+        axios.get(`${this.axiosURL}/posts?${url}`)
+          .then(response => {
+            // this.removeIsLoading();
+            console.log(response.data);
+            this.posts = response.data.reverse();
+          })
+          .catch(error => {
+            // this.removeIsLoading();
+            console.error("ERROR", error);
+          })
+      }
     },
     deletePost(postId){
       let that = this;
