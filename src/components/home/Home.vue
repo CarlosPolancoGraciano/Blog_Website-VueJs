@@ -42,7 +42,8 @@ export default {
     return{
       currentUser: null,
       userLogged: false,
-      avatar: null
+      avatar: null,
+      filter: null
     }
   },
   watch:{

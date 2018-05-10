@@ -82,8 +82,15 @@
                   <div class="card-body collapse" id="commentCollapse">
                     <b-form @submit.prevent="createComment">
                       <div class="form-group text-left">
-                        <at :members="users" 
+                        <at :members="users"
+                            name-key="username" 
                             v-model="vueAtContent">
+                          <template slot="item" scope="s">
+                            <!-- <img :src="expressNodeURL + '/' + s.item.avatar"
+                                 class="img-responsive"
+                                 width="25" height="25"> -->
+                            <span v-text="s.item.username"></span>
+                           </template>
                           <froala :tag="'textarea'" 
                                   :config="config" 
                                   v-model="newComment.content" 
@@ -163,7 +170,11 @@
                                 </div>
                                 <b-form @submit.prevent="editComment(comment.id)">
                                   <div class="form-group text-left">
-                                    <at :members="users" v-model="vueAtContent">
+                                    <at :members="users" name-key="username">
+                                      <template slot="item" scope="s">
+                                        <img :src="expressNodeURL + '/' + s.item.avatar">
+                                        <span v-text="s.item.username"></span>
+                                      </template>
                                       <froala :tag="'textarea'" :config="config" v-model="comment.content" contenteditable></froala>
                                     </at>
                                   </div>
@@ -279,6 +290,21 @@ export default {
     },
     sortOrder(newVal, oldVal){
       newVal ? this.comments.reverse() : this.comments.reverse();
+    },
+    newComment: {
+      handler(newVal){
+        if(newVal.content != ''){
+          let userMentioned = newVal.content.match(/@\w+/gim);
+          this.newComment.usersMentioned = userMentioned != null ? userMentioned : [];
+          console.log("User mentioned", this.newComment);
+          let test = userMentioned.map((obj, index, arr) => {
+            return obj.replace('@','');
+          });
+          console.log("Users mentioned with no @", test);
+          
+        }
+      },
+      deep: true
     }
   },
   mounted(){
@@ -292,105 +318,114 @@ export default {
   methods:{
     getAllInitialData(){
       let that = this;
-      this.setIsLoading();
-
-      axios.all([that.getPostData(), that.getCommentData(), that.getLikesData(), that.getUsersData()])
-      .then(axios.spread(function (post, comment, likes, users) {
-        // Both requests are now complete
-        that.removeIsLoading();
-      }));
 
        // Seek in Vuex
       this.userLogged = this.getUserLogged;
       this.currentUser = this.getCurrentUser;
+
+      // Active loading overlay component
+      this.setIsLoading();
+
+      //Current Post info - loading component is removed in this method
+      this.getPostData();
+      //Current Post Comments
+      this.getCommentData(); 
+      //Current Post Likes
+      this.getLikesData();
+      //All users to mention in comments
+      this.getUsersData();
     },
     getPostData(){
+      let that = this;
+
       /* Request Post Data */
-      return axios.get(`${this.axiosURL}/posts/${this.$route.params.id}`)
-              .then((response) => { 
-                let post = response.data;
+      axios.get(`${this.axiosURL}/posts/${this.$route.params.id}`)
+                  .then(response => {
+                    let post = response.data;
 
-                // Request for Post Owner Info
-                axios.get(`${this.axiosURL}/users/${response.data.userId}`)
-                  .then((response) => {
+                    // Request for Post Owner Info
+                    axios.get(`${that.axiosURL}/users/${post.userId}`)
+                        .then(response => {
 
-                    post.username = response.data.username;
+                            post.username = response.data.username;
 
-                    this.posts.push(post);
+                            that.posts.push(post);
 
+                            that.removeIsLoading();
+                        });
                   });
-              });
     },
     getCommentData(){
+      let that = this;
+
       /* Request Comment Data */
-      return axios.get(`${this.axiosURL}/comments?postId=${this.$route.params.id}`)
-            .then((response) => { 
-
-              if(response.data != undefined && response.data.length > 0){
-
-                let commentsEdited = response.data.map((obj, index, arr) => {
-                  obj.editing = false;
-                  return obj;
-                });
-
-                this.comments = commentsEdited.reverse();
-
-                return;
-              }
-
-              this.comments = response.data;
-            })
-            .catch((error) => {
-
-              if(error.response.status === 404){
-                this.comments = [];
-              }
-
-            });
-    },
-    getLikesData(){
-      return axios.get(`${this.axiosURL}/likes?postId=${this.$route.params.id}`)
+      axios.get(`${this.axiosURL}/comments?postId=${this.$route.params.id}`)
                   .then(response => {
 
-                    this.likes = response.data.length > 0 ? response.data.length : 0;
+                    let comment = response.data;
 
-                    if(this.likes > 0 && this.userLogged){
+                    if(comment != undefined && comment.length > 0){
+                      let commentsEdited = comment.map((obj, index, arr) => {
+                        obj.editing = false;
+                        return obj;
+                      });
 
-                      // Save my like of this post if it exist [It's an object]
-                      let currentUserLike = response.data.reduce((acc, val, index) => {
-                        if(val.user.id === this.currentUser.id){
-                          return val;
-                        }
-                      }, {});
-
-                      // If like was giving set it to true - else set it to false
-                      this.userPostLike = {
-                        likeId: currentUserLike.id,
-                        isLiked: Object.keys(currentUserLike).length > 0 ? true : false
-                      }
-
+                      that.comments = commentsEdited.reverse();
+                    }else{
+                      that.comments = comment;
                     }
 
                   });
     },
-    getUsersData(){
-      // Vue-at main data 
+    getLikesData(){
       let that = this;
 
-      return axios.get(`${that.axiosURL}/users`).then(response =>{
+      axios.get(`${this.axiosURL}/likes?postId=${this.$route.params.id}`)
+            .then(response => {
+              let likes = response.data;
 
-        // Complete users load
-        if(response.data != undefined || response.data.length > 0){
+              //Execute on likes response
+              that.likes = likes.length > 0 ? likes.length : 0;
 
-          // Return all users username
-          let returnedUsers = response.data.map((val, index, arr) => {
-            return val.username
-          });
+              if(that.likes > 0 && that.userLogged){
 
-          that.users = returnedUsers;
+                // Save my like of this post if it exist [It's an object]
+                let currentUserLike = likes.reduce((acc, val, index) => {
+                  if(val.user.id === that.currentUser.id){
+                    return val;
+                  }
+                }, {});
 
-        }
-      });
+                // If like was giving set it to true - else set it to false
+                that.userPostLike = {
+                  likeId: currentUserLike.id,
+                  isLiked: Object.keys(currentUserLike).length > 0 ? true : false
+                }
+
+              }
+            });
+    },
+    getUsersData(){
+      let that = this;
+      // Vue-at main data 
+      axios.get(`${this.axiosURL}/users`)
+            .then(response => {
+              let users = response.data;
+              // Complete users load
+              if(users != undefined || users.length > 0){
+
+                // Return all users username
+                let returnedUsers = users.map((user, index, arr) => {
+                  return {
+                    id: user.id,
+                    avatar: user.avatar,
+                    username: user.username
+                  }
+                });
+
+                that.users = returnedUsers;
+              }
+            });
     },
     postEnableComments(enableComments){
       if(enableComments !== "No"){
@@ -439,12 +474,7 @@ export default {
       })
     },
     likePost(){
-      let like = {
-        id: this.getLatestTableId('comments') + 1,
-        postId: Number(this.$route.params.id),
-        created_at: new Date(),
-        user: this.currentUser,
-      };
+
       let likeActivity = { 
         id: this.getLatestTableId('activity') + 1, 
         type: 'like',
@@ -452,29 +482,27 @@ export default {
         postId: Number(this.$route.params.id),
         user: this.currentUser,
       };
-      axios.all([this.saveLikeInDB(like), this.setUserActivity(likeActivity)])
-            .then(axios.spread(function (likes) {
+
+      axios.all([this.saveLikeInDB(), this.setUserActivity(likeActivity)])
+            .then(axios.spread((likes, activity) => {
               // Both requests are now complete
-             
+              this.getLikesData();
+
+              this.userPostLike = true;
+
+              this.dynamicToastr({title: 'You liked this post!', msg: '', type: 'success' });
             }));
     },
-    saveLikeInDB(like){
-      return axios.post(`${this.axiosURL}/likes`, like)
-                  .then(response => {
+    saveLikeInDB(){
 
-                    this.getLikesData();
+      let like = {
+        id: this.getLatestTableId('comments') + 1,
+        postId: Number(this.$route.params.id),
+        created_at: new Date(),
+        user: this.currentUser,
+      };
 
-                    this.userPostLike = true;
-
-                    this.dynamicToastr({title: 'You liked this post!', msg: '', type: 'success' });
-                  })
-                  .catch(error => {
-
-                    this.dynamicToastr({title: 'Oops!', msg: 'Error while liking this post', type: 'error' });
-
-                    console.error("Error while liking this post", error);
-
-                  });
+      return axios.post(`${this.axiosURL}/likes`, like);
     },
     unlikePost(){
       axios.delete(`${this.axiosURL}/likes/${this.userPostLike.likeId}`)  
@@ -492,54 +520,54 @@ export default {
           })
     },
     createComment(){
-      let that = this;
       
       if(Object.keys(this.currentUser).length > 0 && this.userLogged){
         if(this.newComment.content !== ''){
+          let isNewNotification = this.newComment.usersMentioned.length > 0 ? true : false;
 
-        let comment = {
-          id: that.getLatestTableId('comments') + 1,
-          content: this.newComment.content,
-          postId: Number(this.$route.params.id),
-          created_at: new Date(),
-          user: this.currentUser,
-        };
-        let commentActivity = { 
-          id: this.getLatestTableId('activity') + 1, 
-          type: 'comment',
-          created_at: new Date(),
-          postId: Number(this.$route.params.id),
-          user: this.currentUser
-        };
+          let commentActivity = { 
+            id: this.getLatestTableId('activity') + 1, 
+            type: 'comment',
+            created_at: new Date(),
+            postId: Number(this.$route.params.id),
+            user: this.currentUser
+          };
 
-        axios.all([that.saveCommentInDB(comment), that.setUserActivity(commentActivity)])
-              .then(axios.spread(function (comment, activity) {
-                // Both requests are now complete
+        axios.all([this.saveCommentInDB(), this.setUserActivity(commentActivity), isNewNotification ? this.sendCommentNotifications() : ''])
+              .then(axios.spread(function (comment, activity, notifications) {
+                // All requests are now complete
+
+                // Comment promise
+                this.newComment.content = '';
+
+                this.getCommentData();
+
+                this.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
+
               }));
 
         }else{
-          that.dynamicToastr({title: 'Oops!', msg: 'The comments field is empty', type: 'error' });
+          this.dynamicToastr({title: 'Oops!', msg: 'The comments field is empty', type: 'error' });
         }
         
       }else{
         swal("Oops!", "No puedes comentar debes iniciar sesión primero", "error")
-          .then((success) => {
-            that.$router.push('/login');
+          .then(success => {
+            this.$router.push('/login');
           })
       }
       
     },
-    saveCommentInDB(comment){
-      return axios.post(`${this.axiosURL}/comments`, comment)
-        .then((response) => {
+    saveCommentInDB(){
+      let comment = {
+        id: this.getLatestTableId('comments') + 1,
+        content: this.newComment.content,
+        postId: Number(this.$route.params.id),
+        created_at: new Date(),
+        user: this.currentUser,
+      };
 
-          this.newComment.content = '';
-
-          this.getCommentData();
-
-          this.dynamicToastr({title: 'Comment posted!', msg: 'Your comment was successfully posted', type: 'success' });
-
-      });
+      return axios.post(`${this.axiosURL}/comments`, comment);
     },
     editCommentMode(commentId, content){
       this.editCommentContent = content;
@@ -555,14 +583,10 @@ export default {
       let that = this;
       // Obtaing edited comment in array
       let editedComment = this.comments.reduce((acc, obj) => {
-
         if(obj.id == commentId){
-
           delete obj.editing;
           return obj;
-
         }
-
       }, {});
 
       // Request to edit the comment
@@ -589,43 +613,32 @@ export default {
       let that = this;
 
       this.comments.map((obj, index, arr) => {
-
         if(obj.id == commentId){
-
           obj.content = that.editCommentContent;
           obj.editing = false;
-
         }
-
       });
 
       that.editCommentContent = '';
     },
-    sendCommentNotifications(username){
+    sendCommentNotifications(){
+      let currentUser = this.currentUser;
+      let editorUsersMentioned = this.newComment.usersMentioned.map((obj, index, arr) => {
+        return obj.replace('@','');
+      });
+      // let usersMentioned = this.users.filter((obj, index, arr) => {
+        
+      // })
+
+      let commentNotification = {
+        id: this.getLatestTableId('notifications') + 1,
+        postId: Number(this.$route.params.id),
+        created_at: new Date(),
+        userId: currentUser.id,
+        username: currentUser.username
+      };
       
-      return axios.get(`${this.axiosURL}/users?username=${username}`).then(response => {
-
-              if(Object.keys(response.data).length > 0){
-
-                let commentUser = response.data;
-
-                let commentNotification = {
-                  id: this.getLatestTableId('notifications') + 1,
-                  postId: Number(this.$route.params.id),
-                  created_at: new Date(),
-                  userId: commentUser.id,
-                  username: commentUser.username
-                };
-
-                axios.post(`${this.notificationsURL}/notification`, commentNotification)
-                  .then((response) => {
-                    this.$store.dispatch('setNewNotification', true);
-                    this.dynamicToastr({title: "Notification send", msg: '', type: 'success' });
-                });
-
-              }
-
-            });
+      return axios.post(`${this.expressNodeURL}/notification`, commentNotification);
     },
     deleteComment(commentId){
       let that = this;
@@ -669,13 +682,7 @@ export default {
       })
     },
     setUserActivity(activityObj){
-        axios.post(`${this.axiosURL}/activity`, activityObj)
-          .then(response => {
-            // console.log('Success')
-          })
-          .catch(error => {
-            console.error("Error on activity request", error);
-          })
+      return axios.post(`${this.axiosURL}/activity`, activityObj);
     },
     goBack(){
       this.$router.go(-1);

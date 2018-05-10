@@ -16,62 +16,68 @@
               Home
             </router-link>
           </li>
-          <li class="nav-item active" v-if="!userLogged">
-            <router-link class="nav-link" to="/register">Register</router-link>
-          </li>
-          <li class="nav-item active" v-if="!userLogged">
-            <router-link class="nav-link" to="/login">
-              <AppIcon iconName="sign-in" />
-              Log in
-            </router-link>
-          </li>
-          <!-- If new notification arrived -->
-          <!-- <li class="nav-item active" v-if="userLogged">
-            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown"
-               v-if="counterNewNotifications > 0">
-              Notifications <span class="badge badge-primary">{{ counterNewNotifications }}</span>
-            </a>
-            <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" 
-               v-else>
-              Notifications
-            </a>
-            <div class="dropdown-menu" aria-labelledby="notificationDropdown">
-              <span v-if="commentNotifications.length > 0">
-                <span v-for="(notification, index) in commentNotifications" :key="index">
-                  <router-link class="dropdown-item" :to="'/post/' + notification.postId">
-                    You were mention by {{ notification.username }} in a post
-                  </router-link>
+          <!-- Not Logged in actions -->
+          <template v-if="!userLogged">
+            <li class="nav-item active">
+              <router-link class="nav-link" to="/register">Register</router-link>
+            </li>
+            <li class="nav-item active">
+              <router-link class="nav-link" to="/login">
+                <AppIcon iconName="sign-in" />
+                Log in
+              </router-link>
+            </li>
+          </template>
+          <!-- Notifications And User Actions When Logged -->
+          <template v-if="userLogged">
+            <!-- If new notification arrived -->
+            <li class="nav-item active" >
+              <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown"
+                v-if="counterNewNotifications > 0">
+                Notifications <span class="badge badge-primary">{{ counterNewNotifications }}</span>
+              </a>
+              <a class="nav-link dropdown-toggle" href="#" id="notificationDropdown" role="button" data-toggle="dropdown" 
+                v-else>
+                Notifications
+              </a>
+              <div class="dropdown-menu" aria-labelledby="notificationDropdown">
+                <span v-if="commentNotifications.length > 0">
+                  <span v-for="(notification, index) in commentNotifications" :key="index">
+                    <router-link class="dropdown-item" :to="'/post/' + notification.postId">
+                      You were mention by {{ notification.username }} in a post
+                    </router-link>
+                  </span>
                 </span>
-              </span>
-              <a href="#" class="dropdown-item" v-else>
-                  No mention!
+                <a href="#" class="dropdown-item" v-else>
+                    No mention!
+                </a>
+              </div>
+            </li>
+            <li class="nav-item dropdown active">
+              <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-toggle="dropdown">
+                {{ userFullName }}
               </a>
-            </div>
-          </li> -->
-          <li class="nav-item dropdown active" v-if="userLogged">
-            <a class="nav-link dropdown-toggle" href="#" id="loginDropdown" role="button" data-toggle="dropdown">
-              {{ userFullName }}
-            </a>
-            <div class="dropdown-menu" aria-labelledby="loginDropdown">
-              <router-link class="dropdown-item" :to="'/profile/' + user.username">
-                <AppIcon iconName="user" class="fa-lg" />
-                Profile
-              </router-link>
-              <router-link class="dropdown-item" :to="'/myposts/' + user.id">
-                <AppIcon iconName="th-list" />
-                Posts
-              </router-link>
-              <router-link class="dropdown-item" to="/settings">
-                <AppIcon iconName="cogs" />
-                Settings
-              </router-link>
-              <div class="dropdown-divider"></div>
-              <a class="dropdown-item pointer" @click="logOut">
-                <AppIcon iconName="sign-out" />
-                Log out
-              </a>
-            </div>
-        </li>
+              <div class="dropdown-menu" aria-labelledby="loginDropdown">
+                <router-link class="dropdown-item" :to="'/profile/' + user.username">
+                  <AppIcon iconName="user" class="fa-lg" />
+                  Profile
+                </router-link>
+                <router-link class="dropdown-item" :to="'/myposts/' + user.id">
+                  <AppIcon iconName="th-list" />
+                  Posts
+                </router-link>
+                <router-link class="dropdown-item" to="/settings">
+                  <AppIcon iconName="cogs" />
+                  Settings
+                </router-link>
+                <div class="dropdown-divider"></div>
+                <a class="dropdown-item pointer" @click="logOut">
+                  <AppIcon iconName="sign-out" />
+                  Log out
+                </a>
+              </div>
+            </li>
+          </template>          
         </ul>
       </div>
     </div>
@@ -79,59 +85,39 @@
 </template>
 <script>
 import { mapGetters } from 'vuex';
-import Pusher from 'pusher-js';
 
 export default {
   name: 'NavbarComponent',
   data(){
     return{
-      notificationURL: this.expressURL(),
+      expressNodeURL: this.expressURL(),
       axiosURL: this.requestURL(),
       counterNewNotifications: 0,
       commentNotifications: [],
       user: {},
       userLogged: false,
-
     }
   },
   computed:{
     userFullName(){
       return this.user.firstName + " " + this.user.lastName
-    },
-    // ...mapGetters({
-    //   // newNotification: 'getNewNotification'
-    // })
+    }
   },
   watch: {
     getCurrentUser(newVal, oldVal){
       this.user = this.getCurrentUser;
     }
-    // newNotification(newVal, oldVal){
-    //   console.log(newVal);
-    //   if(newVal){
-    //     this.subscribe();
-    //     this.$store.dispatch('setNewNotification', false);
-    //   }
-    // }
-  },
-  created () {
-    // this.subscribe();
   },
   mounted(){
-    //Execute this when app initialize
-    this.checkForPreviousLoggedUser();
+    //Execute this when app renders
+    this.setInitialData();
   },
   methods:{
-    // subscribe(){
-    //   // Pusher methods! 
-    //   let pusher = new Pusher('f9a2f81061f58802038f', { cluster: 'mt1' });
-    //   pusher.subscribe('private-notifications');
-    //   pusher.bind('notification_added', data => {
-    //     this.commentNotifications.unshift(data.content);
-    //     console.log(this.commentNotifications);
-    //   });
-
-    // },
+    setInitialData(){
+      this.checkForPreviousLoggedUser();
+      this.getUserNotifications();
+      this.subscribeNotificationChannel();
+    },
     checkForPreviousLoggedUser(){
       //Execute this when app initialize
       let currentUser = this.getWebStorageCurrentUser();
@@ -142,6 +128,7 @@ export default {
 
         // Set userLogged state to true
         this.setUserLogged();
+
       }
     },
     currentUserLoggedState(newVal){
@@ -161,6 +148,31 @@ export default {
         this.userLogged = this.getUserLogged;
       }
     },
+    // Notifications methods
+    subscribeNotificationChannel(){
+      let mentionNotifChannel = pusher.subscribe('notifications');
+
+      mentionNotifChannel.bind('notification_added', data => {
+        if(this.currentUser.id == data.notification.userId){
+          console.log(data, data.notification);
+          this.saveNewNotification(data);
+        }
+      });
+    },
+    getUserNotifications(){
+      axios.get(`${this.axiosURL}/notifications?userId=${this.user.id}`)
+            .then(response => {
+              this.commentNotifications = response.data;
+            });
+    },
+    saveNewNotification(notification){
+      axios.post(`${this.axiosURL}/notifications`, notification)
+           .then(response => {
+             this.getUserNotifications();
+             this.dynamicToastr({ title: 'New notification', msg: '', type: 'success' });
+           })
+    },
+    // Auth method
     logOut(){
       // Clean from WebStorage
       this.removeWebStorageCurrentUser();

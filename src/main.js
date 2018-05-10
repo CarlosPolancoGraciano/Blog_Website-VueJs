@@ -4,7 +4,7 @@ import router from './router/router';
 import store from './store/store';
 
 // All apps global settings are from here
-import './settings';
+import './config';
 
 Vue.config.productionTip = false;
 

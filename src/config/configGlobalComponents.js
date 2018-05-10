@@ -15,6 +15,7 @@ import VuePaginate from 'vue-paginate';
 import VueToastr from '@deveodk/vue-toastr';
 // My own components
 import AppIcon from '../components/app/AppIcon.vue';
+// import AppFilter from '../components/app/AppFilter.vue';
 
 /* Setting Vue Froala Component */
 require('froala-editor/js/froala_editor.pkgd.min')

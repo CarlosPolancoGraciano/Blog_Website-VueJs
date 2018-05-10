@@ -60,7 +60,7 @@
             <div class="row">
               <div class="col-4 offset-md-4">
                 <!-- User Image -->
-                <router-link :to="'/profile/' + post.username">
+                <router-link @click.native="saveFilterValVuex" :to="'/profile/' + post.username">
                   <img class="img-fluid rounded-circle mx-auto d-block" 
                         :src="expressNodeURL + '/' + post.avatar" 
                         :alt="post.username + ' Profile picture'"
@@ -79,7 +79,7 @@
             </div>
 
             <!-- Post Title -->
-            <router-link :to="'/post/' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>
+            <router-link @click.native="saveFilterValVuex" :to="'/post/' + post.id" class="text-muted"><h2 class="card-title">{{ post.title }}</h2></router-link>
 
             <!-- Post Content (Limit to 200 characters) -->
             <p class="card-text">
@@ -89,19 +89,19 @@
             <!-- Post Button Actions -->
             <div class="btn-group" role="group" aria-label="Post owner button" v-if="currentUser.id === post.userId && userLogged">
               <!-- See more Post Content if post owner is logged in -->
-              <router-link :to="'/post/' + post.id" class="btn btn-primary">
+              <router-link @click.native="saveFilterValVuex" :to="'/post/' + post.id" class="btn btn-primary">
                 Read More 
                 <AppIcon iconName="eye" />
               </router-link>
               <!-- Edit Post Content -->
-              <router-link :to="'/editpost/' + post.id" class="btn btn-warning">
+              <router-link @click.native="saveFilterValVuex" :to="'/editpost/' + post.id" class="btn btn-warning">
                 <AppIcon iconName="pencil-square-o" /> 
                 Edit post
               </router-link>
             </div>
             <div v-else>
               <!-- See more Post Content -->
-              <router-link :to="'/post/' + post.id" class="btn btn-primary">
+              <router-link @click.native="saveFilterValVuex" :to="'/post/' + post.id" class="btn btn-primary">
                 Read More 
                 <AppIcon iconName="eye" />
               </router-link>
@@ -113,12 +113,12 @@
             <div class="row">
               <div class="col-6">
                 <!-- More information of the post -->
-                Posted on <router-link :to="'/post/' + post.id">
+                Posted on <router-link @click.native="saveFilterValVuex" :to="'/post/' + post.id">
                             <span>{{ post.date | transformPostDates }}</span>
                           </router-link> 
                 by
                 <!-- Redirect to Post Owner Profile  -->
-                <router-link :to="'/profile/' + post.username" class="text-muted">
+                <router-link @click.native="saveFilterValVuex" :to="'/profile/' + post.username" class="text-muted">
                 <!-- Post Owner Username  -->
                   {{ post.username }}
                 </router-link> - <span>{{ post.edited | returnEditedMode }}</span>
@@ -132,7 +132,7 @@
                     <span><i class="fa fa-heart"></i>&nbsp;{{ returnLikesAmount(post.id) }}</span>
                     &nbsp;
                     <!-- Redirect to the post -->
-                    <router-link :to="'/post/' + post.id" class="text-muted">
+                    <router-link @click.native="saveFilterValVuex" :to="'/post/' + post.id" class="text-muted">
                       <span>
                         <i class="fa fa-comments"></i>
                         <!-- Total Comments -->
@@ -169,7 +169,7 @@
 export default {
   name: 'HomePostsComponent',
   filters:{
-     transformPostDates(date){
+    transformPostDates(date){
       return moment(date).format('MMMM Do YYYY');
     },
     returnEditedMode(wasEdited){
@@ -206,15 +206,14 @@ export default {
         dateRangeOne: null,
         dateRangeTwo: null,
         filterTxt: '',
-        selectedFilter: 'All options',
+        selectedFilter: 'All options'
       },
       filterOptions: ['All options', 'Author', 'Title', 'Content', 'Date'],
-      
     }
   },
-  computed: {
+  computed:{
     inputDisabled(){
-      return this.filter.selectedFilter === 'All options' ? true : false;
+      return this.filter.selectedFilter === this.filterOptions[0] ? true : false;
     },
     filterPosts(){
       let posts = this.posts;
@@ -244,7 +243,8 @@ export default {
       }
 
       
-      if (this.filter.selectedFilter !== 'All options') {
+      if (this.filter.selectedFilter !== this.filterOptions[0]) {
+
         posts = this.posts.filter((post, index, postArr) => {
           // If posts will be filtered for dates
           if(queryVal === 'date'){
@@ -260,6 +260,7 @@ export default {
           // return post[queryVal].indexOf(this.filter.filterTxt) !== -1;
           return post[queryVal].includes(this.filter.filterTxt);
         });
+
       }
 
       return posts;
@@ -282,6 +283,7 @@ export default {
       deep: true
     }
   },
+  // Vue js lifecycle Hooks
   mounted(){
     this.getAllPosts();
     this.checkFilterData();
@@ -319,28 +321,6 @@ export default {
     checkUserLoggedInfo(){
       this.userLogged = this.getUserLogged;
       this.currentUser = this.getCurrentUser;
-    },
-    checkFilterData(){
-      // Set filter value to vuex saved value
-
-      // Computed comes from mixin
-      let vuexFilter = this.getFilterVals;
-
-      // Check if vuexFilter object is not empty
-      if(Object.keys(vuexFilter).length > 0){
-        // If object is not empty, 
-        // save in component the vuex filter value
-        this.filter = vuexFilter;
-      }
-    },
-    getFilterPosts(){
-      if(this.filter.selectedFilter !== 'All options'){
-         if(this.filterPosts.length > 0){
-            this.$refs.paginator.goToPage(1);
-          }
-      }else{
-        this.getAllPosts();
-      }
     },
     deletePost(postId){
       let that = this;
@@ -381,27 +361,52 @@ export default {
       return String(postContent).substring(0, 199);
     },
     returnLikesAmount(postId){
-      let likesQuantity = [];
-      axios.get(`${this.axiosURL}/likes?postId=${postId}`)
-           .then((response) => { 
-             if(response.data.length > 0){
-               likesQuantity = response.data;
-               return;
-             }
-           })
-           .catch((error) => { 
-             if(error.response.status === 404){
-               likesQuantity = [];
-               return;
-             } 
-           });
-      return likesQuantity.length;
+      // let likesQuantity = [];
+      // axios.get(`${this.axiosURL}/likes?postId=${postId}`)
+      //      .then((response) => { 
+      //        if(response.data.length > 0){
+      //          likesQuantity = response.data;
+      //          return;
+      //        }
+      //      })
+      //      .catch((error) => { 
+      //        if(error.response.status === 404){
+      //          likesQuantity = [];
+      //          return;
+      //        } 
+      //      });
+      // return likesQuantity.length;
     },
     returnCommentsAmount(postId){
-      let comments = axios.get(`${this.axiosURL}/comments?postId=${postId}`)
-        .then(response => { 
-          return response.data.length;
-        });
+      // let comments = axios.get(`${this.axiosURL}/comments?postId=${postId}`)
+      //   .then(response => { 
+      //     return response.data.length;
+      //   });
+    },
+    checkFilterData(){
+      // Set filter value to vuex saved value
+
+      // Computed comes from mixin
+      let vuexFilter = this.getFilterVals;
+
+      // Check if vuexFilter object is not empty
+      if(Object.keys(vuexFilter).length > 0){
+        // If object is not empty, 
+        // save in component the vuex filter value
+        this.filter = vuexFilter;
+      }
+    },
+    getFilterPosts(){
+      if(this.filter.selectedFilter !== this.filterOptions[0]){
+         if(this.filterPosts.length > 0){
+            this.$refs.paginator.goToPage(1);
+          }
+      }else{
+        this.getAllPosts();
+      }
+    },
+    saveFilterVuex(){
+      this.setFilterInVuex(this.filter);
     }
   }
 }

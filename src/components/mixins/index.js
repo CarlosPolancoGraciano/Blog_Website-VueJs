@@ -75,19 +75,6 @@ const GLOBAL = {
                               position: 'toast-bottom-right', 
                               type: toastrObj.type });
         },
-        /* Used to filter information from api */
-        debounced(delay, fn) {
-            let timerId;
-            return function (...args) {
-              if (timerId) {
-                clearTimeout(timerId);
-              }
-              timerId = setTimeout(() => {
-                fn(...args);
-                timerId = null;
-              }, delay);
-            }
-        }
     }
 }
  

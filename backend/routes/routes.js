@@ -38,14 +38,18 @@ let appRouter = function (app) {
 
   /* REQUESTS */
 
+  // App Requests
+
   // Save images locally
-  app.post('/upload', upload.single('avatar'), function(req, res){
+  app.post('/upload', upload.single('avatar'), (req, res) => {
     return res.json({ message: 'Post Arrived',  filename: req.file.filename});
   });
+
+  /* Pusher requests */
  
   // Send notifications
   app.post('/notification', (req, res) => {
-    pusher.trigger('notifications', 'notification_added', {notification: req.body});
+    pusher.trigger('notifications', 'notification_added', {"notification": req.body});
     console.log(req.body);
     res.status(200).send();
   });
