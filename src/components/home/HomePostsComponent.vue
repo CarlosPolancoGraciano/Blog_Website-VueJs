@@ -283,10 +283,15 @@ export default {
       deep: true
     }
   },
-  // Vue js lifecycle Hooks
+  /* Vue js Lifecycle hooks */
   mounted(){
     this.getAllPosts();
-    this.checkFilterData();
+  },
+  /* Vue-Router in-component Lifecycle hook */
+  beforeRouteLeave(to, from, next){
+    console.log('Im in the router lifecycle hook');
+    this.setFilterInVuex();
+    next();
   },
   methods:{
     getAllPosts(){
@@ -314,6 +319,7 @@ export default {
               this.posts = resultArray.reverse();
 
               this.checkUserLoggedInfo();
+              this.checkFilterData();
             });
             
           });
