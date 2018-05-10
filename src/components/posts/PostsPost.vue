@@ -85,7 +85,7 @@
                         <at :members="users"
                             name-key="username" 
                             v-model="vueAtContent">
-                          <template slot="item" scope="s">
+                          <template slot="item" slot-scope="s">
                             <!-- <img :src="expressNodeURL + '/' + s.item.avatar"
                                  class="img-responsive"
                                  width="25" height="25"> -->
@@ -171,7 +171,7 @@
                                 <b-form @submit.prevent="editComment(comment.id)">
                                   <div class="form-group text-left">
                                     <at :members="users" name-key="username">
-                                      <template slot="item" scope="s">
+                                      <template slot="item" slot-scope="s">
                                         <img :src="expressNodeURL + '/' + s.item.avatar">
                                         <span v-text="s.item.username"></span>
                                       </template>
@@ -281,6 +281,9 @@ export default {
       }
     }
   },
+  computed:{
+
+  },
   watch:{
     getUserLogged(newVal, oldVal){
       this.userLogged = this.getUserLogged;
@@ -294,14 +297,31 @@ export default {
     newComment: {
       handler(newVal){
         if(newVal.content != ''){
-          let userMentioned = newVal.content.match(/@\w+/gim);
-          this.newComment.usersMentioned = userMentioned != null ? userMentioned : [];
+          // Obtain All Raw Mentioned Users
+          let textUserMentioned = newVal.content.match(/@(\w+)/gim);
+          let usersMentionedInfo = null;
+
+          if(textUserMentioned){
+            // Remove all @ characters in text
+            const USERS_MENTIONED = textUserMentioned.map(mentioned => mentioned.replace('@',''));
+
+            // Retrieve mentioned users data from user property
+            usersMentionedInfo = this.users.reduce((acumulator, value, index) => {
+              // Obtain dynamically all users mentioned usernames captured
+              let currentUserMentioned = USERS_MENTIONED[index];
+
+              //If user vue property is equal to a currentUserMentioned then push it to save it
+              if ([currentUserMentioned].includes(value.username)) { 
+                acumulator.push(value.id)
+              } 
+              
+              return acumulator;
+            }, [])
+
+          }
+
+          this.newComment.usersMentionedInfo = usersMentionedInfo ? usersMentionedInfo : [];
           console.log("User mentioned", this.newComment);
-          let test = userMentioned.map((obj, index, arr) => {
-            return obj.replace('@','');
-          });
-          console.log("Users mentioned with no @", test);
-          
         }
       },
       deep: true
@@ -523,7 +543,7 @@ export default {
       
       if(Object.keys(this.currentUser).length > 0 && this.userLogged){
         if(this.newComment.content !== ''){
-          let isNewNotification = this.newComment.usersMentioned.length > 0 ? true : false;
+          let isNewNotification = this.newComment.usersMentionedInfo.length > 0 ? true : false;
 
           let commentActivity = { 
             id: this.getLatestTableId('activity') + 1, 
@@ -623,19 +643,18 @@ export default {
     },
     sendCommentNotifications(){
       let currentUser = this.currentUser;
-      let editorUsersMentioned = this.newComment.usersMentioned.map((obj, index, arr) => {
-        return obj.replace('@','');
-      });
-      // let usersMentioned = this.users.filter((obj, index, arr) => {
-        
-      // })
 
       let commentNotification = {
         id: this.getLatestTableId('notifications') + 1,
-        postId: Number(this.$route.params.id),
+        // postId: Number(this.$route.params.id),
+        posts: this.posts,
+        mentionedUsersId: this.newComment.usersMentionedInfo,
+        commentOwner: {
+          id: currentUser.id,
+          username: currentUser.username
+        },
         created_at: new Date(),
-        userId: currentUser.id,
-        username: currentUser.username
+        updated_at: ''
       };
       
       return axios.post(`${this.expressNodeURL}/notification`, commentNotification);

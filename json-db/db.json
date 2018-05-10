@@ -94,9 +94,9 @@
     },
     {
       "id": 4,
-      "content": "<p>@CarlosPolanco asdasdasda</p>",
+      "content": "<p>@CarlosPolanco Que tal tu vida?</p>",
       "postId": 5,
-      "created_at": "2018-05-10T05:17:52.665Z",
+      "created_at": "2018-05-10T23:43:41.647Z",
       "user": {
         "id": 1,
         "email": "carlosfollows@gmail.com",
@@ -312,6 +312,44 @@
       "id": 13,
       "type": "comment",
       "created_at": "2018-05-10T05:17:52.665Z",
+      "postId": 5,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
+    },
+    {
+      "id": 14,
+      "type": "comment",
+      "created_at": "2018-05-10T23:42:51.981Z",
+      "postId": 5,
+      "user": {
+        "id": 1,
+        "email": "carlosfollows@gmail.com",
+        "password": "walkman06",
+        "active": true,
+        "hash": "",
+        "username": "CarlosPolanco",
+        "firstName": "Carlos Daniel",
+        "lastName": "Polanco Ortega",
+        "description": "Hi! I'm Carlos a funny guy",
+        "avatar": "avatar-1525449081140.jpeg",
+        "isPublic": "false"
+      }
+    },
+    {
+      "id": 15,
+      "type": "comment",
+      "created_at": "2018-05-10T23:43:41.646Z",
       "postId": 5,
       "user": {
         "id": 1,

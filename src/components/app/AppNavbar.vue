@@ -131,6 +131,12 @@ export default {
 
       }
     },
+    getUserNotifications(){
+      axios.get(`${this.axiosURL}/notifications?userId=${this.user.id}`)
+            .then(response => {
+              this.commentNotifications = response.data.length > 0 ? response.data : [];
+            });
+    },
     currentUserLoggedState(newVal){
       if(newVal){
         this.saveUserLoggedInfo();
@@ -152,25 +158,23 @@ export default {
     subscribeNotificationChannel(){
       let mentionNotifChannel = pusher.subscribe('notifications');
 
-      mentionNotifChannel.bind('notification_added', data => {
-        if(this.currentUser.id == data.notification.userId){
-          console.log(data, data.notification);
-          this.saveNewNotification(data);
-        }
+      mentionNotifChannel.bind('notification_added', (data) => {
+        this.saveNewNotification(data);
       });
     },
-    getUserNotifications(){
-      axios.get(`${this.axiosURL}/notifications?userId=${this.user.id}`)
-            .then(response => {
-              this.commentNotifications = response.data;
-            });
-    },
-    saveNewNotification(notification){
-      axios.post(`${this.axiosURL}/notifications`, notification)
-           .then(response => {
-             this.getUserNotifications();
-             this.dynamicToastr({ title: 'New notification', msg: '', type: 'success' });
-           })
+    
+    saveNewNotification(data){
+      data.mentionedUsersId.filter((id, index, arr) => {
+        console.log(id);
+      })
+      // if(this.currentUser.id == data.notification.commentOwner.id){
+      //     console.log(data, data.notification);
+      // }
+      // axios.post(`${this.axiosURL}/notifications`, notification)
+      //      .then(response => {
+      //        this.getUserNotifications();
+      //        this.dynamicToastr({ title: 'New notification arrived!', msg: '', type: 'success' });
+      //      })
     },
     // Auth method
     logOut(){
