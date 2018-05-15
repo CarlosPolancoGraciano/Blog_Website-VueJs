@@ -13,6 +13,8 @@ import 'vue-loading-overlay/dist/vue-loading.min.css';
 import VuePaginate from 'vue-paginate';
 // Vue toastr
 import VueToastr from '@deveodk/vue-toastr';
+// Vue Notify Me
+import Notify from 'vue-notify-me';
 // My own components
 import AppIcon from '../components/app/AppIcon.vue';
 // import AppFilter from '../components/app/AppFilter.vue';
@@ -32,6 +34,9 @@ Vue.use(VueToastr,{ defaultPosition: 'toast-bottom-left' });
 
 /* Setting Vue-Paginate */
 Vue.use(VuePaginate);
+
+/* Setting Vue-Notify-Me */
+Vue.component('notify-me', Notify);
 
 /* Setting Vue-Loading-Overlay Component */
 Vue.component('loading', Loading);

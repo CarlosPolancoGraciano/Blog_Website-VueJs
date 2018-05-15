@@ -85,11 +85,13 @@
 </template>
 <script>
 import { mapGetters } from 'vuex';
+import { eventBus } from '../../eventBus/EventBus';
 
 export default {
   name: 'NavbarComponent',
   data(){
     return{
+      eventBus,
       expressNodeURL: this.expressURL(),
       axiosURL: this.requestURL(),
       counterNewNotifications: 0,
@@ -160,6 +162,8 @@ export default {
 
       mentionNotifChannel.bind('notification_added', (data) => {
         this.saveNewNotification(data);
+        data.title = "New Notification Arrived";
+        this.eventBus.$emit('notify-me', data);
       });
     },
     
